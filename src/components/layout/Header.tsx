@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, LogIn, ChevronDown } from 'lucide-react';
+import { LogOut, LogIn, ChevronDown, Activity, LayoutDashboard, Eye } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -12,27 +13,20 @@ const Header: React.FC = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Determine current view based on URL
   const currentView = location.pathname.startsWith('/kundenansicht') ? 'customer' : 'admin';
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleViewChange = (view: 'admin' | 'customer') => {
-    if (view === 'admin') {
-      navigate('/admin/dashboard');
-    } else {
-      navigate('/kundenansicht');
-    }
+    navigate(view === 'admin' ? '/admin/dashboard' : '/kundenansicht');
   };
 
   const handleLogout = () => {
@@ -41,69 +35,94 @@ const Header: React.FC = () => {
     navigate('/kundenansicht');
   };
 
-  const handleLogin = () => {
-    navigate('/login');
+  // Initialen aus dem Namen generieren
+  const getInitials = (name?: string) => {
+    if (!name) return 'A';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   return (
-    <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
-      <h1 className="text-2xl font-bold bg-gradient-to-r from-sky-500 to-cyan-400 bg-clip-text text-transparent cursor-default">
-        Gentle Track
-      </h1>
-      <div className="flex items-center gap-2 flex-wrap justify-center">
-        {/* Show admin view button only if authenticated */}
+    <header className="bg-white/95 backdrop-blur-sm border-b border-border px-5 py-3 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+      {/* Logo */}
+      <button
+        onClick={() => navigate(isAuthenticated ? '/admin/dashboard' : '/kundenansicht')}
+        className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+      >
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
+          <Activity className="w-4 h-4 text-primary-foreground" />
+        </div>
+        <span className="font-bold text-lg text-foreground tracking-tight">Gentle Track</span>
+      </button>
+
+      {/* Navigation */}
+      <div className="flex items-center gap-1.5">
         {isAuthenticated && (
-          <Button
-            variant={currentView === 'admin' ? 'default' : 'ghost'}
-            size="sm"
-            className={currentView === 'admin' ? 'bg-sky-500 hover:bg-sky-600 text-white' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}
+          <button
             onClick={() => handleViewChange('admin')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+              currentView === 'admin'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+            )}
           >
-            Admin-Bereich
-          </Button>
+            <LayoutDashboard className="w-3.5 h-3.5" />
+            Admin
+          </button>
         )}
 
-        <Button
-          variant={currentView === 'customer' ? 'default' : 'ghost'}
-          size="sm"
-          className={currentView === 'customer' ? 'bg-sky-500 hover:bg-sky-600 text-white' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}
+        <button
           onClick={() => handleViewChange('customer')}
+          className={cn(
+            'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+            currentView === 'customer'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+          )}
         >
+          <Eye className="w-3.5 h-3.5" />
           Kundenansicht
-        </Button>
+        </button>
 
-        {/* Show profile dropdown if authenticated, otherwise show login */}
+        <div className="w-px h-5 bg-border mx-1" />
+
         {isAuthenticated ? (
           <div className="relative" ref={dropdownRef}>
             <button
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
               onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-accent transition-all duration-200"
             >
-              <User className="w-4 h-4" />
-              <span className="text-sm font-medium">{admin?.name}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-xs font-bold text-primary">{getInitials(admin?.name)}</span>
+              </div>
+              <span className="text-sm font-medium text-foreground hidden sm:block max-w-[120px] truncate">
+                {admin?.name}
+              </span>
+              <ChevronDown className={cn('w-3.5 h-3.5 text-muted-foreground transition-transform duration-200', showDropdown && 'rotate-180')} />
             </button>
 
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-56 rounded-lg border border-slate-200 bg-white shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="p-3 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center">
-                      <User className="w-4 h-4 text-sky-600" />
+              <div className="absolute right-0 mt-2 w-60 rounded-xl border border-border bg-white shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="p-3.5 border-b border-border/60">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-primary">{getInitials(admin?.name)}</span>
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-slate-900">{admin?.name}</div>
-                      <div className="text-xs text-slate-500">{admin?.email}</div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-foreground truncate">{admin?.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">{admin?.email}</div>
                     </div>
                   </div>
                 </div>
-                <button
-                  className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="w-4 h-4" />
-                  Abmelden
-                </button>
+                <div className="p-1.5">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/8 rounded-lg transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Abmelden
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -111,15 +130,15 @@ const Header: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            onClick={handleLogin}
+            className="text-muted-foreground hover:text-foreground"
+            onClick={() => navigate('/login')}
           >
-            <LogIn className="w-4 h-4 mr-1.5" />
+            <LogIn className="w-3.5 h-3.5 mr-1.5" />
             Login
           </Button>
         )}
       </div>
-    </div>
+    </header>
   );
 };
 

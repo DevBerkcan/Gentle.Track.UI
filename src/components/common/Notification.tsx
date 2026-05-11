@@ -1,8 +1,7 @@
 // src/components/common/Notification.tsx
 import { useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface NotificationProps {
   type: 'success' | 'error' | 'warning' | 'info';
@@ -11,46 +10,63 @@ interface NotificationProps {
   duration?: number;
 }
 
-const Notification: React.FC<NotificationProps> = ({
-  type,
-  message,
-  onClose,
-  duration = 3000
-}) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, duration);
+const config = {
+  success: {
+    icon: CheckCircle2,
+    classes: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+    iconClass: 'text-emerald-500',
+    bar: 'bg-emerald-500',
+  },
+  error: {
+    icon: XCircle,
+    classes: 'bg-rose-50 border-rose-200 text-rose-800',
+    iconClass: 'text-rose-500',
+    bar: 'bg-rose-500',
+  },
+  warning: {
+    icon: AlertTriangle,
+    classes: 'bg-amber-50 border-amber-200 text-amber-800',
+    iconClass: 'text-amber-500',
+    bar: 'bg-amber-500',
+  },
+  info: {
+    icon: Info,
+    classes: 'bg-primary/5 border-primary/20 text-primary',
+    iconClass: 'text-primary',
+    bar: 'bg-primary',
+  },
+};
 
+const Notification: React.FC<NotificationProps> = ({ type, message, onClose, duration = 3500 }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, duration);
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const iconMap = {
-    success: <CheckCircle className="w-12 h-12 text-emerald-500" />,
-    error: <XCircle className="w-12 h-12 text-red-500" />,
-    warning: <AlertTriangle className="w-12 h-12 text-amber-500" />,
-    info: <Info className="w-12 h-12 text-blue-500" />
-  };
-
-  const bgMap = {
-    success: 'border-t-4 border-t-emerald-500',
-    error: 'border-t-4 border-t-red-500',
-    warning: 'border-t-4 border-t-amber-500',
-    info: 'border-t-4 border-t-blue-500'
-  };
+  const { icon: Icon, classes, iconClass, bar } = config[type];
 
   return (
-    <Dialog open={true} onOpenChange={() => onClose()}>
-      <DialogContent className={`max-w-sm text-center ${bgMap[type]}`}>
-        <div className="flex flex-col items-center gap-4 py-4">
-          {iconMap[type]}
-          <p className="text-sm text-foreground">{message}</p>
-          <Button variant="secondary" size="sm" onClick={onClose}>
-            Schließen
-          </Button>
+    <div className="fixed top-5 right-5 z-[100] animate-in slide-in-from-top-2 fade-in duration-300">
+      <div className={cn('flex items-start gap-3 p-4 rounded-xl border shadow-lg max-w-sm min-w-[280px]', classes)}>
+        <div className={cn('w-5 h-5 mt-0.5 shrink-0', iconClass)}>
+          <Icon className="w-5 h-5" />
         </div>
-      </DialogContent>
-    </Dialog>
+        <p className="text-sm font-medium flex-1 leading-snug">{message}</p>
+        <button onClick={onClose} className="opacity-60 hover:opacity-100 transition-opacity shrink-0 mt-0.5">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      {/* Fortschrittsbalken */}
+      <div className="h-0.5 rounded-b-xl overflow-hidden">
+        <div
+          className={cn('h-full', bar)}
+          style={{ animation: `shrinkWidth ${duration}ms linear forwards` }}
+        />
+      </div>
+      <style>{`
+        @keyframes shrinkWidth { from { width: 100%; } to { width: 0%; } }
+      `}</style>
+    </div>
   );
 };
 

@@ -7,18 +7,18 @@ import { useAuth } from '../../contexts/AuthContext';
 import Notification from '../common/Notification';
 import { formatDate } from '../../utils/dateFormatter';
 import type { Comment, Project } from '../../types';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { MessageSquare, Search, Bell, BellOff, Send, ChevronDown, Plus, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-interface NotificationState {
-  show: boolean;
-  type: 'success' | 'error' | 'warning' | 'info';
-  message: string;
-}
+interface NotificationState { show: boolean; type: 'success' | 'error' | 'warning' | 'info'; message: string; }
 
 interface GroupedComments {
-  [projectId: number]: {
-    project: Project;
-    comments: Comment[];
-  };
+  [projectId: number]: { project: Project; comments: Comment[]; };
 }
 
 const CommentsManagement = () => {
@@ -28,447 +28,207 @@ const CommentsManagement = () => {
   const [groupedComments, setGroupedComments] = useState<GroupedComments>({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Track which project has comment form open
   const [replyingToProject, setReplyingToProject] = useState<number | null>(null);
   const [commentMessages, setCommentMessages] = useState<{ [key: number]: string }>({});
-  
-  // Track which projects are collapsed (hidden)
   const [collapsedProjects, setCollapsedProjects] = useState<{ [key: number]: boolean }>({});
-  
-  // Notification subscriptions
   const [subscriptions, setSubscriptions] = useState<{ [key: number]: boolean }>({});
-  
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: 'info',
-    message: ''
-  });
+  const [notification, setNotification] = useState<NotificationState>({ show: false, type: 'info', message: '' });
 
-  useEffect(() => {
-    if (admin?.email) {
-      console.log('Admin loaded:', admin);
-      loadData();
-    }
-  }, [admin]);
+  useEffect(() => { if (admin?.email) loadData(); }, [admin]);
 
   const loadData = async () => {
-    if (!admin?.email) {
-      console.warn('Admin email not available');
-      return;
-    }
-
+    if (!admin?.email) return;
     try {
       setLoading(true);
-      // Load all projects
       const projectsData = await projectService.getAll();
       setProjects(projectsData);
-
-      // Load comments for all projects
-      const commentsPromises = projectsData.map(p => 
-        commentService.getProjectComments(p.projectID)
-          .catch(() => [])
-      );
-      
-      const allCommentsArrays = await Promise.all(commentsPromises);
+      const allCommentsArrays = await Promise.all(projectsData.map(p => commentService.getProjectComments(p.projectID).catch(() => [])));
       const flatComments = allCommentsArrays.flat();
-      
       setAllComments(flatComments);
-      
-      // Group comments by project
       const grouped: GroupedComments = {};
-      projectsData.forEach((project, index) => {
-        const projectComments = allCommentsArrays[index];
-        if (projectComments.length > 0) {
-          grouped[project.projectID] = {
-            project,
-            comments: projectComments
-          };
-        }
+      projectsData.forEach((project, i) => {
+        if (allCommentsArrays[i].length > 0) grouped[project.projectID] = { project, comments: allCommentsArrays[i] };
       });
-      
       setGroupedComments(grouped);
-
-      // Load notification subscriptions for admin
-      console.log('Loading subscriptions for email:', admin.email);
-      await loadSubscriptions(projectsData);
-    } catch (error) {
-      console.error('Error loading data:', error);
+      const subscriptionStatuses: { [key: number]: boolean } = {};
+      for (const project of projectsData) {
+        try { subscriptionStatuses[project.projectID] = await notificationService.isSubscribed(project.projectID, admin.email); }
+        catch { subscriptionStatuses[project.projectID] = false; }
+      }
+      setSubscriptions(subscriptionStatuses);
+    } catch {
       showNotification('error', 'Fehler beim Laden der Daten');
     } finally {
       setLoading(false);
     }
   };
 
-  const loadSubscriptions = async (projectsData: Project[]) => {
-    if (!admin?.email) {
-      console.warn('No admin email available for loading subscriptions');
-      return;
-    }
-
-    const subscriptionStatuses: { [key: number]: boolean } = {};
-    
-    for (const project of projectsData) {
-      try {
-        const isSubscribed = await notificationService.isSubscribed(project.projectID, admin.email);
-        subscriptionStatuses[project.projectID] = isSubscribed;
-      } catch (error) {
-        console.error(`Error checking subscription for project ${project.projectID}:`, error);
-        subscriptionStatuses[project.projectID] = false;
-      }
-    }
-    
-    console.log('Subscription statuses:', subscriptionStatuses);
-    setSubscriptions(subscriptionStatuses);
-  };
-
   const handleToggleNotification = async (projectId: number) => {
-    if (!admin?.email) {
-      showNotification('error', 'Admin-E-Mail nicht verfügbar. Bitte melden Sie sich erneut an.');
-      console.error('Admin email is not available:', admin);
-      return;
-    }
-
-    console.log('Toggling notification for project:', projectId, 'email:', admin.email);
-
+    if (!admin?.email) return;
     try {
       const result = await notificationService.toggleAdmin(projectId, admin.email);
-      
-      console.log('Toggle result:', result);
-      
-      setSubscriptions(prev => ({
-        ...prev,
-        [projectId]: result.isActive
-      }));
-
-      showNotification(
-        'success',
-        result.isActive 
-          ? '✅ E-Mail-Benachrichtigungen aktiviert' 
-          : '🔕 E-Mail-Benachrichtigungen deaktiviert'
-      );
-    } catch (err: any) {
-      console.error('Error toggling notification:', err);
-      console.error('Error response:', err.response?.data);
-      showNotification('error', 'Fehler beim Ändern der Benachrichtigungseinstellungen');
-    }
+      setSubscriptions(prev => ({ ...prev, [projectId]: result.isActive }));
+      showNotification('success', result.isActive ? 'E-Mail-Benachrichtigungen aktiviert' : 'E-Mail-Benachrichtigungen deaktiviert');
+    } catch { showNotification('error', 'Fehler beim Ändern der Benachrichtigungseinstellungen'); }
   };
 
   const handleSendComment = async (projectId: number) => {
     const message = commentMessages[projectId];
-    
-    if (!message?.trim()) {
-      showNotification('warning', 'Bitte geben Sie eine Nachricht ein');
-      return;
-    }
-
+    if (!message?.trim()) { showNotification('warning', 'Bitte geben Sie eine Nachricht ein'); return; }
     try {
       await commentService.createAdminComment(projectId, message, '');
       showNotification('success', 'Kommentar erfolgreich gesendet!');
-      
-      // Clear message for this project
       setCommentMessages(prev => ({ ...prev, [projectId]: '' }));
       setReplyingToProject(null);
-      
-      // Reload all data
       loadData();
-    } catch (err: any) {
-      showNotification('error', `Fehler beim Senden des Kommentars: ${err.response?.data?.message || err.message}`);
-    }
+    } catch { showNotification('error', 'Fehler beim Senden des Kommentars'); }
   };
 
-  const toggleProjectCollapse = (projectId: number) => {
-    setCollapsedProjects(prev => ({
-      ...prev,
-      [projectId]: !prev[projectId]
-    }));
-  };
+  const showNotification = (type: NotificationState['type'], message: string) => setNotification({ show: true, type, message });
 
-  const showNotification = (type: NotificationState['type'], message: string) => {
-    setNotification({ show: true, type, message });
-  };
-
-  const hideNotification = () => {
-    setNotification({ ...notification, show: false });
-  };
-
-  // Filter comments based on search term
   const getFilteredComments = () => {
     if (!searchTerm) return groupedComments;
-    
     const filtered: GroupedComments = {};
+    const q = searchTerm.toLowerCase();
     Object.entries(groupedComments).forEach(([projectId, data]) => {
-      const matchingComments = data.comments.filter((c: Comment) => 
-        c.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.authorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        data.project.projectName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      
-      if (matchingComments.length > 0) {
-        filtered[parseInt(projectId)] = {
-          project: data.project,
-          comments: matchingComments
-        };
-      }
+      const matchingComments = data.comments.filter(c => c.message.toLowerCase().includes(q) || c.authorName.toLowerCase().includes(q) || data.project.projectName.toLowerCase().includes(q));
+      if (matchingComments.length > 0) filtered[parseInt(projectId)] = { project: data.project, comments: matchingComments };
     });
-    
     return filtered;
   };
 
   const filteredComments = getFilteredComments();
-  const totalComments = allComments.length;
   const customerComments = allComments.filter(c => c.authorType === 'Customer').length;
 
-  if (loading) {
-    return <div className="loading">Lade Kommentare...</div>;
-  }
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <p className="text-sm">Kommentare werden geladen…</p>
+    </div>
+  );
 
   return (
-    <div>
-      <div className="page-header" style={{ marginBottom: '20px' }}>
+    <div className="space-y-6">
+      <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h2 style={{ marginBottom: '10px' }}>Kommentar-Verwaltung</h2>
-          <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ 
-              background: '#3b82f6', 
-              color: 'white', 
-              padding: '4px 12px', 
-              borderRadius: '20px',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}>
-              {totalComments} Gesamt
-            </span>
-            <span style={{ 
-              background: '#06b6d4', 
-              color: 'white', 
-              padding: '4px 12px', 
-              borderRadius: '20px',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}>
-              {customerComments} von Kunden
-            </span>
-            {admin?.email && (
-              <span style={{ 
-                color: '#64748b', 
-                fontSize: '12px'
-              }}>
-                📧 {admin.email}
-              </span>
-            )}
+          <div className="flex items-center gap-2.5 mb-1">
+            <MessageSquare className="w-5 h-5 text-primary" />
+            <h1 className="text-xl font-bold text-foreground">Kommentar-Verwaltung</h1>
           </div>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-md">{allComments.length} gesamt</span>
+            <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md">{customerComments} von Kunden</span>
+          </div>
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input placeholder="Projekt, Autor oder Nachricht…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8 h-8 text-sm w-64" />
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <input
-          type="text"
-          className="filter-input"
-          placeholder="Suchen nach Projekt, Autor oder Nachricht..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '100%' }}
-        />
-      </div>
-
-      {/* Comments List Grouped by Project */}
       {Object.keys(filteredComments).length === 0 ? (
-        <div className="card">
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px',
-            background: '#f8fafc',
-            borderRadius: '8px',
-            border: '2px dashed #cbd5e1'
-          }}>
-            <p style={{ color: '#64748b', fontSize: '16px' }}>
-              {searchTerm ? 'Keine Kommentare gefunden' : 'Noch keine Kommentare vorhanden'}
-            </p>
-          </div>
-        </div>
+        <Card className="border border-border">
+          <CardContent className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
+            <MessageSquare className="w-10 h-10 opacity-30" />
+            <p className="text-sm font-medium">{searchTerm ? 'Keine Kommentare gefunden' : 'Noch keine Kommentare vorhanden'}</p>
+          </CardContent>
+        </Card>
       ) : (
         Object.entries(filteredComments).map(([projectId, data]) => {
           const projectIdNum = parseInt(projectId);
           const isReplying = replyingToProject === projectIdNum;
           const isSubscribed = subscriptions[projectIdNum] || false;
           const isCollapsed = collapsedProjects[projectIdNum] || false;
-          
+
           return (
-            <div key={projectId} className="card" style={{ marginBottom: '20px' }}>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginBottom: isCollapsed ? '0' : '20px',
-                paddingBottom: isCollapsed ? '0' : '15px',
-                borderBottom: isCollapsed ? 'none' : '2px solid #e2e8f0',
-                cursor: 'pointer'
-              }}
-              onClick={() => toggleProjectCollapse(projectIdNum)}
+            <Card key={projectId} className="border border-border shadow-sm overflow-hidden">
+              <CardHeader
+                className={cn('pb-3 cursor-pointer hover:bg-zinc-50 transition-colors', !isCollapsed && 'border-b border-border')}
+                onClick={() => setCollapsedProjects(prev => ({ ...prev, [projectIdNum]: !prev[projectIdNum] }))}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  {/* Collapse/Expand Arrow */}
-                  <span style={{ 
-                    fontSize: '18px',
-                    transition: 'transform 0.2s',
-                    transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-                    display: 'inline-block'
-                  }}>
-                    ▼
-                  </span>
-                  
-                  <div>
-                    <h3 style={{ marginBottom: '5px' }}>
-                      📁 {data.project.projectName}
-                    </h3>
-                    <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
-                      Tracking-Nr: {data.project.trackingNumber} • {data.comments.length} Kommentar{data.comments.length !== 1 ? 'e' : ''}
-                    </p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <ChevronDown className={cn('w-4 h-4 text-muted-foreground transition-transform duration-200 shrink-0', isCollapsed && '-rotate-90')} />
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-foreground truncate">{data.project.projectName}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {data.project.trackingNumber} · {data.comments.length} Kommentar{data.comments.length !== 1 ? 'e' : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      variant={isSubscribed ? 'default' : 'outline'}
+                      className="h-7 text-xs gap-1"
+                      onClick={() => handleToggleNotification(projectIdNum)}
+                    >
+                      {isSubscribed ? <Bell className="w-3 h-3" /> : <BellOff className="w-3 h-3" />}
+                      E-Mail
+                    </Button>
+                    {!isCollapsed && (
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setReplyingToProject(isReplying ? null : projectIdNum)}>
+                        <Plus className="w-3 h-3 mr-1" />Kommentar
+                      </Button>
+                    )}
                   </div>
                 </div>
-                
-                <div 
-                  style={{ display: 'flex', gap: '10px', alignItems: 'center' }}
-                  onClick={(e) => e.stopPropagation()} // Prevent collapse when clicking buttons
-                >
-                  {/* Email Notification Toggle */}
-                  <button
-                    className={`btn btn-small ${isSubscribed ? 'btn-primary' : 'btn-secondary'}`}
-                    onClick={() => handleToggleNotification(projectIdNum)}
-                    title={isSubscribed ? 'E-Mail-Benachrichtigungen deaktivieren' : 'E-Mail-Benachrichtigungen aktivieren'}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '5px'
-                    }}
-                  >
-                    {isSubscribed ? '🔔' : '🔕'} E-Mail
-                  </button>
+              </CardHeader>
 
-                  {/* Add Comment Button */}
-                  {!isCollapsed && (
-                    <button
-                      className="btn btn-success btn-small"
-                      onClick={() => setReplyingToProject(projectIdNum)}
-                    >
-                      ➕ Kommentar hinzufügen
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Collapsible Content */}
               {!isCollapsed && (
-                <>
-                  {/* Inline Comment Form */}
+                <CardContent className="p-4 space-y-3">
                   {isReplying && (
-                    <div
-                      style={{
-                        padding: '20px',
-                        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-                        borderRadius: '12px',
-                        border: '2px solid #0ea5e9',
-                        marginBottom: '20px'
-                      }}
-                    >
-                      <h4 style={{ marginBottom: '15px', color: '#1e293b' }}>
-                        ✍️ Neuer Kommentar als Admin
-                      </h4>
-                      
-                      <div className="form-group">
-                        <label>Ihre Nachricht *</label>
-                        <textarea
-                          placeholder="Kommentar eingeben..."
+                    <div className="border border-primary/20 bg-primary/5 rounded-xl p-4 space-y-3">
+                      <h4 className="text-sm font-semibold text-foreground">Kommentar als Admin hinzufügen</h4>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Nachricht *</Label>
+                        <Textarea
+                          placeholder="Kommentar eingeben…"
                           value={commentMessages[projectIdNum] || ''}
-                          onChange={(e) => setCommentMessages(prev => ({ 
-                            ...prev, 
-                            [projectIdNum]: e.target.value 
-                          }))}
-                          rows={5}
-                          style={{ 
-                            width: '100%',
-                            padding: '12px',
-                            borderRadius: '8px',
-                            border: '2px solid #0ea5e9',
-                            fontSize: '15px',
-                            fontFamily: 'inherit',
-                            resize: 'vertical'
-                          }}
+                          onChange={e => setCommentMessages(prev => ({ ...prev, [projectIdNum]: e.target.value }))}
+                          rows={4}
                         />
                       </div>
-                      
-                      <div style={{ display: 'flex', gap: '10px' }}>
-                        <button 
-                          className="btn btn-success" 
-                          onClick={() => handleSendComment(projectIdNum)}
-                        >
-                          📨 Kommentar senden
-                        </button>
-                        <button 
-                          className="btn btn-secondary" 
-                          onClick={() => {
-                            setReplyingToProject(null);
-                            setCommentMessages(prev => ({ ...prev, [projectIdNum]: '' }));
-                          }}
-                        >
-                          Abbrechen
-                        </button>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => handleSendComment(projectIdNum)}>
+                          <Send className="w-3.5 h-3.5 mr-1.5" />Senden
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => { setReplyingToProject(null); setCommentMessages(prev => ({ ...prev, [projectIdNum]: '' })); }}>Abbrechen</Button>
                       </div>
                     </div>
                   )}
 
-                  {/* Comments List */}
-                  <div className="comments-list">
-                    {data.comments.map((comment: Comment) => (
-                      <div
-                        key={comment.commentID}
-                        style={{
-                          padding: '20px',
-                          background: comment.authorType === 'Admin' ? '#f0f9ff' : '#ecfeff',
-                          borderRadius: '12px',
-                          borderLeft: `4px solid ${comment.authorType === 'Admin' ? '#0ea5e9' : '#06b6d4'}`,
-                          marginBottom: '15px'
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                          <span
-                            style={{
-                              background: comment.authorType === 'Admin' ? '#0ea5e9' : '#06b6d4',
-                              color: 'white',
-                              padding: '4px 12px',
-                              borderRadius: '12px',
-                              fontSize: '12px',
-                              fontWeight: 'bold'
-                            }}
-                          >
-                            {comment.authorType === 'Admin' ? '🔐 ' : '👤 '}{comment.authorName}
-                          </span>
-                          <span style={{ color: '#64748b', fontSize: '14px' }}>
-                            {formatDate(comment.createdAt)}
-                          </span>
+                  {data.comments.map((comment: Comment) => (
+                    <div
+                      key={comment.commentID}
+                      className={cn(
+                        'p-4 rounded-xl border-l-4',
+                        comment.authorType === 'Admin'
+                          ? 'bg-primary/5 border-l-primary'
+                          : 'bg-blue-50/50 border-l-blue-400'
+                      )}
+                    >
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0', comment.authorType === 'Admin' ? 'bg-primary' : 'bg-blue-500')}>
+                          {comment.authorName.charAt(0).toUpperCase()}
                         </div>
-                        <p style={{ fontSize: '16px', color: '#1e293b', margin: 0, whiteSpace: 'pre-wrap' }}>
-                          {comment.message}
-                        </p>
+                        <span className="text-sm font-semibold text-foreground">{comment.authorName}</span>
+                        <span className={cn('text-xs px-2 py-0.5 rounded-full', comment.authorType === 'Admin' ? 'bg-primary/10 text-primary' : 'bg-blue-100 text-blue-700')}>
+                          {comment.authorType === 'Admin' ? 'Admin' : 'Kunde'}
+                        </span>
+                        <span className="text-xs text-muted-foreground ml-auto">{formatDate(comment.createdAt)}</span>
                       </div>
-                    ))}
-                  </div>
-                </>
+                      <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{comment.message}</p>
+                    </div>
+                  ))}
+                </CardContent>
               )}
-            </div>
+            </Card>
           );
         })
       )}
 
-      {notification.show && (
-        <Notification
-          type={notification.type}
-          message={notification.message}
-          onClose={hideNotification}
-        />
-      )}
+      {notification.show && <Notification type={notification.type} message={notification.message} onClose={() => setNotification(n => ({ ...n, show: false }))} />}
     </div>
   );
 };

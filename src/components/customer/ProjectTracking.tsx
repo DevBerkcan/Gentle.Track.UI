@@ -9,12 +9,13 @@ import ProgressBar from '../common/ProgressBar';
 import Notification from '../common/Notification';
 import { formatDate, getPhaseIcon } from '../../utils/dateFormatter';
 import type { CreateCommentDto, Comment, Project } from '../../types';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Search, ArrowLeft, Bell, BellOff, Send, Mail, MessageSquare, CheckCircle, Circle, Clock } from 'lucide-react';
+import { Search, ArrowLeft, Bell, BellOff, Send, Mail, MessageSquare, CheckCircle2, Circle, Clock, Activity, AlertCircle, CalendarDays } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface NotificationState {
   show: boolean;
@@ -22,495 +23,352 @@ interface NotificationState {
   message: string;
 }
 
+const PhaseStatusIcon = ({ status }: { status: string }) => {
+  if (status === 'Abgeschlossen') return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
+  if (status === 'In Bearbeitung' || status === 'Warten auf Feedback') return <Clock className="w-5 h-5 text-amber-500" />;
+  return <Circle className="w-5 h-5 text-zinc-300" />;
+};
+
 const ProjectTracking = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [trackingNumber, setTrackingNumber] = useState('');
   const [project, setProject] = useState<Project | null>(null);
   const [error, setError] = useState('');
   const [showDetails, setShowDetails] = useState(false);
-
-  // Comment state
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentMessage, setCommentMessage] = useState('');
   const [authorName, setAuthorName] = useState('');
-
-  // Notification state
   const [notificationEmail, setNotificationEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [showNotificationForm, setShowNotificationForm] = useState(false);
+  const [notification, setNotification] = useState<NotificationState>({ show: false, type: 'info', message: '' });
 
-  const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: 'info',
-    message: ''
-  });
+  const showNotificationMsg = (type: NotificationState['type'], message: string) => setNotification({ show: true, type, message });
 
   const loadProjectByTracking = async (tracking: string) => {
-    if (!tracking.trim()) {
-      showNotificationMsg('warning', 'Bitte geben Sie eine Tracking-Nummer ein');
-      return;
-    }
-
+    if (!tracking.trim()) { showNotificationMsg('warning', 'Bitte geben Sie eine Tracking-Nummer ein'); return; }
     try {
       setError('');
       const data = await projectService.getByTrackingNumber(tracking);
       setProject(data);
       setShowDetails(true);
-
-      // Load comments for this project
       loadComments(data.projectID);
-
-      // Check notification subscription if email is set
       const savedEmail = localStorage.getItem(`notification_email_${data.projectID}`);
-      if (savedEmail) {
-        setNotificationEmail(savedEmail);
-        checkSubscription(data.projectID, savedEmail);
-      }
-    } catch (err) {
+      if (savedEmail) { setNotificationEmail(savedEmail); checkSubscription(data.projectID, savedEmail); }
+    } catch {
       setError('Projekt mit dieser Tracking-Nummer nicht gefunden');
       setShowDetails(false);
-      showNotificationMsg('error', 'Projekt mit dieser Tracking-Nummer nicht gefunden');
     }
   };
 
   const loadComments = async (projectId: number) => {
-    try {
-      const commentsData = await commentService.getProjectComments(projectId);
-      setComments(commentsData);
-    } catch (err) {
-      console.error('Error loading comments:', err);
-    }
+    try { setComments(await commentService.getProjectComments(projectId)); } catch { /* ignore */ }
   };
 
   const checkSubscription = async (projectId: number, email: string) => {
-    try {
-      const subscribed = await notificationService.isSubscribed(projectId, email);
-      setIsSubscribed(subscribed);
-    } catch (err) {
-      console.error('Error checking subscription:', err);
-      setIsSubscribed(false);
-    }
+    try { setIsSubscribed(await notificationService.isSubscribed(projectId, email)); } catch { setIsSubscribed(false); }
   };
 
   const handleToggleNotification = async () => {
-    if (!project) return;
-
-    if (!notificationEmail.trim()) {
-      showNotificationMsg('warning', 'Bitte geben Sie Ihre E-Mail-Adresse ein');
-      return;
-    }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(notificationEmail)) {
-      showNotificationMsg('warning', 'Bitte geben Sie eine gültige E-Mail-Adresse ein');
-      return;
-    }
-
+    if (!project || !notificationEmail.trim()) { showNotificationMsg('warning', 'Bitte geben Sie Ihre E-Mail-Adresse ein'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationEmail)) { showNotificationMsg('warning', 'Bitte geben Sie eine gültige E-Mail-Adresse ein'); return; }
     try {
       const result = await notificationService.toggle(project.projectID, notificationEmail);
       setIsSubscribed(result.isActive);
-
-      // Save email to localStorage
-      if (result.isActive) {
-        localStorage.setItem(`notification_email_${project.projectID}`, notificationEmail);
-      } else {
-        localStorage.removeItem(`notification_email_${project.projectID}`);
-      }
-
-      showNotificationMsg(
-        'success',
-        result.isActive
-          ? 'E-Mail-Benachrichtigungen aktiviert! Sie erhalten Updates zu diesem Projekt.'
-          : 'E-Mail-Benachrichtigungen deaktiviert.'
-      );
-
+      result.isActive ? localStorage.setItem(`notification_email_${project.projectID}`, notificationEmail) : localStorage.removeItem(`notification_email_${project.projectID}`);
+      showNotificationMsg('success', result.isActive ? 'E-Mail-Benachrichtigungen aktiviert!' : 'E-Mail-Benachrichtigungen deaktiviert.');
       setShowNotificationForm(false);
-    } catch (err: any) {
-      console.error('Error toggling notification:', err);
-      showNotificationMsg('error', 'Fehler beim Ändern der Benachrichtigungseinstellungen');
-    }
+    } catch { showNotificationMsg('error', 'Fehler beim Ändern der Benachrichtigungseinstellungen'); }
   };
 
   const handleSendComment = async () => {
-    if (!commentMessage.trim()) {
-      showNotificationMsg('warning', 'Bitte geben Sie eine Nachricht ein');
-      return;
-    }
-
-    if (!authorName.trim()) {
-      showNotificationMsg('warning', 'Bitte geben Sie Ihren Namen ein');
-      return;
-    }
-
+    if (!commentMessage.trim()) { showNotificationMsg('warning', 'Bitte geben Sie eine Nachricht ein'); return; }
+    if (!authorName.trim()) { showNotificationMsg('warning', 'Bitte geben Sie Ihren Namen ein'); return; }
     if (!project) return;
-
     try {
-      const commentData: CreateCommentDto = {
-        projectID: project.projectID,
-        message: commentMessage,
-        authorName: authorName.trim()
-      };
-
+      const commentData: CreateCommentDto = { projectID: project.projectID, message: commentMessage, authorName: authorName.trim() };
       await commentService.createCustomerComment(commentData);
       showNotificationMsg('success', 'Kommentar erfolgreich gesendet!');
       setCommentMessage('');
-
-      // Reload comments
       loadComments(project.projectID);
-    } catch (err: any) {
-      console.error('Comment error:', err.response?.data);
-      showNotificationMsg('error', 'Fehler beim Senden des Kommentars');
-    }
-  };
-
-  // Check URL parameter on component mount
-  useEffect(() => {
-    const trackingFromUrl = searchParams.get('tracking');
-    if (trackingFromUrl) {
-      setTrackingNumber(trackingFromUrl);
-      loadProjectByTracking(trackingFromUrl);
-    }
-  }, []);
-
-  const showNotificationMsg = (type: NotificationState['type'], message: string) => {
-    setNotification({ show: true, type, message });
-  };
-
-  const hideNotification = () => {
-    setNotification({ ...notification, show: false });
+    } catch { showNotificationMsg('error', 'Fehler beim Senden des Kommentars'); }
   };
 
   const handleTrack = async () => {
-    if (!trackingNumber.trim()) {
-      showNotificationMsg('warning', 'Bitte geben Sie eine Tracking-Nummer ein');
-      return;
-    }
-
+    if (!trackingNumber.trim()) { showNotificationMsg('warning', 'Bitte geben Sie eine Tracking-Nummer ein'); return; }
     setSearchParams({ tracking: trackingNumber });
     await loadProjectByTracking(trackingNumber);
   };
 
   const resetTracking = () => {
-    setShowDetails(false);
-    setProject(null);
-    setTrackingNumber('');
-    setError('');
-    setComments([]);
-    setCommentMessage('');
-    setAuthorName('');
-    setNotificationEmail('');
-    setIsSubscribed(false);
-    setShowNotificationForm(false);
+    setShowDetails(false); setProject(null); setTrackingNumber(''); setError('');
+    setComments([]); setCommentMessage(''); setAuthorName('');
+    setNotificationEmail(''); setIsSubscribed(false); setShowNotificationForm(false);
     setSearchParams({});
   };
 
-  const getPhaseStatusIcon = (status: string) => {
-    if (status === 'Abgeschlossen') return <CheckCircle className="w-5 h-5 text-emerald-500" />;
-    if (status === 'In Bearbeitung' || status === 'Warten auf Feedback') return <Clock className="w-5 h-5 text-amber-500" />;
-    return <Circle className="w-5 h-5 text-slate-300" />;
-  };
+  useEffect(() => {
+    const trackingFromUrl = searchParams.get('tracking');
+    if (trackingFromUrl) { setTrackingNumber(trackingFromUrl); loadProjectByTracking(trackingFromUrl); }
+  }, []);
 
+  // ─── Search View ────────────────────────────────────────────────────────────
   if (!showDetails) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-sky-400 to-cyan-400 mb-6">
-          <Search className="w-10 h-10 text-white" />
+      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
+        {/* Branding */}
+        <div className="flex items-center gap-2.5 mb-8">
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md">
+            <Activity className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <span className="font-bold text-2xl text-foreground tracking-tight">Gentle Track</span>
         </div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Projekt-Status verfolgen</h2>
-        <p className="text-muted-foreground mb-6">
-          Geben Sie Ihre Tracking-Nummer ein
+
+        <h1 className="text-3xl font-bold text-foreground mb-2">Projektfortschritt verfolgen</h1>
+        <p className="text-muted-foreground mb-8 max-w-sm">
+          Geben Sie Ihre Tracking-Nummer ein, um den aktuellen Status Ihres Projekts zu sehen.
         </p>
+
         <div className="flex gap-2 w-full max-w-md">
-          <Input
-            type="text"
-            placeholder="z.B. TR-2024-001"
-            value={trackingNumber}
-            onChange={(e) => setTrackingNumber(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleTrack()}
-            className="text-center text-base"
-          />
-          <Button
-            onClick={handleTrack}
-            className="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white shrink-0"
-          >
-            <Search className="w-4 h-4 mr-1.5" />
-            Verfolgen
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="z.B. TR-2024-001"
+              value={trackingNumber}
+              onChange={e => setTrackingNumber(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleTrack()}
+              className="pl-10 h-11 text-base"
+            />
+          </div>
+          <Button onClick={handleTrack} className="h-11 px-5 shrink-0">
+            <Search className="w-4 h-4 mr-1.5" />Verfolgen
           </Button>
         </div>
+
         {error && (
-          <div className="mt-5 max-w-md bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm">
+          <div className="mt-4 flex items-center gap-2.5 bg-destructive/8 border border-destructive/20 text-destructive p-3.5 rounded-xl text-sm max-w-md">
+            <AlertCircle className="w-4 h-4 shrink-0" />
             {error}
           </div>
         )}
 
-        {notification.show && (
-          <Notification
-            type={notification.type}
-            message={notification.message}
-            onClose={hideNotification}
-          />
-        )}
+        {notification.show && <Notification type={notification.type} message={notification.message} onClose={() => setNotification(n => ({ ...n, show: false }))} />}
       </div>
     );
   }
 
   if (!project) return null;
 
+  // ─── Project Detail View ─────────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
-      {/* Project Overview Card */}
-      <Card>
+    <div className="space-y-5 max-w-3xl">
+      {/* Back button */}
+      <Button variant="ghost" size="sm" onClick={resetTracking} className="text-muted-foreground hover:text-foreground -ml-2">
+        <ArrowLeft className="w-4 h-4 mr-1.5" />Zurück zur Suche
+      </Button>
+
+      {/* Project Overview */}
+      <Card className="border border-border shadow-sm">
         <CardContent className="p-6">
-          <div className="flex justify-between items-start flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
             <div>
-              <h2 className="text-xl font-bold text-foreground">{project.projectName}</h2>
-              <p className="text-sm text-muted-foreground mt-1">Tracking-Nr: {project.trackingNumber}</p>
-              <p className="text-sm text-muted-foreground">Kunde: {project.customerName}</p>
+              <h1 className="text-xl font-bold text-foreground">{project.projectName}</h1>
+              <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                <span className="text-sm text-muted-foreground font-mono">{project.trackingNumber}</span>
+                <span className="text-muted-foreground/40">·</span>
+                <span className="text-sm text-muted-foreground">{project.customerName}</span>
+              </div>
             </div>
-            <div className="flex gap-2 items-center flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               {isSubscribed && (
-                <span className="inline-flex items-center gap-1.5 bg-sky-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                  <Bell className="w-3.5 h-3.5" />
-                  Benachrichtigungen aktiv
+                <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1 rounded-full text-xs font-medium">
+                  <Bell className="w-3 h-3" />Benachrichtigungen aktiv
                 </span>
               )}
               <Badge status={project.status} />
             </div>
           </div>
 
-          <div className="mt-8">
-            <h3 className="text-sm font-semibold text-foreground mb-2">Gesamtfortschritt</h3>
-            <ProgressBar progress={project.progress} height="12px" />
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gesamtfortschritt</span>
+            </div>
+            <ProgressBar progress={project.progress} />
           </div>
 
           {project.description && (
-            <div className="mt-5">
-              <h3 className="text-sm font-semibold text-foreground mb-2">Projektbeschreibung</h3>
-              <p className="text-sm text-muted-foreground">{project.description}</p>
-            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5 p-3.5 bg-zinc-50 rounded-lg border border-border">
+              {project.description}
+            </p>
           )}
 
-          <div className="mt-5 pt-5 border-t border-border">
-            <div className="flex justify-between flex-wrap gap-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Startdatum</p>
-                <p className="font-semibold text-foreground">{formatDate(project.startDate)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Enddatum</p>
-                <p className="font-semibold text-foreground">{formatDate(project.endDate)}</p>
-              </div>
-              {project.daysUntilDeadline !== undefined && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4 border-t border-border">
+            {[
+              { label: 'Startdatum', value: formatDate(project.startDate) },
+              { label: 'Enddatum', value: formatDate(project.endDate) },
+              ...(project.daysUntilDeadline !== undefined ? [{
+                label: 'Verbleibend',
+                value: `${project.daysUntilDeadline} Tage`,
+                urgent: project.daysUntilDeadline < 7,
+              }] : []),
+            ].map(item => (
+              <div key={item.label} className="flex items-start gap-2">
+                <CalendarDays className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Verbleibende Tage</p>
-                  <p className={`font-semibold ${project.daysUntilDeadline < 7 ? 'text-red-500' : 'text-foreground'}`}>
-                    {project.daysUntilDeadline} Tage
-                  </p>
+                  <p className="text-xs text-muted-foreground">{item.label}</p>
+                  <p className={cn('text-sm font-semibold', (item as any).urgent && 'text-rose-600')}>{item.value}</p>
                 </div>
-              )}
-            </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Phases Card */}
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-lg font-bold text-foreground mb-5">Projekt-Phasen</h2>
-          {project.phases && project.phases.length > 0 ? (
-            <div className="relative pl-8">
-              <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-border" />
-              {project.phases.map((phase) => (
-                <div key={phase.phaseID} className="relative mb-6 last:mb-0">
-                  <div className="absolute -left-8 top-1">
-                    {getPhaseStatusIcon(phase.status)}
+      {/* Phases */}
+      {project.phases && project.phases.length > 0 && (
+        <Card className="border border-border shadow-sm">
+          <CardHeader className="border-b border-border pb-4">
+            <h2 className="text-base font-semibold text-foreground">Projekt-Phasen</h2>
+          </CardHeader>
+          <CardContent className="p-5">
+            <div className="space-y-0">
+              {project.phases.map((phase, index) => (
+                <div key={phase.phaseID} className="flex gap-4">
+                  {/* Timeline */}
+                  <div className="flex flex-col items-center">
+                    <PhaseStatusIcon status={phase.status} />
+                    {index < project.phases!.length - 1 && (
+                      <div className="w-0.5 flex-1 mt-1 mb-1 bg-border min-h-[1.5rem]" />
+                    )}
                   </div>
-                  <div className={`p-4 rounded-lg border ${
-                    phase.status === 'Abgeschlossen' ? 'bg-emerald-50/50 border-emerald-200' :
-                    phase.status === 'In Bearbeitung' || phase.status === 'Warten auf Feedback' ? 'bg-amber-50/50 border-amber-200' :
-                    'bg-muted/30 border-border'
-                  }`}>
-                    <h4 className="font-semibold text-foreground">
-                      {getPhaseIcon(phase.status)} {phase.phaseName}
-                    </h4>
-                    <p className="text-sm text-muted-foreground mt-1">{phase.description || 'Keine Beschreibung verfügbar'}</p>
-                    {phase.completedAt && (
-                      <p className="text-xs text-muted-foreground/70 mt-2">Abgeschlossen am {formatDate(phase.completedAt)}</p>
-                    )}
-                    {phase.startedAt && !phase.completedAt && (
-                      <p className="text-xs text-muted-foreground/70 mt-2">Gestartet am {formatDate(phase.startedAt)}</p>
-                    )}
+                  {/* Content */}
+                  <div className={cn('flex-1 pb-4', index === project.phases!.length - 1 && 'pb-0')}>
+                    <div className={cn('p-4 rounded-xl border', {
+                      'bg-emerald-50/50 border-emerald-100': phase.status === 'Abgeschlossen',
+                      'bg-amber-50/50 border-amber-100': phase.status === 'In Bearbeitung' || phase.status === 'Warten auf Feedback',
+                      'bg-zinc-50 border-zinc-100': phase.status !== 'Abgeschlossen' && phase.status !== 'In Bearbeitung' && phase.status !== 'Warten auf Feedback',
+                    })}>
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <h4 className="font-semibold text-foreground text-sm">
+                          {getPhaseIcon(phase.status)} {phase.phaseName}
+                        </h4>
+                      </div>
+                      {phase.description && <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{phase.description}</p>}
+                      {phase.completedAt && <p className="text-xs text-muted-foreground/60 mt-1.5">Abgeschlossen am {formatDate(phase.completedAt)}</p>}
+                      {phase.startedAt && !phase.completedAt && <p className="text-xs text-muted-foreground/60 mt-1.5">Gestartet am {formatDate(phase.startedAt)}</p>}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          ) : (
-            <p className="text-muted-foreground">Keine Phasen definiert</p>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Email Notifications Card */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-              <Mail className="w-5 h-5" />
-              E-Mail-Benachrichtigungen
-            </h2>
-            <Button
-              variant={showNotificationForm ? 'secondary' : 'default'}
-              size="sm"
-              className={!showNotificationForm ? 'bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white' : ''}
-              onClick={() => setShowNotificationForm(!showNotificationForm)}
-            >
+      {/* Email Notifications */}
+      <Card className="border border-border shadow-sm">
+        <CardContent className="p-5">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <Bell className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">E-Mail-Benachrichtigungen</h3>
+                <p className="text-xs text-muted-foreground">
+                  {isSubscribed ? `Aktiv für: ${notificationEmail}` : 'Updates per E-Mail erhalten'}
+                </p>
+              </div>
+            </div>
+            <Button variant={showNotificationForm ? 'secondary' : 'outline'} size="sm" onClick={() => setShowNotificationForm(!showNotificationForm)}>
               {showNotificationForm ? 'Schließen' : isSubscribed ? 'Verwalten' : 'Aktivieren'}
             </Button>
           </div>
 
           {showNotificationForm && (
-            <div className="p-5 bg-blue-50 rounded-xl border-2 border-blue-200">
-              <p className="mb-4 text-sm text-foreground">
-                {isSubscribed
-                  ? 'Sie erhalten bereits E-Mail-Benachrichtigungen für dieses Projekt.'
-                  : 'Erhalten Sie Updates über neue Kommentare und Fortschritte per E-Mail.'}
+            <div className="mt-4 p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {isSubscribed ? 'Sie erhalten bereits Benachrichtigungen. E-Mail ändern oder deaktivieren:' : 'Erhalten Sie Updates über neue Kommentare und Fortschritte.'}
               </p>
-
-              <div className="space-y-2 mb-4">
-                <Label>Ihre E-Mail-Adresse *</Label>
-                <Input
-                  type="email"
-                  placeholder="z.B. ihre.email@beispiel.de"
-                  value={notificationEmail}
-                  onChange={(e) => setNotificationEmail(e.target.value)}
-                />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">E-Mail-Adresse *</Label>
+                <Input type="email" placeholder="ihre@email.de" value={notificationEmail} onChange={e => setNotificationEmail(e.target.value)} className="h-9" />
               </div>
-
-              <Button
-                variant={isSubscribed ? 'secondary' : 'default'}
-                className={!isSubscribed ? 'bg-sky-500 hover:bg-sky-600 text-white' : ''}
-                onClick={handleToggleNotification}
-              >
-                {isSubscribed ? <><BellOff className="w-4 h-4 mr-1.5" /> Benachrichtigungen deaktivieren</> : <><Bell className="w-4 h-4 mr-1.5" /> Benachrichtigungen aktivieren</>}
+              <Button size="sm" variant={isSubscribed ? 'destructive' : 'default'} onClick={handleToggleNotification}>
+                {isSubscribed ? <><BellOff className="w-3.5 h-3.5 mr-1.5" />Deaktivieren</> : <><Bell className="w-3.5 h-3.5 mr-1.5" />Aktivieren</>}
               </Button>
             </div>
-          )}
-
-          {!showNotificationForm && isSubscribed && (
-            <p className="text-sm text-muted-foreground">
-              Aktiv für: <strong>{notificationEmail}</strong>
-            </p>
           )}
         </CardContent>
       </Card>
 
-      {/* Comments Section */}
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-lg font-bold text-foreground flex items-center gap-2 mb-5">
-            <MessageSquare className="w-5 h-5" />
+      {/* Comments */}
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b border-border pb-4">
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-primary" />
             Kommentare & Diskussion
+            {comments.length > 0 && (
+              <span className="ml-auto text-xs font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">{comments.length}</span>
+            )}
           </h2>
-
+        </CardHeader>
+        <CardContent className="p-5 space-y-5">
           {/* New Comment Form */}
-          <div className="p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border-2 border-slate-200 mb-6">
-            <h3 className="font-semibold text-foreground mb-4">Neuer Kommentar</h3>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Ihr Name *</Label>
-                <Input
-                  type="text"
-                  placeholder="z.B. Max Mustermann"
-                  value={authorName}
-                  onChange={(e) => setAuthorName(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Ihre Nachricht *</Label>
-                <Textarea
-                  placeholder="Teilen Sie uns Ihre Gedanken, Fragen oder Feedback mit..."
-                  value={commentMessage}
-                  onChange={(e) => setCommentMessage(e.target.value)}
-                  rows={4}
-                />
-              </div>
-
-              <Button
-                className="bg-sky-500 hover:bg-sky-600 text-white"
-                onClick={handleSendComment}
-              >
-                <Send className="w-4 h-4 mr-1.5" />
-                Kommentar senden
-              </Button>
+          <div className="p-4 bg-zinc-50 border border-border rounded-xl space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">Kommentar schreiben</h3>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Ihr Name *</Label>
+              <Input type="text" placeholder="z.B. Max Mustermann" value={authorName} onChange={e => setAuthorName(e.target.value)} className="h-9" />
             </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Nachricht *</Label>
+              <Textarea placeholder="Ihre Fragen, Feedback oder Anmerkungen…" value={commentMessage} onChange={e => setCommentMessage(e.target.value)} rows={3} />
+            </div>
+            <Button size="sm" onClick={handleSendComment}>
+              <Send className="w-3.5 h-3.5 mr-1.5" />Kommentar senden
+            </Button>
           </div>
 
           {/* Existing Comments */}
-          <div className="mb-6">
-            {comments && comments.length > 0 ? (
-              <div className="space-y-3">
-                {comments.map((comment) => (
-                  <div
-                    key={comment.commentID}
-                    className={`p-4 rounded-xl border-l-4 ${
-                      comment.authorType === 'Admin'
-                        ? 'bg-sky-50 border-l-sky-500'
-                        : 'bg-cyan-50 border-l-cyan-500'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-white ${
-                        comment.authorType === 'Admin' ? 'bg-sky-500' : 'bg-cyan-500'
-                      }`}>
-                        {comment.authorName}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDate(comment.createdAt)}
-                      </span>
+          {comments.length > 0 ? (
+            <div className="space-y-3">
+              {comments.map(comment => (
+                <div
+                  key={comment.commentID}
+                  className={cn('p-4 rounded-xl border-l-4', comment.authorType === 'Admin' ? 'bg-primary/5 border-l-primary' : 'bg-blue-50/50 border-l-blue-400')}
+                >
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0', comment.authorType === 'Admin' ? 'bg-primary' : 'bg-blue-500')}>
+                      {comment.authorName.charAt(0).toUpperCase()}
                     </div>
-                    <p className="text-sm text-foreground whitespace-pre-wrap">
-                      {comment.message}
-                    </p>
+                    <span className="text-sm font-semibold text-foreground">{comment.authorName}</span>
+                    <span className={cn('text-xs px-2 py-0.5 rounded-full', comment.authorType === 'Admin' ? 'bg-primary/10 text-primary' : 'bg-blue-100 text-blue-700')}>
+                      {comment.authorType === 'Admin' ? 'Admin' : 'Kunde'}
+                    </span>
+                    <span className="text-xs text-muted-foreground ml-auto">{formatDate(comment.createdAt)}</span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10 bg-muted/30 rounded-lg border-2 border-dashed border-slate-300">
-                <MessageSquare className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
-                <p className="text-muted-foreground mb-1">
-                  Noch keine Kommentare vorhanden
-                </p>
-                <p className="text-sm text-muted-foreground/70">
-                  Seien Sie der Erste, der kommentiert!
-                </p>
-              </div>
-            )}
-          </div>
+                  <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{comment.message}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2 py-10 text-muted-foreground">
+              <MessageSquare className="w-8 h-8 opacity-30" />
+              <p className="text-sm font-medium">Noch keine Kommentare</p>
+              <p className="text-xs">Seien Sie der Erste!</p>
+            </div>
+          )}
 
-          <div className="p-4 bg-emerald-50 border-l-4 border-l-emerald-500 rounded-lg">
-            <p className="text-sm text-sky-700">
-              <strong>Hinweis:</strong> Alle Kommentare sind öffentlich sichtbar.
-              {isSubscribed && ' Sie erhalten E-Mail-Benachrichtigungen bei neuen Antworten.'}
-            </p>
+          <div className="flex items-start gap-2 p-3.5 bg-emerald-50/50 border border-emerald-100 rounded-lg text-xs text-emerald-700">
+            <Mail className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+            <span>Alle Kommentare sind für das Projektteam sichtbar.{isSubscribed && ' Sie erhalten E-Mail-Benachrichtigungen bei neuen Antworten.'}</span>
           </div>
         </CardContent>
       </Card>
 
-      <Button variant="outline" onClick={resetTracking} className="mt-2">
-        <ArrowLeft className="w-4 h-4 mr-1.5" />
-        Zurück zur Suche
-      </Button>
-
-      {notification.show && (
-        <Notification
-          type={notification.type}
-          message={notification.message}
-          onClose={hideNotification}
-        />
-      )}
+      {notification.show && <Notification type={notification.type} message={notification.message} onClose={() => setNotification(n => ({ ...n, show: false }))} />}
     </div>
   );
 };

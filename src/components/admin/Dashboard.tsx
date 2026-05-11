@@ -10,8 +10,9 @@ import CustomSelect from "../common/CustomSelect";
 import { ProjectModal } from "../modals/ProjectModal";
 import { formatDate } from "../../utils/dateFormatter";
 import type { Project, DashboardStats } from "../../types";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { LayoutDashboard, Users, FolderCheck, MessageSquare, Search, Loader2, FolderOpen } from "lucide-react";
 
 interface NotificationState {
   show: boolean;
@@ -29,28 +30,14 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [notification, setNotification] = useState<NotificationState>({
-    show: false,
-    type: "info",
-    message: "",
+    show: false, type: "info", message: "",
   });
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
+  useEffect(() => { loadDashboard(); }, []);
+  useEffect(() => { filterProjects(); }, [searchTerm, statusFilter, projects]);
 
-  useEffect(() => {
-    filterProjects();
-  }, [searchTerm, statusFilter, projects]);
-
-  const showNotification = (
-    type: NotificationState["type"],
-    message: string
-  ) => {
+  const showNotification = (type: NotificationState["type"], message: string) => {
     setNotification({ show: true, type, message });
-  };
-
-  const hideNotification = () => {
-    setNotification({ ...notification, show: false });
   };
 
   const loadDashboard = async () => {
@@ -63,8 +50,7 @@ const Dashboard = () => {
       setStats(statsData);
       setProjects(projectsData);
       setFilteredProjects(projectsData.slice(0, 10));
-    } catch (error) {
-      console.error("Error loading dashboard:", error);
+    } catch {
       showNotification("error", "Fehler beim Laden der Dashboard-Daten");
     } finally {
       setLoading(false);
@@ -73,20 +59,15 @@ const Dashboard = () => {
 
   const filterProjects = () => {
     let filtered = projects;
-
     if (searchTerm) {
-      filtered = filtered.filter(
-        (p) =>
-          p.projectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.trackingNumber.toLowerCase().includes(searchTerm.toLowerCase())
+      const q = searchTerm.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.projectName.toLowerCase().includes(q) ||
+        p.customerName.toLowerCase().includes(q) ||
+        p.trackingNumber.toLowerCase().includes(q)
       );
     }
-
-    if (statusFilter) {
-      filtered = filtered.filter((p) => p.status === statusFilter);
-    }
-
+    if (statusFilter) filtered = filtered.filter(p => p.status === statusFilter);
     setFilteredProjects(filtered.slice(0, 10));
   };
 
@@ -95,25 +76,13 @@ const Dashboard = () => {
       const project = await projectService.getById(id);
       setSelectedProject(project);
       setIsModalOpen(true);
-    } catch (error) {
+    } catch {
       showNotification("error", "Fehler beim Laden des Projekts");
     }
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setSelectedProject(null);
-  };
-
-  const handleSaveSuccess = () => {
-    loadDashboard();
-    handleModalClose();
-    showNotification("success", "Projekt erfolgreich aktualisiert!");
-  };
-
-  if (loading) {
-    return <div className="text-center py-10 text-muted-foreground">Lade Dashboard-Daten...</div>;
-  }
+  const handleModalClose = () => { setIsModalOpen(false); setSelectedProject(null); };
+  const handleSaveSuccess = () => { loadDashboard(); handleModalClose(); showNotification("success", "Projekt erfolgreich aktualisiert!"); };
 
   const statusOptions = [
     { value: "", label: "Alle Status" },
@@ -128,96 +97,108 @@ const Dashboard = () => {
       header: "Projekt",
       accessor: "projectName",
       render: (value: string, project: Project) => (
-        <strong
-          className="cursor-pointer text-sky-600 hover:text-sky-700 hover:underline"
+        <button
+          className="font-semibold text-primary hover:text-primary/80 hover:underline text-left transition-colors"
           onClick={() => handleProjectClick(project.projectID)}
         >
           {value}
-        </strong>
+        </button>
       ),
     },
-    {
-      header: "Kunde",
-      accessor: "customerName",
-    },
-    {
-      header: "Status",
-      accessor: "status",
-      render: (value: string) => <Badge status={value} />,
-    },
-    {
-      header: "Fortschritt",
-      accessor: "progress",
-      render: (value: number) => <ProgressBar progress={value} />,
-    },
-    {
-      header: "Tracking-Nr.",
-      accessor: "trackingNumber",
-    },
-    {
-      header: "Startdatum",
-      accessor: "startDate",
-      render: (value: string) => formatDate(value),
-    },
-    {
-      header: "Enddatum",
-      accessor: "endDate",
-      render: (value: string) => formatDate(value),
-    },
+    { header: "Kunde", accessor: "customerName" },
+    { header: "Status", accessor: "status", render: (value: string) => <Badge status={value} /> },
+    { header: "Fortschritt", accessor: "progress", render: (value: number) => <ProgressBar progress={value} /> },
+    { header: "Tracking-Nr.", accessor: "trackingNumber" },
+    { header: "Start", accessor: "startDate", render: (value: string) => formatDate(value) },
+    { header: "Ende", accessor: "endDate", render: (value: string) => formatDate(value) },
   ];
 
-  return (
-    <div>
-      <h2 className="text-xl font-bold text-foreground mb-5">Dashboard</h2>
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-sm">Dashboard wird geladen…</p>
+      </div>
+    );
+  }
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard title="Aktive Projekte" value={stats?.activeProjects || 0} />
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div>
+        <div className="flex items-center gap-2.5 mb-1">
+          <LayoutDashboard className="w-5 h-5 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
+        </div>
+        <p className="text-sm text-muted-foreground">Übersicht aller Projekte und Aktivitäten</p>
+      </div>
+
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Kunden"
+          title="Aktive Projekte"
+          value={stats?.activeProjects || 0}
+          icon={FolderOpen}
+          iconColor="text-primary"
+          iconBg="bg-primary/10"
+        />
+        <StatCard
+          title="Kunden gesamt"
           value={stats?.totalCustomers || 0}
-          gradient="linear-gradient(135deg, #fc6076 0%, #ff9a44 100%)"
+          icon={Users}
+          iconColor="text-blue-600"
+          iconBg="bg-blue-50"
         />
         <StatCard
           title="Abgeschlossen"
           value={stats?.completedProjects || 0}
-          gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+          icon={FolderCheck}
+          iconColor="text-emerald-600"
+          iconBg="bg-emerald-50"
         />
         <StatCard
           title="Kommentare"
           value={stats?.totalComments || 0}
-          gradient="linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
+          icon={MessageSquare}
+          iconColor="text-amber-600"
+          iconBg="bg-amber-50"
         />
       </div>
 
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-lg font-bold text-foreground mb-4">Aktuelle Projekte</h2>
-          <div className="flex flex-wrap gap-3 mb-5">
-            <Input
-              type="text"
-              placeholder="Suchen..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 min-w-[200px]"
-            />
-            <CustomSelect
-              value={statusFilter}
-              onChange={setStatusFilter}
-              options={statusOptions}
-              className="w-[200px]"
-            />
+      {/* Projects Table */}
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b border-border pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h2 className="text-base font-semibold text-foreground">Aktuelle Projekte</h2>
+            <div className="flex gap-2 flex-wrap">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Suchen…"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 h-8 text-sm w-48"
+                />
+              </div>
+              <CustomSelect
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={statusOptions}
+                className="w-44 h-8 text-sm"
+              />
+            </div>
           </div>
-
+        </CardHeader>
+        <CardContent className="p-0">
           {filteredProjects.length === 0 ? (
-            <p className="text-center text-muted-foreground py-5">
-              Keine Projekte gefunden
-            </p>
+            <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
+              <FolderOpen className="w-10 h-10 opacity-30" />
+              <p className="text-sm font-medium">Keine Projekte gefunden</p>
+              <p className="text-xs">Versuche einen anderen Suchbegriff oder Filter</p>
+            </div>
           ) : (
-            <ResponsiveTable
-              columns={columns}
-              data={filteredProjects}
-              keyField="projectID"
-            />
+            <ResponsiveTable columns={columns} data={filteredProjects} keyField="projectID" />
           )}
         </CardContent>
       </Card>
@@ -233,7 +214,7 @@ const Dashboard = () => {
         <Notification
           type={notification.type}
           message={notification.message}
-          onClose={hideNotification}
+          onClose={() => setNotification(n => ({ ...n, show: false }))}
         />
       )}
     </div>

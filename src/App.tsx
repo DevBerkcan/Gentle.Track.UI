@@ -18,8 +18,10 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute>
     <div className="flex flex-1 min-h-0">
       <Sidebar />
-      <main className="flex-1 p-6 lg:p-8 overflow-y-auto bg-slate-50/30">
-        {children}
+      <main className="flex-1 overflow-y-auto bg-zinc-50/60 scrollbar-thin">
+        <div className="p-6 lg:p-8 page-fade-in">
+          {children}
+        </div>
       </main>
     </div>
   </ProtectedRoute>
@@ -28,8 +30,10 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => (
 // Customer Layout Wrapper (Public)
 const CustomerLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="flex flex-1 min-h-0">
-    <main className="flex-1 p-6 lg:p-8 overflow-y-auto max-w-4xl mx-auto w-full">
-      {children}
+    <main className="flex-1 overflow-y-auto scrollbar-thin">
+      <div className="p-6 lg:p-8 max-w-4xl mx-auto w-full page-fade-in">
+        {children}
+      </div>
     </main>
   </div>
 );
@@ -38,7 +42,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-screen max-w-[1440px] mx-auto bg-white shadow-xl flex flex-col">
+        <div className="min-h-screen bg-background flex flex-col">
           <Routes>
             {/* Login Route (No Header) */}
             <Route path="/login" element={<Login />} />

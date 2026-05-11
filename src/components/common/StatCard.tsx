@@ -1,21 +1,31 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface StatCardProps {
   title: string;
   value: number;
-  gradient?: string;
+  icon: LucideIcon;
+  iconColor?: string;
+  iconBg?: string;
+  trend?: { value: number; label: string };
+  gradient?: string; // kept for backwards compat, ignored
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, gradient }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, iconColor = 'text-primary', iconBg = 'bg-primary/10' }) => {
   return (
-    <Card
-      className="text-white shadow-lg hover:-translate-y-1 transition-all duration-300 border-0 cursor-default"
-      style={{ background: gradient || 'linear-gradient(135deg, #0ea5e9 0%, #22d3ee 100%)' }}
-    >
-      <CardContent className="p-6">
-        <h3 className="text-sm font-medium opacity-90 mb-2">{title}</h3>
-        <div className="text-4xl font-bold">{value}</div>
+    <Card className="bg-white border border-border shadow-sm hover:shadow-md transition-all duration-200 cursor-default group">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1 min-w-0">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
+            <p className="text-3xl font-bold text-foreground tabular-nums">{value.toLocaleString('de-DE')}</p>
+          </div>
+          <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110', iconBg)}>
+            <Icon className={cn('w-5 h-5', iconColor)} />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
