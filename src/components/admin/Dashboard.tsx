@@ -25,7 +25,7 @@ const Dashboard = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -57,19 +57,23 @@ const Dashboard = () => {
     }
   };
 
-  const filterProjects = () => {
-    let filtered = projects;
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      filtered = filtered.filter(p =>
-        p.projectName.toLowerCase().includes(q) ||
-        p.customerName.toLowerCase().includes(q) ||
-        p.trackingNumber.toLowerCase().includes(q)
-      );
-    }
-    if (statusFilter) filtered = filtered.filter(p => p.status === statusFilter);
-    setFilteredProjects(filtered.slice(0, 10));
-  };
+
+const filterProjects = () => {
+  let filtered = projects;
+  if (searchTerm) {
+    const q = searchTerm.toLowerCase();
+    filtered = filtered.filter(p =>
+      p.projectName.toLowerCase().includes(q) ||
+      p.customerName.toLowerCase().includes(q) ||
+      p.trackingNumber.toLowerCase().includes(q)
+    );
+  }
+  if (statusFilter && statusFilter !== "all") {  // ✅ changed condition
+    filtered = filtered.filter(p => p.status === statusFilter);
+  }
+  setFilteredProjects(filtered.slice(0, 10));
+};
+
 
   const handleProjectClick = async (id: number) => {
     try {
@@ -84,13 +88,13 @@ const Dashboard = () => {
   const handleModalClose = () => { setIsModalOpen(false); setSelectedProject(null); };
   const handleSaveSuccess = () => { loadDashboard(); handleModalClose(); showNotification("success", "Projekt erfolgreich aktualisiert!"); };
 
-  const statusOptions = [
-    { value: "", label: "Alle Status" },
-    { value: "Planung", label: "Planung" },
-    { value: "In Bearbeitung", label: "In Bearbeitung" },
-    { value: "Warten auf Feedback", label: "Warten auf Feedback" },
-    { value: "Abgeschlossen", label: "Abgeschlossen" },
-  ];
+const statusOptions = [
+  { value: "all", label: "Alle Status" }, 
+  { value: "Planung", label: "Planung" },
+  { value: "In Bearbeitung", label: "In Bearbeitung" },
+  { value: "Warten auf Feedback", label: "Warten auf Feedback" },
+  { value: "Abgeschlossen", label: "Abgeschlossen" },
+];
 
   const columns = [
     {
