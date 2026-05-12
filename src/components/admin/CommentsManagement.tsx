@@ -91,7 +91,7 @@ const CommentsManagement = () => {
     const filtered: GroupedComments = {};
     const q = searchTerm.toLowerCase();
     Object.entries(groupedComments).forEach(([projectId, data]) => {
-      const matchingComments = data.comments.filter(c => c.message.toLowerCase().includes(q) || c.authorName.toLowerCase().includes(q) || data.project.projectName.toLowerCase().includes(q));
+      const matchingComments = data.comments.filter((c: { message: string; authorName: string; }) => c.message.toLowerCase().includes(q) || c.authorName.toLowerCase().includes(q) || data.project.projectName.toLowerCase().includes(q));
       if (matchingComments.length > 0) filtered[parseInt(projectId)] = { project: data.project, comments: matchingComments };
     });
     return filtered;

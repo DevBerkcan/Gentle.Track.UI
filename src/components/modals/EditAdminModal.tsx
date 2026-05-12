@@ -2,6 +2,10 @@
 import { useState, useEffect } from 'react';
 import { adminService } from '../../api/services/adminService';
 import { projectService } from '../../api/services/projectService';
+import Modal from '../common/Modal';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import type { Admin, Project } from '../../types';
 
 interface EditAdminModalProps {
@@ -12,22 +16,14 @@ interface EditAdminModalProps {
   admin: Admin | null;
 }
 
-const EditAdminModal: React.FC<EditAdminModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  onSaveSuccess,
-  onDeleteSuccess,
-  admin 
-}) => {
+const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSaveSuccess, onDeleteSuccess, admin }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: '', email: '',
     role: 'Admin' as 'Owner' | 'Admin',
     projectAccess: 'Alle Projekte',
     status: 'Aktiv' as 'Aktiv' | 'Inaktiv',
-    assignedProjectIDs: [] as number[]
+    assignedProjectIDs: [] as number[],
   });
-
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -37,12 +33,11 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({
     if (isOpen && admin) {
       loadProjects();
       setFormData({
-        name: admin.name,
-        email: admin.email,
+        name: admin.name, email: admin.email,
         role: admin.role as 'Owner' | 'Admin',
         projectAccess: admin.projectAccess,
         status: admin.status as 'Aktiv' | 'Inaktiv',
-        assignedProjectIDs: admin.assignedProjectIDs || []
+        assignedProjectIDs: admin.assignedProjectIDs || [],
       });
       setShowDeleteConfirm(false);
     }
@@ -50,309 +45,179 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({
   }, [isOpen, admin]);
 
   const loadProjects = async () => {
-    try {
-      const data = await projectService.getAll();
-      setProjects(data);
-    } catch (err) {
-      console.error('Error loading projects:', err);
-    }
+    try { const data = await projectService.getAll(); setProjects(data); }
+    catch (err) { console.error(err); }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!admin) return;
-    
-    if (!formData.name || !formData.email) {
-      setError('Bitte füllen Sie alle Pflichtfelder aus');
-      return;
+    if (!formData.name || !formData.email) { setError('Bitte füllen Sie alle Pflichtfelder aus'); return; }
+    if (formData.role === 'Admin' && formData.projectAccess === 'Zugewiesene Projekte' && formData.assignedProjectIDs.length === 0) {
+      setError('Bitte wählen Sie mindestens ein Projekt aus'); return;
     }
-
-    if (formData.role === 'Admin' && 
-        formData.projectAccess === 'Zugewiesene Projekte' && 
-        formData.assignedProjectIDs.length === 0) {
-      setError('Bitte wählen Sie mindestens ein Projekt aus');
-      return;
-    }
-
     try {
-      setLoading(true);
-      setError('');
-      
+      setLoading(true); setError('');
       await adminService.update(admin.adminID, {
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
-        projectAccess: formData.projectAccess,
-        status: formData.status,
-        assignedProjectIDs: formData.role === 'Admin' && formData.projectAccess === 'Zugewiesene Projekte' 
-          ? formData.assignedProjectIDs 
-          : []
+        ...formData,
+        assignedProjectIDs: formData.role === 'Admin' && formData.projectAccess === 'Zugewiesene Projekte'
+          ? formData.assignedProjectIDs : [],
       });
-      
       onSaveSuccess();
     } catch (err: any) {
-      console.error('Error updating admin:', err);
-      const errorMessage = err.response?.data?.message 
-        || err.response?.data?.title
-        || err.message 
-        || 'Fehler beim Aktualisieren des Administrators';
-      
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+      setError(err.response?.data?.message || err.response?.data?.title || err.message || 'Fehler beim Aktualisieren');
+    } finally { setLoading(false); }
   };
 
   const handleDelete = async () => {
     if (!admin) return;
-
     try {
-      setLoading(true);
-      setError('');
+      setLoading(true); setError('');
       await adminService.deletePermanently(admin.adminID);
       setShowDeleteConfirm(false);
-      if (onDeleteSuccess) {
-        onDeleteSuccess();
-      }
+      onDeleteSuccess?.();
     } catch (err: any) {
-      console.error('Error deleting admin:', err);
-      setError(err.response?.data?.message || 'Fehler beim Löschen des Administrators');
-    } finally {
-      setLoading(false);
-    }
+      setError(err.response?.data?.message || 'Fehler beim Löschen');
+    } finally { setLoading(false); }
   };
 
-  const handleProjectToggle = (projectId: number) => {
+  const handleProjectToggle = (id: number) => {
     setFormData(prev => ({
       ...prev,
-      assignedProjectIDs: prev.assignedProjectIDs.includes(projectId)
-        ? prev.assignedProjectIDs.filter(id => id !== projectId)
-        : [...prev.assignedProjectIDs, projectId]
+      assignedProjectIDs: prev.assignedProjectIDs.includes(id)
+        ? prev.assignedProjectIDs.filter(x => x !== id)
+        : [...prev.assignedProjectIDs, id],
     }));
   };
 
   const handleRoleChange = (role: 'Owner' | 'Admin') => {
     setFormData(prev => ({
-      ...prev,
-      role,
+      ...prev, role,
       projectAccess: role === 'Owner' ? 'Alle Projekte' : prev.projectAccess,
-      assignedProjectIDs: role === 'Owner' ? [] : prev.assignedProjectIDs
+      assignedProjectIDs: role === 'Owner' ? [] : prev.assignedProjectIDs,
     }));
   };
-
-  const handleProjectAccessChange = (projectAccess: string) => {
-    setFormData(prev => ({
-      ...prev,
-      projectAccess,
-      assignedProjectIDs: projectAccess === 'Alle Projekte' ? [] : prev.assignedProjectIDs
-    }));
-  };
-
-  if (!isOpen || !admin) return null;
 
   const showProjectSelection = formData.role === 'Admin' && formData.projectAccess === 'Zugewiesene Projekte';
+  const selectClass = "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
 
   return (
-    <div className="modal show">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h2>Administrator bearbeiten</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
-
-        {showDeleteConfirm ? (
-          <div>
-            <div style={{ padding: '20px', textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', marginBottom: '20px' }}>⚠️</div>
-              <h3 style={{ marginBottom: '10px', color: '#dc2626' }}>
-                Administrator unwiderruflich löschen?
-              </h3>
-              <p style={{ color: '#64748b', marginBottom: '20px' }}>
-                Der Administrator "{admin.name}" ({admin.email}) wird permanent gelöscht. 
-                Alle zugehörigen Daten werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden!
-              </p>
-              
-              {error && (
-                <div className="error-message" style={{ marginBottom: '20px' }}>
-                  {error}
-                </div>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button 
-                className="btn btn-danger" 
-                onClick={handleDelete}
-                disabled={loading}
-                style={{ flex: 1 }}
-              >
-                {loading ? 'Löschen...' : '🗑️ Ja, endgültig löschen'}
-              </button>
-              <button 
-                className="btn btn-secondary" 
-                onClick={() => setShowDeleteConfirm(false)}
-                disabled={loading}
-                style={{ flex: 1 }}
-              >
-                Abbrechen
-              </button>
-            </div>
+    <Modal isOpen={isOpen} onClose={onClose} title="Administrator bearbeiten">
+      {showDeleteConfirm ? (
+        <div className="space-y-6">
+          <div className="text-center space-y-3">
+            <div className="text-5xl">⚠️</div>
+            <h3 className="text-lg font-semibold text-destructive">Administrator unwiderruflich löschen?</h3>
+            <p className="text-sm text-muted-foreground">
+              Der Administrator „{admin?.name}" ({admin?.email}) wird permanent gelöscht.
+              Diese Aktion kann nicht rückgängig gemacht werden!
+            </p>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            {error && (
-              <div className="error-message" style={{ marginBottom: '20px' }}>
-                {error}
-              </div>
-            )}
-
-            <div className="form-group">
-              <label>Name *</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>E-Mail *</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Rolle *</label>
+          {error && (
+            <div className="px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">{error}</div>
+          )}
+          <div className="flex gap-2">
+            <Button variant="destructive" onClick={handleDelete} disabled={loading} className="flex-1">
+              {loading ? 'Löschen...' : '🗑️ Ja, endgültig löschen'}
+            </Button>
+            <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)} disabled={loading} className="flex-1">
+              Abbrechen
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">{error}</div>
+          )}
+          <div className="space-y-1.5">
+            <Label>Name *</Label>
+            <Input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>E-Mail *</Label>
+            <Input type="email" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Rolle *</Label>
+            <select className={selectClass} value={formData.role} onChange={e => handleRoleChange(e.target.value as 'Owner' | 'Admin')}>
+              <option value="Admin">Admin</option>
+              <option value="Owner">Owner</option>
+            </select>
+            <p className="text-xs text-muted-foreground">
+              {formData.role === 'Owner' ? '🔑 Vollzugriff auf alle Funktionen und Projekte' : '👤 Eingeschränkter Zugriff basierend auf Projektzuweisung'}
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Status *</Label>
+            <select className={selectClass} value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as 'Aktiv' | 'Inaktiv' })}>
+              <option value="Aktiv">Aktiv</option>
+              <option value="Inaktiv">Inaktiv</option>
+            </select>
+          </div>
+          {formData.role === 'Admin' && (
+            <div className="space-y-1.5">
+              <Label>Projektzugriff *</Label>
               <select
-                value={formData.role}
-                onChange={(e) => handleRoleChange(e.target.value as 'Owner' | 'Admin')}
-                required
+                className={selectClass}
+                value={formData.projectAccess}
+                onChange={e => setFormData(prev => ({
+                  ...prev, projectAccess: e.target.value,
+                  assignedProjectIDs: e.target.value === 'Alle Projekte' ? [] : prev.assignedProjectIDs,
+                }))}
               >
-                <option value="Admin">Admin</option>
-                <option value="Owner">Owner</option>
+                <option value="Alle Projekte">Alle Projekte</option>
+                <option value="Zugewiesene Projekte">Zugewiesene Projekte</option>
               </select>
-              <small style={{ display: 'block', marginTop: '5px', color: '#64748b' }}>
-                {formData.role === 'Owner' 
-                  ? '🔑 Vollzugriff auf alle Funktionen und Projekte' 
-                  : '👤 Eingeschränkter Zugriff basierend auf Projektzuweisung'}
-              </small>
+              <p className="text-xs text-muted-foreground">
+                {formData.projectAccess === 'Alle Projekte' ? '📂 Zugriff auf alle Projekte und Kunden' : '📁 Nur Zugriff auf ausgewählte Projekte'}
+              </p>
             </div>
-
-            <div className="form-group">
-              <label>Status *</label>
-              <select
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as 'Aktiv' | 'Inaktiv' })}
-                required
-              >
-                <option value="Aktiv">Aktiv</option>
-                <option value="Inaktiv">Inaktiv</option>
-              </select>
-            </div>
-
-            {formData.role === 'Admin' && (
-              <div className="form-group">
-                <label>Projektzugriff *</label>
-                <select
-                  value={formData.projectAccess}
-                  onChange={(e) => handleProjectAccessChange(e.target.value)}
-                  required
-                >
-                  <option value="Alle Projekte">Alle Projekte</option>
-                  <option value="Zugewiesene Projekte">Zugewiesene Projekte</option>
-                </select>
-                <small style={{ display: 'block', marginTop: '5px', color: '#64748b' }}>
-                  {formData.projectAccess === 'Alle Projekte' 
-                    ? '📂 Zugriff auf alle Projekte und Kunden' 
-                    : '📁 Nur Zugriff auf ausgewählte Projekte'}
-                </small>
+          )}
+          {showProjectSelection && (
+            <div className="space-y-1.5">
+              <Label>Projekte zuweisen * ({formData.assignedProjectIDs.length} ausgewählt)</Label>
+              <div className="max-h-48 overflow-y-auto rounded-lg border border-input p-2 space-y-1">
+                {projects.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">Keine Projekte verfügbar</p>
+                ) : projects.map(project => (
+                  <label
+                    key={project.projectID}
+                    className={`flex items-center gap-3 p-2.5 rounded-md cursor-pointer transition-colors border-2 ${
+                      formData.assignedProjectIDs.includes(project.projectID)
+                        ? 'bg-primary/5 border-primary/30'
+                        : 'border-transparent hover:bg-accent'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 accent-primary"
+                      checked={formData.assignedProjectIDs.includes(project.projectID)}
+                      onChange={() => handleProjectToggle(project.projectID)}
+                    />
+                    <div>
+                      <div className="text-sm font-medium text-foreground">{project.projectName}</div>
+                      <div className="text-xs text-muted-foreground">{project.customerName} · {project.trackingNumber}</div>
+                    </div>
+                  </label>
+                ))}
               </div>
-            )}
-
-            {showProjectSelection && (
-              <div className="form-group">
-                <label>Projekte zuweisen * ({formData.assignedProjectIDs.length} ausgewählt)</label>
-                <div style={{
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  border: '2px solid #e2e8f0',
-                  borderRadius: '8px',
-                  padding: '10px'
-                }}>
-                  {projects.length === 0 ? (
-                    <p style={{ color: '#64748b', textAlign: 'center', padding: '20px' }}>
-                      Keine Projekte verfügbar
-                    </p>
-                  ) : (
-                    projects.map(project => (
-                      <label
-                        key={project.projectID}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          padding: '10px',
-                          cursor: 'pointer',
-                          borderRadius: '6px',
-                          marginBottom: '5px',
-                          background: formData.assignedProjectIDs.includes(project.projectID) 
-                            ? '#f0f9ff' 
-                            : 'transparent',
-                          border: formData.assignedProjectIDs.includes(project.projectID)
-                            ? '2px solid #0ea5e9'
-                            : '2px solid transparent',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.assignedProjectIDs.includes(project.projectID)}
-                          onChange={() => handleProjectToggle(project.projectID)}
-                          style={{ marginRight: '10px', width: '18px', height: '18px' }}
-                        />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: '600', color: '#1e293b' }}>
-                            {project.projectName}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#64748b' }}>
-                            {project.customerName} • {project.trackingNumber}
-                          </div>
-                        </div>
-                      </label>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-              <button 
-                type="submit" 
-                className="btn btn-success" 
-                disabled={loading}
-              >
-                {loading ? 'Speichern...' : '✓ Speichern'}
-              </button>
-              
-              <button 
-                type="button" 
-                className="btn btn-danger" 
-                onClick={() => setShowDeleteConfirm(true)}
-                disabled={loading}
-              >
-                🗑️ Löschen
-              </button>
-
             </div>
-          </form>
-        )}
-      </div>
-    </div>
+          )}
+          <div className="flex gap-2 pt-2">
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Speichern...' : '✓ Speichern'}
+            </Button>
+            <Button type="button" variant="destructive" onClick={() => setShowDeleteConfirm(true)} disabled={loading}>
+              🗑️ Löschen
+            </Button>
+            <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
+              Abbrechen
+            </Button>
+          </div>
+        </form>
+      )}
+    </Modal>
   );
 };
 
