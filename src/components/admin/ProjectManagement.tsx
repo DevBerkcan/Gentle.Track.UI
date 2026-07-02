@@ -10,10 +10,11 @@ import CustomSelect from "../common/CustomSelect";
 import { formatDate } from "../../utils/dateFormatter";
 import type { Project } from "../../types";
 import { ProjectModal } from "../modals/ProjectModal";
+import { BriefingViewModal } from "../modals/BriefingViewModal";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Archive, RotateCcw, Search, FolderOpen, Loader2 } from "lucide-react";
+import { Plus, Pencil, Archive, RotateCcw, Search, FolderOpen, Loader2, ClipboardList } from "lucide-react";
 
 interface NotificationState { show: boolean; type: "success" | "error" | "warning" | "info"; message: string; }
 interface ConfirmState { show: boolean; title: string; message: string; onConfirm: () => void; type?: "danger" | "warning" | "info"; }
@@ -25,6 +26,7 @@ const ProjectManagement = () => {
   const [archiveFilter, setArchiveFilter] = useState<string>("active");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [briefingProject, setBriefingProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState<NotificationState>({ show: false, type: "info", message: "" });
   const [confirm, setConfirm] = useState<ConfirmState>({ show: false, title: "", message: "", onConfirm: () => {}, type: "warning" });
@@ -109,6 +111,9 @@ const ProjectManagement = () => {
           <Button size="sm" onClick={() => handleEdit(project.projectID)}>
             <Pencil className="w-3.5 h-3.5 mr-1" />Bearbeiten
           </Button>
+          <Button size="sm" variant="outline" onClick={() => setBriefingProject(project)}>
+            <ClipboardList className="w-3.5 h-3.5 mr-1" />Briefing
+          </Button>
           {!project.isArchived ? (
             <Button size="sm" variant="secondary" onClick={() => handleArchive(project.projectID, project.projectName)}>
               <Archive className="w-3.5 h-3.5 mr-1" />Archivieren
@@ -168,6 +173,7 @@ const ProjectManagement = () => {
       </Card>
 
       <ProjectModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedProject(null); }} project={selectedProject} onSaveSuccess={handleSaveSuccess} onDeleteSuccess={() => { loadProjects(); setIsModalOpen(false); setSelectedProject(null); showNotification("success", "Projekt erfolgreich gelöscht!"); }} />
+      <BriefingViewModal isOpen={!!briefingProject} onClose={() => setBriefingProject(null)} projectId={briefingProject?.projectID ?? null} projectName={briefingProject?.projectName} />
       {notification.show && <Notification type={notification.type} message={notification.message} onClose={() => setNotification(n => ({ ...n, show: false }))} />}
       <ConfirmDialog isOpen={confirm.show} title={confirm.title} message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(c => ({ ...c, show: false }))} type={confirm.type} confirmText={confirm.type === "danger" ? "Löschen" : "Bestätigen"} />
     </div>

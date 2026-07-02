@@ -146,3 +146,50 @@ export interface ToggleSubscriptionDto {
   projectID: number;
   email: string;
 }
+
+export interface Briefing {
+  briefingID: number;
+  projectID: number;
+  projectName?: string;
+  trackingNumber?: string;
+
+  companyName?: string;
+  businessDescription?: string;
+  hasLogo?: string;
+  hasExistingWebsite?: string;
+  existingUrl?: string;
+
+  goals?: string;
+  audience?: string;
+  region?: string;
+
+  style?: string;
+  colors?: string;
+  references?: string;
+  animations?: string;
+
+  pages?: string;
+  features?: string;
+  needsCms?: string;
+
+  hasTexts?: string;
+  hasImages?: string;
+  seoImportant?: string;
+  hasDomain?: string;
+
+  deadline?: string;
+  budget?: string;
+  notes?: string;
+  contactName?: string;
+  contactEmail?: string;
+
+  isSubmitted: boolean;
+  submittedAt?: string;
+  generatedPrompt?: string;
+  updatedAt: string;
+}
+
+export type UpsertBriefingDto = Omit<
+  Briefing,
+  'briefingID' | 'projectID' | 'projectName' | 'trackingNumber' | 'isSubmitted' | 'submittedAt' | 'generatedPrompt' | 'updatedAt'
+>;

@@ -7,6 +7,7 @@ import { notificationService } from '../../api/services/notificationService';
 import Badge from '../common/Badge';
 import ProgressBar from '../common/ProgressBar';
 import Notification from '../common/Notification';
+import ProjectBriefingForm from './ProjectBriefingForm';
 import { formatDate, getPhaseIcon } from '../../utils/dateFormatter';
 import type { CreateCommentDto, Comment, Project } from '../../types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -14,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Search, ArrowLeft, Bell, BellOff, Send, Mail, MessageSquare, CheckCircle2, Circle, Clock, Activity, AlertCircle, CalendarDays } from 'lucide-react';
+import { Search, ArrowLeft, Bell, BellOff, Send, Mail, MessageSquare, CheckCircle2, Circle, Clock, Activity, AlertCircle, CalendarDays, ClipboardList, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NotificationState {
@@ -42,6 +43,7 @@ const ProjectTracking = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [showNotificationForm, setShowNotificationForm] = useState(false);
   const [notification, setNotification] = useState<NotificationState>({ show: false, type: 'info', message: '' });
+  const [activeTab, setActiveTab] = useState<'status' | 'briefing'>('status');
 
   const showNotificationMsg = (type: NotificationState['type'], message: string) => setNotification({ show: true, type, message });
 
@@ -104,12 +106,14 @@ const ProjectTracking = () => {
     setShowDetails(false); setProject(null); setTrackingNumber(''); setError('');
     setComments([]); setCommentMessage(''); setAuthorName('');
     setNotificationEmail(''); setIsSubscribed(false); setShowNotificationForm(false);
+    setActiveTab('status');
     setSearchParams({});
   };
 
   useEffect(() => {
     const trackingFromUrl = searchParams.get('tracking');
     if (trackingFromUrl) { setTrackingNumber(trackingFromUrl); loadProjectByTracking(trackingFromUrl); }
+    if (searchParams.get('tab') === 'briefing') setActiveTab('briefing');
   }, []);
 
   // ─── Search View ────────────────────────────────────────────────────────────
@@ -168,6 +172,30 @@ const ProjectTracking = () => {
         <ArrowLeft className="w-4 h-4 mr-1.5" />Zurück zur Suche
       </Button>
 
+      {/* Tab switch */}
+      <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-zinc-100 border border-border">
+        <button
+          type="button"
+          onClick={() => setActiveTab('status')}
+          className={cn('flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors',
+            activeTab === 'status' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+        >
+          <LayoutDashboard className="w-3.5 h-3.5" />Projektstatus
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('briefing')}
+          className={cn('flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors',
+            activeTab === 'briefing' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+        >
+          <ClipboardList className="w-3.5 h-3.5" />Website-Briefing
+        </button>
+      </div>
+
+      {activeTab === 'briefing' && <ProjectBriefingForm trackingNumber={project.trackingNumber} />}
+
+      {activeTab === 'status' && (
+      <>
       {/* Project Overview */}
       <Card className="border border-border shadow-sm">
         <CardContent className="p-6">
@@ -367,6 +395,8 @@ const ProjectTracking = () => {
           </div>
         </CardContent>
       </Card>
+      </>
+      )}
 
       {notification.show && <Notification type={notification.type} message={notification.message} onClose={() => setNotification(n => ({ ...n, show: false }))} />}
     </div>
