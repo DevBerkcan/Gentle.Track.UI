@@ -43,46 +43,48 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-card/95 backdrop-blur-sm border-b border-border px-5 py-3 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+    <header className="bg-card/95 backdrop-blur-sm border-b border-border px-3 sm:px-5 py-3 flex justify-between items-center gap-2 sticky top-0 z-40 shadow-sm">
       {/* Logo */}
       <button
         onClick={() => navigate(isAuthenticated ? '/admin/dashboard' : '/kundenansicht')}
-        className="flex items-center hover:opacity-80 transition-opacity"
+        className="flex items-center hover:opacity-80 transition-opacity shrink-0"
       >
-        <img src={lockupLight} alt="Gentle Track" className="h-6 w-auto" />
+        <img src={lockupLight} alt="Gentle Track" className="h-5 sm:h-6 w-auto" />
       </button>
 
       {/* Navigation */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
         {isAuthenticated && (
           <button
             onClick={() => handleViewChange('admin')}
+            title="Admin"
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+              'flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shrink-0',
               currentView === 'admin'
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
             )}
           >
             <LayoutDashboard className="w-3.5 h-3.5" />
-            Admin
+            <span className="hidden sm:inline">Admin</span>
           </button>
         )}
 
         <button
           onClick={() => handleViewChange('customer')}
+          title="Kundenansicht"
           className={cn(
-            'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+            'flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shrink-0',
             currentView === 'customer'
               ? 'bg-primary text-primary-foreground shadow-sm'
               : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
           )}
         >
           <Eye className="w-3.5 h-3.5" />
-          Kundenansicht
+          <span className="hidden sm:inline">Kundenansicht</span>
         </button>
 
-        <div className="w-px h-5 bg-border mx-1" />
+        <div className="w-px h-5 bg-border mx-0.5 sm:mx-1 shrink-0" />
 
         {isAuthenticated ? (
           <div className="relative" ref={dropdownRef}>

@@ -199,6 +199,8 @@ export type UpsertBriefingDto = Omit<
   'briefingID' | 'projectID' | 'projectName' | 'trackingNumber' | 'isSubmitted' | 'submittedAt' | 'generatedPrompt' | 'updatedAt'
 >;
 
+export type PricingTemplate = 'Einmalzahlung' | 'Hybrid' | 'Monatlich12' | 'Monatlich24';
+
 export interface Offer {
   offerID: number;
   projectID: number;
@@ -206,9 +208,14 @@ export interface Offer {
   trackingNumber?: string;
 
   scope?: string;
-  fixedPrice?: number;
+  pricingTemplate: PricingTemplate;
+  totalPrice?: number;
+  depositPercent?: number;
+  surchargePercent?: number;
+  maintenanceFee?: number;
+  upfrontAmount?: number;
   monthlyPrice?: number;
-  termMonths: 12 | 24;
+  termMonths: number;
 
   status: 'Entwurf' | 'Freigegeben' | 'Angenommen' | 'Abgelehnt';
   responseToken: string;
@@ -218,13 +225,20 @@ export interface Offer {
   updatedAt: string;
 }
 
-export type UpsertOfferDto = Pick<Offer, 'scope' | 'fixedPrice' | 'termMonths'>;
+export type UpsertOfferDto = Pick<Offer,
+  'scope' | 'pricingTemplate' | 'totalPrice' | 'depositPercent' | 'surchargePercent' | 'maintenanceFee' | 'termMonths'
+>;
 
 export interface PublicOffer {
   projectName: string;
   scope?: string;
-  fixedPrice?: number;
+  pricingTemplate: PricingTemplate;
+  totalPrice?: number;
+  depositPercent?: number;
+  surchargePercent?: number;
+  maintenanceFee?: number;
+  upfrontAmount?: number;
   monthlyPrice?: number;
-  termMonths: 12 | 24;
+  termMonths: number;
   status: Offer['status'];
 }

@@ -102,7 +102,7 @@ const CustomerManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <Users className="w-5 h-5 text-primary" />
@@ -117,7 +117,7 @@ const CustomerManagement = () => {
 
       <Card className="border border-border shadow-sm">
         <CardHeader className="border-b border-border pb-4">
-          <div className="relative w-64">
+          <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input placeholder="Kunden suchen…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8 h-8 text-sm" />
           </div>

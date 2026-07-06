@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { offerService } from '../../api/services/offerService';
 import type { PublicOffer } from '../../types';
+import { TEMPLATE_CONFIG } from '../../utils/offerPricing';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, ThumbsUp, ThumbsDown, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
@@ -93,16 +94,25 @@ const OfferResponse = () => {
           <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{offer.scope || '–'}</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Preismodell</p>
+          <p className="text-sm text-foreground mt-1">{TEMPLATE_CONFIG[offer.pricingTemplate]?.label ?? offer.pricingTemplate}</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Einmaliger Preis</p>
-            <p className="text-lg font-semibold text-foreground mt-1">{formatPrice(offer.fixedPrice)}</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              {offer.pricingTemplate === 'Einmalzahlung' ? 'Einmaliger Preis' : 'Anzahlung'}
+            </p>
+            <p className="text-lg font-semibold text-foreground mt-1">{formatPrice(offer.upfrontAmount)}</p>
           </div>
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Monatlicher Preis</p>
-            <p className="text-lg font-semibold text-foreground mt-1">{formatPrice(offer.monthlyPrice)}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">über {offer.termMonths} Monate</p>
-          </div>
+          {offer.pricingTemplate !== 'Einmalzahlung' && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Monatlicher Preis</p>
+              <p className="text-lg font-semibold text-foreground mt-1">{formatPrice(offer.monthlyPrice)}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">über {offer.termMonths} Monate</p>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-center gap-3 pt-4 border-t border-border">

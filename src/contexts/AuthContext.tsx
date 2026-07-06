@@ -50,12 +50,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
       });
 
-      // Backend now returns { token: "...", admin: {...} }
-      const { token, admin: adminData } = response.data;
-      
+      // Backend returns { token, refreshToken, admin: {...} }
+      const { token, refreshToken, admin: adminData } = response.data;
+
       setAdmin(adminData);
       localStorage.setItem('admin', JSON.stringify(adminData));
       localStorage.setItem('token', token);
+      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
     } catch (error: any) {
       if (error.response?.status === 401) {
         throw new Error('Ungültige Anmeldedaten');
@@ -68,6 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAdmin(null);
     localStorage.removeItem('admin');
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
   };
 
   return (

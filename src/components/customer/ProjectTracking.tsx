@@ -184,12 +184,17 @@ const ProjectTracking = () => {
         <ArrowLeft className="w-4 h-4 mr-1.5" />Zurück zur Suche
       </Button>
 
+      {/* Partner-Branding */}
+      <div className="flex justify-center">
+        <img src="/kreavolut_logo.png" alt="Kreavolut" className="h-6 sm:h-7 w-auto opacity-90" />
+      </div>
+
       {/* Tab switch */}
-      <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-secondary border border-border">
+      <div className="flex items-center gap-1 p-1 rounded-xl bg-secondary border border-border w-full sm:w-fit overflow-x-auto">
         <button
           type="button"
           onClick={() => setActiveTab('status')}
-          className={cn('flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors',
+          className={cn('flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
             activeTab === 'status' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
         >
           <LayoutDashboard className="w-3.5 h-3.5" />Projektstatus
@@ -197,7 +202,7 @@ const ProjectTracking = () => {
         <button
           type="button"
           onClick={() => setActiveTab('briefing')}
-          className={cn('flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors',
+          className={cn('flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
             activeTab === 'briefing' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
         >
           <ClipboardList className="w-3.5 h-3.5" />Website-Briefing

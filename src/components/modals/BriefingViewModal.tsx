@@ -121,7 +121,7 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
         </div>
       ) : editing ? (
         <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <F label="Firmenname"><Input value={form.companyName} onChange={e => set('companyName', e.target.value)} /></F>
             <F label="Kontaktperson"><Input value={form.contactName} onChange={e => set('contactName', e.target.value)} /></F>
             <F label="E-Mail"><Input type="email" value={form.contactEmail} onChange={e => set('contactEmail', e.target.value)} /></F>
@@ -181,7 +181,7 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Firmenname" value={briefing.companyName} />
             <Field label="Kontakt" value={briefing.contactName} />
             <Field label="Beschreibung" value={briefing.businessDescription} />

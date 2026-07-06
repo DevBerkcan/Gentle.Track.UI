@@ -1,8 +1,8 @@
 // src/api/apiClient.ts
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
-//const API_BASE_URL = 'https://localhost:7047/api';
-const API_BASE_URL = 'https://gentle-track.runasp.net/api';
+const API_BASE_URL = 'https://localhost:7047/api';
+//const API_BASE_URL = 'https://gentle-track.runasp.net/api';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
