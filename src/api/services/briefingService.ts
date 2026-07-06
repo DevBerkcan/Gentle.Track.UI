@@ -21,4 +21,9 @@ export const briefingService = {
     const response = await apiClient.get<Briefing>(`/Briefing/project/${projectId}`);
     return response.data;
   },
+
+  updateByProjectId: async (projectId: number, data: UpsertBriefingDto): Promise<Briefing> => {
+    const response = await apiClient.put<Briefing>(`/Briefing/project/${projectId}`, data);
+    return response.data;
+  },
 };

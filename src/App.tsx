@@ -11,6 +11,7 @@ import ProjectManagement from './components/admin/ProjectManagement';
 import PhaseManagement from './components/admin/PhaseManagement';
 import AdminManagement from './components/admin/AdminManagement';
 import ProjectTracking from './components/customer/ProjectTracking';
+import OfferResponse from './components/customer/OfferResponse';
 import CommentsManagement from './components/admin/CommentsManagement';
 
 // Admin Layout Wrapper (Protected)
@@ -64,6 +65,7 @@ function App() {
 
                     {/* Customer Routes (Public) */}
                     <Route path="/kundenansicht" element={<CustomerLayout><ProjectTracking /></CustomerLayout>} />
+                    <Route path="/angebot" element={<CustomerLayout><OfferResponse /></CustomerLayout>} />
 
                     {/* Default Route - redirect to customer view (public) */}
                     <Route path="/" element={<Navigate to="/kundenansicht" replace />} />

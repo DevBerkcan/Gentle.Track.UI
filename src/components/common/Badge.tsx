@@ -16,6 +16,9 @@ const statusStyles: Record<string, string> = {
   'Super Admin':          'bg-violet-50 text-violet-700 border border-violet-200',
   'Admin':                'bg-blue-50 text-blue-700 border border-blue-200',
   'Projektmanager':       'bg-amber-50 text-amber-700 border border-amber-200',
+  'Freigegeben':          'bg-blue-50 text-blue-700 border border-blue-200',
+  'Angenommen':           'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  'Abgelehnt':            'bg-rose-50 text-rose-700 border border-rose-200',
 };
 
 const dotColors: Record<string, string> = {
@@ -28,6 +31,9 @@ const dotColors: Record<string, string> = {
   'Super Admin':          'bg-violet-500',
   'Admin':                'bg-blue-500',
   'Projektmanager':       'bg-amber-500',
+  'Freigegeben':          'bg-blue-500',
+  'Angenommen':           'bg-emerald-500',
+  'Abgelehnt':            'bg-rose-500',
 };
 
 const Badge: React.FC<BadgeProps> = ({ status, style }) => {

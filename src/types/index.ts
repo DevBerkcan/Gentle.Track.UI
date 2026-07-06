@@ -47,6 +47,11 @@ export interface Project {
   endDate: string;
   isArchived: boolean;
   daysUntilDeadline?: number;
+  isReleased: boolean;
+  releasedAt?: string;
+  offerStatus?: string;
+  fixedPrice?: number;
+  monthlyPrice?: number;
   phases?: ProjectPhase[];
 }
 
@@ -193,3 +198,33 @@ export type UpsertBriefingDto = Omit<
   Briefing,
   'briefingID' | 'projectID' | 'projectName' | 'trackingNumber' | 'isSubmitted' | 'submittedAt' | 'generatedPrompt' | 'updatedAt'
 >;
+
+export interface Offer {
+  offerID: number;
+  projectID: number;
+  projectName?: string;
+  trackingNumber?: string;
+
+  scope?: string;
+  fixedPrice?: number;
+  monthlyPrice?: number;
+  termMonths: 12 | 24;
+
+  status: 'Entwurf' | 'Freigegeben' | 'Angenommen' | 'Abgelehnt';
+  responseToken: string;
+
+  releasedAt?: string;
+  respondedAt?: string;
+  updatedAt: string;
+}
+
+export type UpsertOfferDto = Pick<Offer, 'scope' | 'fixedPrice' | 'termMonths'>;
+
+export interface PublicOffer {
+  projectName: string;
+  scope?: string;
+  fixedPrice?: number;
+  monthlyPrice?: number;
+  termMonths: 12 | 24;
+  status: Offer['status'];
+}

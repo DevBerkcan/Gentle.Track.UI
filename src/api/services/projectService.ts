@@ -38,6 +38,11 @@ export const projectService = {
     return response.data;
   },
 
+  release: async (id: number): Promise<Project> => {
+    const response = await apiClient.post<Project>(`/Projects/${id}/release`);
+    return response.data;
+  },
+
   archive: async (id: number): Promise<void> => {
     await apiClient.post(`/Projects/${id}/archive`);
   },

@@ -52,7 +52,7 @@ apiClient.interceptors.response.use(
     const currentPath = window.location.pathname;
 
     // Don't handle 401 on login page or customer view
-    if (currentPath.includes('/login') || currentPath.includes('/kundenansicht')) {
+    if (currentPath.includes('/login') || currentPath.includes('/kundenansicht') || currentPath.includes('/angebot')) {
       return Promise.reject(error);
     }
 
