@@ -188,10 +188,10 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
 
           {canRespond && (
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-              <Button type="button" variant="outline" className="text-rose-600 border-rose-200 hover:bg-rose-50" onClick={() => handleRespond(false)} disabled={saving}>
+              <Button type="button" variant="outline" className="text-error border-error/25 hover:bg-error-bg" onClick={() => handleRespond(false)} disabled={saving}>
                 <ThumbsDown className="w-3.5 h-3.5 mr-1.5" />Als abgelehnt markieren
               </Button>
-              <Button type="button" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => handleRespond(true)} disabled={saving}>
+              <Button type="button" className="bg-success hover:bg-success/90" onClick={() => handleRespond(true)} disabled={saving}>
                 <ThumbsUp className="w-3.5 h-3.5 mr-1.5" />Als angenommen markieren
               </Button>
             </div>

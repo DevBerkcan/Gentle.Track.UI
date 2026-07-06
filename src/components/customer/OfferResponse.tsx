@@ -57,7 +57,7 @@ const OfferResponse = () => {
     return (
       <Card className="border border-border shadow-sm max-w-xl">
         <CardContent className="p-8 text-center space-y-3">
-          <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
+          <AlertCircle className="w-10 h-10 text-warning mx-auto" />
           <p className="text-sm text-muted-foreground">{error || 'Angebot nicht gefunden.'}</p>
         </CardContent>
       </Card>
@@ -69,8 +69,8 @@ const OfferResponse = () => {
     return (
       <Card className="border border-border shadow-sm max-w-xl">
         <CardContent className="p-8 text-center space-y-4">
-          <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center mx-auto ${accepted ? 'bg-emerald-50 border-emerald-400' : 'bg-rose-50 border-rose-400'}`}>
-            {accepted ? <CheckCircle2 className="w-7 h-7 text-emerald-500" /> : <XCircle className="w-7 h-7 text-rose-500" />}
+          <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center mx-auto ${accepted ? 'bg-success-bg border-success' : 'bg-error-bg border-error'}`}>
+            {accepted ? <CheckCircle2 className="w-7 h-7 text-success" /> : <XCircle className="w-7 h-7 text-error" />}
           </div>
           <h2 className="text-xl font-bold text-foreground">
             Sie haben dieses Angebot bereits {accepted ? 'angenommen' : 'abgelehnt'}.
@@ -109,7 +109,7 @@ const OfferResponse = () => {
           <Button
             type="button"
             variant="outline"
-            className={`text-rose-600 border-rose-200 hover:bg-rose-50 ${highlightAction === 'reject' ? 'ring-2 ring-rose-300' : ''}`}
+            className={`text-error border-error/25 hover:bg-error-bg ${highlightAction === 'reject' ? 'ring-2 ring-error/30' : ''}`}
             onClick={() => handleRespond('reject')}
             disabled={responding}
           >
@@ -118,7 +118,7 @@ const OfferResponse = () => {
           </Button>
           <Button
             type="button"
-            className={`bg-emerald-600 hover:bg-emerald-700 ${highlightAction === 'accept' ? 'ring-2 ring-emerald-300' : ''}`}
+            className={`bg-success hover:bg-success/90 ${highlightAction === 'accept' ? 'ring-2 ring-success/30' : ''}`}
             onClick={() => handleRespond('accept')}
             disabled={responding}
           >

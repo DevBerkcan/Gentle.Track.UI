@@ -170,7 +170,7 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
       ) : (
         <div className="space-y-5">
           {!briefing.isSubmitted && (
-            <div className="flex items-center gap-2 text-xs bg-amber-50 border border-amber-200 text-amber-700 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 text-xs bg-warning-bg border border-warning/25 text-[#9A6510] rounded-lg px-3 py-2">
               Entwurf – der Kunde hat das Briefing noch nicht final abgeschickt.
             </div>
           )}
@@ -198,11 +198,11 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
           {briefing.notes && <Field label="Anmerkungen" value={briefing.notes} />}
 
           {briefing.generatedPrompt && (
-            <div className="rounded-xl border border-border bg-zinc-50 p-4 space-y-3">
+            <div className="rounded-xl border border-border bg-secondary p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-primary uppercase tracking-wide">KI-Prompt für die Website-Erstellung</p>
                 <Button size="sm" variant="outline" onClick={handleCopy}>
-                  {copied ? <Check className="w-3.5 h-3.5 mr-1.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 mr-1.5 text-success" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
                   {copied ? 'Kopiert!' : 'Kopieren'}
                 </Button>
               </div>

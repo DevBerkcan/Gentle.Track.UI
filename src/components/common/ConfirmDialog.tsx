@@ -33,9 +33,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   type = 'warning'
 }) => {
   const iconMap = {
-    danger: <Trash2 className="w-10 h-10 text-red-500" />,
-    warning: <AlertTriangle className="w-10 h-10 text-amber-500" />,
-    info: <Info className="w-10 h-10 text-blue-500" />
+    danger: <Trash2 className="w-10 h-10 text-error" />,
+    warning: <AlertTriangle className="w-10 h-10 text-warning" />,
+    info: <Info className="w-10 h-10 text-info" />
   };
 
   return (
@@ -56,7 +56,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className={type === 'danger' ? 'bg-red-500 hover:bg-red-600' : ''}
+            className={type === 'danger' ? 'bg-error hover:bg-error/90' : ''}
           >
             {confirmText}
           </AlertDialogAction>

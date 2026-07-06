@@ -15,8 +15,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Search, ArrowLeft, Bell, BellOff, Send, Mail, MessageSquare, CheckCircle2, Circle, Clock, Activity, AlertCircle, CalendarDays, ClipboardList, LayoutDashboard } from 'lucide-react';
+import { Search, ArrowLeft, Bell, BellOff, Send, Mail, MessageSquare, CheckCircle2, Circle, Clock, AlertCircle, CalendarDays, ClipboardList, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import lockupLight from '@/assets/brand/gentle-track-lockup-light.svg';
 
 interface NotificationState {
   show: boolean;
@@ -25,9 +26,25 @@ interface NotificationState {
 }
 
 const PhaseStatusIcon = ({ status }: { status: string }) => {
-  if (status === 'Abgeschlossen') return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
-  if (status === 'In Bearbeitung' || status === 'Warten auf Feedback') return <Clock className="w-5 h-5 text-amber-500" />;
-  return <Circle className="w-5 h-5 text-zinc-300" />;
+  if (status === 'Abgeschlossen') {
+    return (
+      <span className="grid place-items-center w-8 h-8 rounded-full bg-teal text-teal-foreground ring-4 ring-background shrink-0">
+        <CheckCircle2 className="w-4 h-4" />
+      </span>
+    );
+  }
+  if (status === 'In Bearbeitung' || status === 'Warten auf Feedback') {
+    return (
+      <span className="relative grid place-items-center w-9 h-9 -m-0.5 rounded-full bg-primary text-primary-foreground ring-4 ring-background shadow-[0_0_0_6px_var(--accent)] shrink-0">
+        <Clock className="w-4 h-4" />
+      </span>
+    );
+  }
+  return (
+    <span className="grid place-items-center w-8 h-8 rounded-full border-2 border-border bg-card ring-4 ring-background text-text-muted shrink-0">
+      <Circle className="w-3.5 h-3.5" />
+    </span>
+  );
 };
 
 const ProjectTracking = () => {
@@ -121,12 +138,7 @@ const ProjectTracking = () => {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
         {/* Branding */}
-        <div className="flex items-center gap-2.5 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md">
-            <Activity className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <span className="font-bold text-2xl text-foreground tracking-tight">Gentle Track</span>
-        </div>
+        <img src={lockupLight} alt="Gentle Track" className="h-9 w-auto mb-8" />
 
         <h1 className="text-3xl font-bold text-foreground mb-2">Projektfortschritt verfolgen</h1>
         <p className="text-muted-foreground mb-8 max-w-sm">
@@ -173,12 +185,12 @@ const ProjectTracking = () => {
       </Button>
 
       {/* Tab switch */}
-      <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-zinc-100 border border-border">
+      <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-secondary border border-border">
         <button
           type="button"
           onClick={() => setActiveTab('status')}
           className={cn('flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors',
-            activeTab === 'status' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+            activeTab === 'status' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
         >
           <LayoutDashboard className="w-3.5 h-3.5" />Projektstatus
         </button>
@@ -186,7 +198,7 @@ const ProjectTracking = () => {
           type="button"
           onClick={() => setActiveTab('briefing')}
           className={cn('flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors',
-            activeTab === 'briefing' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+            activeTab === 'briefing' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
         >
           <ClipboardList className="w-3.5 h-3.5" />Website-Briefing
         </button>
@@ -210,7 +222,7 @@ const ProjectTracking = () => {
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {isSubscribed && (
-                <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1 rounded-full text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 bg-success-bg border border-success/20 text-[#15805A] px-3 py-1 rounded-full text-xs font-medium">
                   <Bell className="w-3 h-3" />Benachrichtigungen aktiv
                 </span>
               )}
@@ -226,7 +238,7 @@ const ProjectTracking = () => {
           </div>
 
           {project.description && (
-            <p className="text-sm text-muted-foreground leading-relaxed mb-5 p-3.5 bg-zinc-50 rounded-lg border border-border">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5 p-3.5 bg-secondary rounded-lg border border-border">
               {project.description}
             </p>
           )}
@@ -245,7 +257,7 @@ const ProjectTracking = () => {
                 <CalendarDays className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">{item.label}</p>
-                  <p className={cn('text-sm font-semibold', (item as any).urgent && 'text-rose-600')}>{item.value}</p>
+                  <p className={cn('text-sm font-semibold', (item as any).urgent && 'text-error')}>{item.value}</p>
                 </div>
               </div>
             ))}
@@ -267,15 +279,16 @@ const ProjectTracking = () => {
                   <div className="flex flex-col items-center">
                     <PhaseStatusIcon status={phase.status} />
                     {index < project.phases!.length - 1 && (
-                      <div className="w-0.5 flex-1 mt-1 mb-1 bg-border min-h-[1.5rem]" />
+                      <div className={cn('w-0.5 flex-1 mt-1 mb-1 min-h-[1.5rem]', phase.status === 'Abgeschlossen' ? 'bg-teal' : 'bg-border')} />
                     )}
                   </div>
                   {/* Content */}
                   <div className={cn('flex-1 pb-4', index === project.phases!.length - 1 && 'pb-0')}>
                     <div className={cn('p-4 rounded-xl border', {
-                      'bg-emerald-50/50 border-emerald-100': phase.status === 'Abgeschlossen',
-                      'bg-amber-50/50 border-amber-100': phase.status === 'In Bearbeitung' || phase.status === 'Warten auf Feedback',
-                      'bg-zinc-50 border-zinc-100': phase.status !== 'Abgeschlossen' && phase.status !== 'In Bearbeitung' && phase.status !== 'Warten auf Feedback',
+                      'bg-teal-tint border-teal/15': phase.status === 'Abgeschlossen',
+                      'bg-accent border-accent-foreground/15': phase.status === 'In Bearbeitung',
+                      'bg-warning-bg border-warning/15': phase.status === 'Warten auf Feedback',
+                      'bg-secondary border-border': phase.status !== 'Abgeschlossen' && phase.status !== 'In Bearbeitung' && phase.status !== 'Warten auf Feedback',
                     })}>
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <h4 className="font-semibold text-foreground text-sm">
@@ -299,8 +312,8 @@ const ProjectTracking = () => {
         <CardContent className="p-5">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                <Bell className="w-4 h-4 text-emerald-600" />
+              <div className="w-8 h-8 rounded-lg bg-success-bg flex items-center justify-center">
+                <Bell className="w-4 h-4 text-success" />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground">E-Mail-Benachrichtigungen</h3>
@@ -315,7 +328,7 @@ const ProjectTracking = () => {
           </div>
 
           {showNotificationForm && (
-            <div className="mt-4 p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl space-y-3">
+            <div className="mt-4 p-4 bg-success-bg/60 border border-success/15 rounded-xl space-y-3">
               <p className="text-sm text-muted-foreground">
                 {isSubscribed ? 'Sie erhalten bereits Benachrichtigungen. E-Mail ändern oder deaktivieren:' : 'Erhalten Sie Updates über neue Kommentare und Fortschritte.'}
               </p>
@@ -344,7 +357,7 @@ const ProjectTracking = () => {
         </CardHeader>
         <CardContent className="p-5 space-y-5">
           {/* New Comment Form */}
-          <div className="p-4 bg-zinc-50 border border-border rounded-xl space-y-3">
+          <div className="p-4 bg-secondary border border-border rounded-xl space-y-3">
             <h3 className="text-sm font-semibold text-foreground">Kommentar schreiben</h3>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Ihr Name *</Label>
@@ -365,14 +378,14 @@ const ProjectTracking = () => {
               {comments.map(comment => (
                 <div
                   key={comment.commentID}
-                  className={cn('p-4 rounded-xl border-l-4', comment.authorType === 'Admin' ? 'bg-primary/5 border-l-primary' : 'bg-blue-50/50 border-l-blue-400')}
+                  className={cn('p-4 rounded-xl border-l-4', comment.authorType === 'Admin' ? 'bg-primary/5 border-l-primary' : 'bg-info-bg/60 border-l-info')}
                 >
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0', comment.authorType === 'Admin' ? 'bg-primary' : 'bg-blue-500')}>
+                    <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0', comment.authorType === 'Admin' ? 'bg-primary' : 'bg-info')}>
                       {comment.authorName.charAt(0).toUpperCase()}
                     </div>
                     <span className="text-sm font-semibold text-foreground">{comment.authorName}</span>
-                    <span className={cn('text-xs px-2 py-0.5 rounded-full', comment.authorType === 'Admin' ? 'bg-primary/10 text-primary' : 'bg-blue-100 text-blue-700')}>
+                    <span className={cn('text-xs px-2 py-0.5 rounded-full', comment.authorType === 'Admin' ? 'bg-primary/10 text-primary' : 'bg-info-bg text-[#2557B0]')}>
                       {comment.authorType === 'Admin' ? 'Admin' : 'Kunde'}
                     </span>
                     <span className="text-xs text-muted-foreground ml-auto">{formatDate(comment.createdAt)}</span>
@@ -389,7 +402,7 @@ const ProjectTracking = () => {
             </div>
           )}
 
-          <div className="flex items-start gap-2 p-3.5 bg-emerald-50/50 border border-emerald-100 rounded-lg text-xs text-emerald-700">
+          <div className="flex items-start gap-2 p-3.5 bg-success-bg/60 border border-success/15 rounded-lg text-xs text-[#15805A]">
             <Mail className="w-3.5 h-3.5 mt-0.5 shrink-0" />
             <span>Alle Kommentare sind für das Projektteam sichtbar.{isSubscribed && ' Sie erhalten E-Mail-Benachrichtigungen bei neuen Antworten.'}</span>
           </div>

@@ -5,7 +5,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Activity, Loader2, BarChart3, CheckCircle2, Users } from 'lucide-react';
+import { AlertCircle, Loader2, BarChart3, CheckCircle2, Users } from 'lucide-react';
+import lockupDark from '@/assets/brand/gentle-track-lockup-dark.svg';
+import lockupLight from '@/assets/brand/gentle-track-lockup-light.svg';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -33,12 +35,8 @@ const Login = () => {
     <div className="min-h-screen flex">
       {/* Linke Branding-Seite */}
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar flex-col justify-between p-12">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
-            <Activity className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <span className="text-sidebar-foreground font-bold text-xl tracking-tight">Gentle Track</span>
-        </div>
+        <img src={lockupDark} alt="Gentle Track" className="h-8 w-auto" />
+
 
         <div className="space-y-8">
           <div>
@@ -77,11 +75,8 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-6 bg-background">
         <div className="w-full max-w-sm space-y-8">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-2.5 justify-center">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Activity className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-xl text-foreground">Gentle Track</span>
+          <div className="lg:hidden flex items-center justify-center">
+            <img src={lockupLight} alt="Gentle Track" className="h-7 w-auto" />
           </div>
 
           <div>

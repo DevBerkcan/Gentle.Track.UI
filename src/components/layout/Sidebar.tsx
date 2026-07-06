@@ -1,9 +1,11 @@
 // src/components/layout/Sidebar.tsx
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, FolderOpen, Settings, MessageSquare, Shield, Menu, X, Activity } from 'lucide-react';
+import { LayoutDashboard, Users, FolderOpen, Settings, MessageSquare, Shield, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import lockupDark from '@/assets/brand/gentle-track-lockup-dark.svg';
+import lockupLight from '@/assets/brand/gentle-track-lockup-light.svg';
 
 const menuItems = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -50,11 +52,8 @@ const NavItem: React.FC<NavItemProps> = ({ item, isActive, onClick }) => {
 };
 
 const SidebarLogo: React.FC = () => (
-  <div className="flex items-center gap-2.5 px-3 py-2 mb-6">
-    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-      <Activity className="w-4 h-4 text-primary-foreground" />
-    </div>
-    <span className="text-sidebar-foreground font-bold text-base tracking-tight">Gentle Track</span>
+  <div className="px-3 py-2 mb-6">
+    <img src={lockupDark} alt="Gentle Track" className="h-6 w-auto" />
   </div>
 );
 
@@ -91,7 +90,7 @@ const Sidebar: React.FC = () => {
       </aside>
 
       {/* Mobile: Hamburger Button */}
-      <div className="md:hidden flex items-center border-b border-border bg-white px-4 py-2.5">
+      <div className="md:hidden flex items-center border-b border-border bg-card px-4 py-2.5">
         <button
           onClick={() => setMobileOpen(true)}
           className="p-2 rounded-lg hover:bg-accent transition-colors"
@@ -99,12 +98,7 @@ const Sidebar: React.FC = () => {
         >
           <Menu className="w-5 h-5 text-muted-foreground" />
         </button>
-        <div className="flex items-center gap-2 ml-2">
-          <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
-            <Activity className="w-3.5 h-3.5 text-primary-foreground" />
-          </div>
-          <span className="font-semibold text-sm text-foreground">Gentle Track</span>
-        </div>
+        <img src={lockupLight} alt="Gentle Track" className="h-5 w-auto ml-2" />
       </div>
 
       {/* Mobile: Sheet Drawer */}

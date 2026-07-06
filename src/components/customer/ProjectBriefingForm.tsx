@@ -198,8 +198,8 @@ const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumbe
     return (
       <Card className="border border-border shadow-sm max-w-2xl">
         <CardContent className="p-8 text-center space-y-4">
-          <div className="w-14 h-14 rounded-full bg-emerald-50 border-2 border-emerald-400 flex items-center justify-center mx-auto">
-            <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+          <div className="w-14 h-14 rounded-full bg-success-bg border-2 border-success flex items-center justify-center mx-auto">
+            <CheckCircle2 className="w-7 h-7 text-success" />
           </div>
           <h2 className="text-xl font-bold text-foreground">Vielen Dank für Ihr Briefing!</h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
@@ -227,7 +227,7 @@ const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumbe
   return (
     <div className="space-y-5 max-w-2xl">
       {wasSubmitted && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-zinc-50 border border-border rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary border border-border rounded-lg px-3 py-2">
           <Pencil className="w-3.5 h-3.5 shrink-0" />
           Sie bearbeiten ein bereits übermitteltes Briefing. Speichern Sie erneut, um Ihre Änderungen zu übernehmen.
         </div>

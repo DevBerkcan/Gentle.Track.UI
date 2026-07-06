@@ -6,43 +6,45 @@ interface BadgeProps {
   style?: React.CSSProperties;
 }
 
+// Statusfarben nach Gentle-Track-Markenrichtlinie:
+// Teal/Success = fertig · Indigo = aktiv · Amber = wartet · Rot = blockiert · Grau = geplant
 const statusStyles: Record<string, string> = {
-  'Planung':              'bg-violet-50 text-violet-700 border border-violet-200',
-  'In Bearbeitung':       'bg-blue-50 text-blue-700 border border-blue-200',
-  'Warten auf Feedback':  'bg-amber-50 text-amber-700 border border-amber-200',
-  'Abgeschlossen':        'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  'Aktiv':                'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  'Inaktiv':              'bg-zinc-100 text-zinc-600 border border-zinc-200',
-  'Super Admin':          'bg-violet-50 text-violet-700 border border-violet-200',
-  'Admin':                'bg-blue-50 text-blue-700 border border-blue-200',
-  'Projektmanager':       'bg-amber-50 text-amber-700 border border-amber-200',
-  'Freigegeben':          'bg-blue-50 text-blue-700 border border-blue-200',
-  'Angenommen':           'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  'Abgelehnt':            'bg-rose-50 text-rose-700 border border-rose-200',
+  'Planung':              'bg-secondary text-foreground/70 border border-border',
+  'In Bearbeitung':       'bg-accent text-accent-foreground border border-accent-foreground/15',
+  'Warten auf Feedback':  'bg-warning-bg text-[#9A6510] border border-warning/20',
+  'Abgeschlossen':        'bg-success-bg text-[#15805A] border border-success/20',
+  'Aktiv':                'bg-success-bg text-[#15805A] border border-success/20',
+  'Inaktiv':              'bg-secondary text-foreground/70 border border-border',
+  'Super Admin':          'bg-accent text-accent-foreground border border-accent-foreground/15',
+  'Admin':                'bg-info-bg text-[#2557B0] border border-info/20',
+  'Projektmanager':       'bg-warning-bg text-[#9A6510] border border-warning/20',
+  'Freigegeben':          'bg-success-bg text-[#15805A] border border-success/20',
+  'Angenommen':           'bg-success-bg text-[#15805A] border border-success/20',
+  'Abgelehnt':            'bg-error-bg text-[#A23531] border border-error/20',
 };
 
 const dotColors: Record<string, string> = {
-  'Planung':              'bg-violet-500',
-  'In Bearbeitung':       'bg-blue-500',
-  'Warten auf Feedback':  'bg-amber-500',
-  'Abgeschlossen':        'bg-emerald-500',
-  'Aktiv':                'bg-emerald-500',
-  'Inaktiv':              'bg-zinc-400',
-  'Super Admin':          'bg-violet-500',
-  'Admin':                'bg-blue-500',
-  'Projektmanager':       'bg-amber-500',
-  'Freigegeben':          'bg-blue-500',
-  'Angenommen':           'bg-emerald-500',
-  'Abgelehnt':            'bg-rose-500',
+  'Planung':              'bg-text-muted',
+  'In Bearbeitung':       'bg-primary',
+  'Warten auf Feedback':  'bg-warning',
+  'Abgeschlossen':        'bg-success',
+  'Aktiv':                'bg-success',
+  'Inaktiv':              'bg-text-muted',
+  'Super Admin':          'bg-primary',
+  'Admin':                'bg-info',
+  'Projektmanager':       'bg-warning',
+  'Freigegeben':          'bg-success',
+  'Angenommen':           'bg-success',
+  'Abgelehnt':            'bg-error',
 };
 
 const Badge: React.FC<BadgeProps> = ({ status, style }) => {
-  const badgeClass = statusStyles[status] ?? 'bg-zinc-100 text-zinc-600 border border-zinc-200';
-  const dotClass = dotColors[status] ?? 'bg-zinc-400';
+  const badgeClass = statusStyles[status] ?? 'bg-secondary text-foreground/70 border border-border';
+  const dotClass = dotColors[status] ?? 'bg-text-muted';
 
   return (
     <span
-      className={cn('inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium', badgeClass)}
+      className={cn('inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold', badgeClass)}
       style={style}
     >
       <span className={cn('w-1.5 h-1.5 rounded-full', dotClass)} />

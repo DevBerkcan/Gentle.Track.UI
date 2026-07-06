@@ -81,8 +81,8 @@ const AdminManagement = () => {
 
   if (!isOwner) return (
     <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
-      <div className="w-16 h-16 rounded-full bg-zinc-100 flex items-center justify-center">
-        <Lock className="w-8 h-8 text-zinc-400" />
+      <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
+        <Lock className="w-8 h-8 text-text-muted" />
       </div>
       <div>
         <h2 className="text-lg font-semibold text-foreground mb-1">Zugriff verweigert</h2>
@@ -99,7 +99,7 @@ const AdminManagement = () => {
     {
       header: 'Rolle', accessor: 'role',
       render: (v: string) => (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${v === 'Owner' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}`}>
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${v === 'Owner' ? 'bg-warning-bg text-[#9A6510] border border-warning/25' : 'bg-info-bg text-[#2557B0] border border-info/25'}`}>
           {v === 'Owner' ? <Key className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}{v}
         </span>
       )
@@ -152,13 +152,13 @@ const AdminManagement = () => {
         <CardContent className="p-4">
           <h4 className="text-sm font-semibold text-primary mb-2">Rollen-Übersicht</h4>
           <div className="space-y-1.5 text-sm text-muted-foreground">
-            <p><span className="font-medium text-amber-700">Owner:</span> Vollzugriff auf alle Funktionen, Projekte und Kunden</p>
-            <p><span className="font-medium text-blue-700">Admin:</span> Zugriff auf alle oder zugewiesene Projekte</p>
+            <p><span className="font-medium text-[#9A6510]">Owner:</span> Vollzugriff auf alle Funktionen, Projekte und Kunden</p>
+            <p><span className="font-medium text-[#2557B0]">Admin:</span> Zugriff auf alle oder zugewiesene Projekte</p>
           </div>
           <div className="flex gap-3 mt-3 text-xs font-medium flex-wrap">
             <span className="bg-primary/10 text-primary px-2 py-1 rounded-md">Gesamt: {admins.length}</span>
-            <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md">Aktiv: {admins.filter(a => a.status === 'Aktiv').length}</span>
-            {inactiveCount > 0 && <span className="bg-rose-50 text-rose-700 px-2 py-1 rounded-md">Inaktiv: {inactiveCount}</span>}
+            <span className="bg-success-bg text-[#15805A] px-2 py-1 rounded-md">Aktiv: {admins.filter(a => a.status === 'Aktiv').length}</span>
+            {inactiveCount > 0 && <span className="bg-error-bg text-[#A23531] px-2 py-1 rounded-md">Inaktiv: {inactiveCount}</span>}
           </div>
         </CardContent>
       </Card>

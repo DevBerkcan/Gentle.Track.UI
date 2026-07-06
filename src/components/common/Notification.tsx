@@ -13,21 +13,21 @@ interface NotificationProps {
 const config = {
   success: {
     icon: CheckCircle2,
-    classes: 'bg-emerald-50 border-emerald-200 text-emerald-800',
-    iconClass: 'text-emerald-500',
-    bar: 'bg-emerald-500',
+    classes: 'bg-success-bg border-success/25 text-[#15805A]',
+    iconClass: 'text-success',
+    bar: 'bg-success',
   },
   error: {
     icon: XCircle,
-    classes: 'bg-rose-50 border-rose-200 text-rose-800',
-    iconClass: 'text-rose-500',
-    bar: 'bg-rose-500',
+    classes: 'bg-error-bg border-error/25 text-[#A23531]',
+    iconClass: 'text-error',
+    bar: 'bg-error',
   },
   warning: {
     icon: AlertTriangle,
-    classes: 'bg-amber-50 border-amber-200 text-amber-800',
-    iconClass: 'text-amber-500',
-    bar: 'bg-amber-500',
+    classes: 'bg-warning-bg border-warning/25 text-[#9A6510]',
+    iconClass: 'text-warning',
+    bar: 'bg-warning',
   },
   info: {
     icon: Info,

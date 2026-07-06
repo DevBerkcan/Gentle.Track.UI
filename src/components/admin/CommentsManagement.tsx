@@ -117,7 +117,7 @@ const CommentsManagement = () => {
           </div>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-md">{allComments.length} gesamt</span>
-            <span className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md">{customerComments} von Kunden</span>
+            <span className="text-xs font-medium bg-info-bg text-[#2557B0] px-2 py-0.5 rounded-md">{customerComments} von Kunden</span>
           </div>
         </div>
         <div className="relative">
@@ -143,7 +143,7 @@ const CommentsManagement = () => {
           return (
             <Card key={projectId} className="border border-border shadow-sm overflow-hidden">
               <CardHeader
-                className={cn('pb-3 cursor-pointer hover:bg-zinc-50 transition-colors', !isCollapsed && 'border-b border-border')}
+                className={cn('pb-3 cursor-pointer hover:bg-secondary transition-colors', !isCollapsed && 'border-b border-border')}
                 onClick={() => setCollapsedProjects(prev => ({ ...prev, [projectIdNum]: !prev[projectIdNum] }))}
               >
                 <div className="flex items-center justify-between gap-3">
@@ -205,15 +205,15 @@ const CommentsManagement = () => {
                         'p-4 rounded-xl border-l-4',
                         comment.authorType === 'Admin'
                           ? 'bg-primary/5 border-l-primary'
-                          : 'bg-blue-50/50 border-l-blue-400'
+                          : 'bg-info-bg/60 border-l-info'
                       )}
                     >
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0', comment.authorType === 'Admin' ? 'bg-primary' : 'bg-blue-500')}>
+                        <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0', comment.authorType === 'Admin' ? 'bg-primary' : 'bg-info')}>
                           {comment.authorName.charAt(0).toUpperCase()}
                         </div>
                         <span className="text-sm font-semibold text-foreground">{comment.authorName}</span>
-                        <span className={cn('text-xs px-2 py-0.5 rounded-full', comment.authorType === 'Admin' ? 'bg-primary/10 text-primary' : 'bg-blue-100 text-blue-700')}>
+                        <span className={cn('text-xs px-2 py-0.5 rounded-full', comment.authorType === 'Admin' ? 'bg-primary/10 text-primary' : 'bg-info-bg text-[#2557B0]')}>
                           {comment.authorType === 'Admin' ? 'Admin' : 'Kunde'}
                         </span>
                         <span className="text-xs text-muted-foreground ml-auto">{formatDate(comment.createdAt)}</span>

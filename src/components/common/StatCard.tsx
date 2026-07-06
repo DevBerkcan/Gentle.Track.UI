@@ -15,7 +15,7 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, iconColor = 'text-primary', iconBg = 'bg-primary/10' }) => {
   return (
-    <Card className="bg-white border border-border shadow-sm hover:shadow-md transition-all duration-200 cursor-default group">
+    <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-200 cursor-default group">
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1 min-w-0">

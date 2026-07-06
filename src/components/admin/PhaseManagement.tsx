@@ -20,17 +20,17 @@ interface NotificationState { show: boolean; type: 'success' | 'error' | 'warnin
 interface ConfirmState { show: boolean; title: string; message: string; onConfirm: () => void; type?: 'danger' | 'warning' | 'info'; }
 
 const statusColors: Record<string, string> = {
-  'Abgeschlossen':        'border-l-emerald-500 bg-emerald-50/50',
-  'In Bearbeitung':       'border-l-blue-500 bg-blue-50/50',
-  'Warten auf Feedback':  'border-l-amber-500 bg-amber-50/50',
-  'Noch nicht gestartet': 'border-l-zinc-300 bg-zinc-50/50',
+  'Abgeschlossen':        'border-l-success bg-success-bg/60',
+  'In Bearbeitung':       'border-l-info bg-info-bg/60',
+  'Warten auf Feedback':  'border-l-warning bg-warning-bg/60',
+  'Noch nicht gestartet': 'border-l-border bg-secondary/60',
 };
 
 const dotColors: Record<string, string> = {
-  'Abgeschlossen':        'bg-emerald-500 border-emerald-200',
-  'In Bearbeitung':       'bg-blue-500 border-blue-200',
-  'Warten auf Feedback':  'bg-amber-500 border-amber-200',
-  'Noch nicht gestartet': 'bg-zinc-300 border-zinc-200',
+  'Abgeschlossen':        'bg-success border-success/25',
+  'In Bearbeitung':       'bg-info border-info/25',
+  'Warten auf Feedback':  'bg-warning border-warning/25',
+  'Noch nicht gestartet': 'bg-border border-border',
 };
 
 const PhaseManagement = () => {
@@ -171,12 +171,12 @@ const PhaseManagement = () => {
                   {phases.map((phase, index) => (
                     <div key={phase.phaseID} className="relative pl-8">
                       {/* Timeline dot */}
-                      <div className={cn('absolute left-0 top-5 w-4 h-4 rounded-full border-2 bg-white', dotColors[phase.status] ?? 'bg-zinc-300 border-zinc-200')} />
+                      <div className={cn('absolute left-0 top-5 w-4 h-4 rounded-full border-2 bg-white', dotColors[phase.status] ?? 'bg-border border-border')} />
                       {/* Timeline line */}
                       {index < phases.length - 1 && (
                         <div className="absolute left-[7px] top-9 w-0.5 h-[calc(100%+0.75rem)] bg-border" />
                       )}
-                      <Card className={cn('border-l-4', statusColors[phase.status] ?? 'border-l-zinc-300')}>
+                      <Card className={cn('border-l-4', statusColors[phase.status] ?? 'border-l-border')}>
                         <CardContent className="p-4">
                           <div className="flex justify-between items-start gap-4">
                             <div className="min-w-0">

@@ -19,7 +19,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute>
     <div className="flex flex-1 min-h-0">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-zinc-50/60 scrollbar-thin">
+      <main className="flex-1 overflow-y-auto bg-secondary/60 scrollbar-thin">
         <div className="p-6 lg:p-8 page-fade-in">
           {children}
         </div>

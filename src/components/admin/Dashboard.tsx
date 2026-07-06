@@ -150,22 +150,22 @@ const statusOptions = [
           title="Kunden gesamt"
           value={stats?.totalCustomers || 0}
           icon={Users}
-          iconColor="text-blue-600"
-          iconBg="bg-blue-50"
+          iconColor="text-info"
+          iconBg="bg-info-bg"
         />
         <StatCard
           title="Abgeschlossen"
           value={stats?.completedProjects || 0}
           icon={FolderCheck}
-          iconColor="text-emerald-600"
-          iconBg="bg-emerald-50"
+          iconColor="text-success"
+          iconBg="bg-success-bg"
         />
         <StatCard
           title="Kommentare"
           value={stats?.totalComments || 0}
           icon={MessageSquare}
-          iconColor="text-amber-600"
-          iconBg="bg-amber-50"
+          iconColor="text-warning"
+          iconBg="bg-warning-bg"
         />
       </div>
 

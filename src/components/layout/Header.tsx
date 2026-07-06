@@ -3,8 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut, LogIn, ChevronDown, Activity, LayoutDashboard, Eye } from 'lucide-react';
+import { LogOut, LogIn, ChevronDown, LayoutDashboard, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import lockupLight from '@/assets/brand/gentle-track-lockup-light.svg';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -42,16 +43,13 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white/95 backdrop-blur-sm border-b border-border px-5 py-3 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+    <header className="bg-card/95 backdrop-blur-sm border-b border-border px-5 py-3 flex justify-between items-center sticky top-0 z-40 shadow-sm">
       {/* Logo */}
       <button
         onClick={() => navigate(isAuthenticated ? '/admin/dashboard' : '/kundenansicht')}
-        className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+        className="flex items-center hover:opacity-80 transition-opacity"
       >
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-          <Activity className="w-4 h-4 text-primary-foreground" />
-        </div>
-        <span className="font-bold text-lg text-foreground tracking-tight">Gentle Track</span>
+        <img src={lockupLight} alt="Gentle Track" className="h-6 w-auto" />
       </button>
 
       {/* Navigation */}
@@ -102,7 +100,7 @@ const Header: React.FC = () => {
             </button>
 
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-60 rounded-xl border border-border bg-white shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 mt-2 w-60 rounded-xl border border-border bg-card shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="p-3.5 border-b border-border/60">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
