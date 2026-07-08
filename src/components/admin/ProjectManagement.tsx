@@ -121,29 +121,29 @@ const ProjectManagement = () => {
     {
       header: "Aktionen", accessor: "projectID",
       render: (_: any, project: Project) => (
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" onClick={() => handleEdit(project.projectID)}>
-            <Pencil className="w-3.5 h-3.5 mr-1" />Bearbeiten
+        <div className="flex flex-wrap gap-1.5">
+          <Button size="icon-sm" onClick={() => handleEdit(project.projectID)} title="Bearbeiten" aria-label="Bearbeiten">
+            <Pencil className="w-3.5 h-3.5" />
           </Button>
-          <Button size="sm" variant="outline" onClick={() => setBriefingProject(project)}>
-            <ClipboardList className="w-3.5 h-3.5 mr-1" />Briefing
+          <Button size="icon-sm" variant="outline" onClick={() => setBriefingProject(project)} title="Briefing" aria-label="Briefing">
+            <ClipboardList className="w-3.5 h-3.5" />
           </Button>
           {!project.isReleased ? (
-            <Button size="sm" variant="outline" onClick={() => handleRelease(project.projectID, project.projectName)}>
-              <Send className="w-3.5 h-3.5 mr-1" />Projekt freigeben
+            <Button size="icon-sm" variant="outline" onClick={() => handleRelease(project.projectID, project.projectName)} title="Projekt freigeben" aria-label="Projekt freigeben">
+              <Send className="w-3.5 h-3.5" />
             </Button>
           ) : (
-            <Button size="sm" variant="outline" onClick={() => setOfferProject(project)}>
-              <Tag className="w-3.5 h-3.5 mr-1" />{isOwner ? "Preis festlegen" : "Angebot"}
+            <Button size="icon-sm" variant="outline" onClick={() => setOfferProject(project)} title={isOwner ? "Preis festlegen" : "Angebot"} aria-label={isOwner ? "Preis festlegen" : "Angebot"}>
+              <Tag className="w-3.5 h-3.5" />
             </Button>
           )}
           {!project.isArchived ? (
-            <Button size="sm" variant="secondary" onClick={() => handleArchive(project.projectID, project.projectName)}>
-              <Archive className="w-3.5 h-3.5 mr-1" />Archivieren
+            <Button size="icon-sm" variant="secondary" onClick={() => handleArchive(project.projectID, project.projectName)} title="Archivieren" aria-label="Archivieren">
+              <Archive className="w-3.5 h-3.5" />
             </Button>
           ) : (
-            <Button size="sm" variant="outline" onClick={() => handleRestore(project.projectID, project.projectName)}>
-              <RotateCcw className="w-3.5 h-3.5 mr-1" />Wiederherstellen
+            <Button size="icon-sm" variant="outline" onClick={() => handleRestore(project.projectID, project.projectName)} title="Wiederherstellen" aria-label="Wiederherstellen">
+              <RotateCcw className="w-3.5 h-3.5" />
             </Button>
           )}
         </div>

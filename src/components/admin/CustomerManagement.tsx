@@ -81,12 +81,12 @@ const CustomerManagement = () => {
     {
       header: 'Aktionen', accessor: 'customerID',
       render: (_: any, customer: Customer) => (
-        <div className="flex gap-2">
-          <Button size="sm" onClick={() => { setSelectedCustomer(customer); setIsModalOpen(true); }}>
-            <Pencil className="w-3.5 h-3.5 mr-1" />Bearbeiten
+        <div className="flex gap-1.5">
+          <Button size="icon-sm" onClick={() => { setSelectedCustomer(customer); setIsModalOpen(true); }} title="Bearbeiten" aria-label="Bearbeiten">
+            <Pencil className="w-3.5 h-3.5" />
           </Button>
-          <Button size="sm" variant="destructive" onClick={() => handleDelete(customer.customerID, customer.companyName)}>
-            <Trash2 className="w-3.5 h-3.5 mr-1" />Löschen
+          <Button size="icon-sm" variant="destructive" onClick={() => handleDelete(customer.customerID, customer.companyName)} title="Löschen" aria-label="Löschen">
+            <Trash2 className="w-3.5 h-3.5" />
           </Button>
         </div>
       )

@@ -3,12 +3,10 @@ import { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
 import Notification from '../common/Notification';
 import { briefingService } from '../../api/services/briefingService';
+import BriefingWizardForm from '../briefing/BriefingWizardForm';
 import type { Briefing, UpsertBriefingDto } from '../../types';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Loader2, Copy, Check, ClipboardList, Mail, Pencil, Save, X } from 'lucide-react';
+import { Loader2, Copy, Check, ClipboardList, Mail, Pencil, Save } from 'lucide-react';
 
 interface BriefingViewModalProps {
   isOpen: boolean;
@@ -49,17 +47,11 @@ const formFromBriefing = (b: Briefing): UpsertBriefingDto => ({
   deadline: b.deadline || '', budget: b.budget || '', notes: b.notes || '', contactName: b.contactName || '', contactEmail: b.contactEmail || '',
 });
 
-const F = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div className="space-y-1">
-    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</Label>
-    {children}
-  </div>
-);
-
 export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, onClose, projectId, projectName }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [step, setStep] = useState(1);
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [form, setForm] = useState<UpsertBriefingDto>(emptyForm);
   const [notFound, setNotFound] = useState(false);
@@ -89,27 +81,32 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
     });
   };
 
-  const set = (field: keyof UpsertBriefingDto, value: string) => setForm(f => ({ ...f, [field]: value }));
+  const handleFieldChange = (field: keyof UpsertBriefingDto, value: string) => setForm(f => ({ ...f, [field]: value }));
 
   const startEditing = () => {
     setForm(briefing ? formFromBriefing(briefing) : emptyForm);
+    setStep(1);
     setEditing(true);
   };
 
-  const handleSave = async () => {
+  const persist = async () => {
     if (!projectId) return;
     try {
       setSaving(true);
       const result = await briefingService.updateByProjectId(projectId, form);
       setBriefing(result);
       setNotFound(false);
-      setEditing(false);
-      notify('success', 'Briefing gespeichert.');
     } catch {
       notify('error', 'Briefing konnte nicht gespeichert werden.');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSave = async () => {
+    await persist();
+    setEditing(false);
+    notify('success', 'Briefing gespeichert.');
   };
 
   return (
@@ -120,44 +117,19 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
           <p className="text-sm">Briefing wird geladen…</p>
         </div>
       ) : editing ? (
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <F label="Firmenname"><Input value={form.companyName} onChange={e => set('companyName', e.target.value)} /></F>
-            <F label="Kontaktperson"><Input value={form.contactName} onChange={e => set('contactName', e.target.value)} /></F>
-            <F label="E-Mail"><Input type="email" value={form.contactEmail} onChange={e => set('contactEmail', e.target.value)} /></F>
-            <F label="Logo vorhanden"><Input value={form.hasLogo} onChange={e => set('hasLogo', e.target.value)} /></F>
-            <F label="Bestehende Website"><Input value={form.hasExistingWebsite} onChange={e => set('hasExistingWebsite', e.target.value)} /></F>
-            <F label="Website-URL"><Input value={form.existingUrl} onChange={e => set('existingUrl', e.target.value)} /></F>
-            <F label="Ziel"><Input value={form.goals} onChange={e => set('goals', e.target.value)} /></F>
-            <F label="Zielgruppe"><Input value={form.audience} onChange={e => set('audience', e.target.value)} /></F>
-            <F label="Region"><Input value={form.region} onChange={e => set('region', e.target.value)} /></F>
-            <F label="Stil"><Input value={form.style} onChange={e => set('style', e.target.value)} /></F>
-            <F label="Farben"><Input value={form.colors} onChange={e => set('colors', e.target.value)} /></F>
-            <F label="Animationsgrad"><Input value={form.animations} onChange={e => set('animations', e.target.value)} /></F>
-            <F label="Seiten"><Input value={form.pages} onChange={e => set('pages', e.target.value)} /></F>
-            <F label="Funktionen"><Input value={form.features} onChange={e => set('features', e.target.value)} /></F>
-            <F label="CMS gewünscht"><Input value={form.needsCms} onChange={e => set('needsCms', e.target.value)} /></F>
-            <F label="Texte vorhanden"><Input value={form.hasTexts} onChange={e => set('hasTexts', e.target.value)} /></F>
-            <F label="Bilder vorhanden"><Input value={form.hasImages} onChange={e => set('hasImages', e.target.value)} /></F>
-            <F label="SEO wichtig"><Input value={form.seoImportant} onChange={e => set('seoImportant', e.target.value)} /></F>
-            <F label="Domain/Hosting vorhanden"><Input value={form.hasDomain} onChange={e => set('hasDomain', e.target.value)} /></F>
-            <F label="Deadline"><Input value={form.deadline} onChange={e => set('deadline', e.target.value)} /></F>
-            <F label="Budget"><Input value={form.budget} onChange={e => set('budget', e.target.value)} /></F>
-          </div>
-          <F label="Beschreibung"><Textarea rows={3} value={form.businessDescription} onChange={e => set('businessDescription', e.target.value)} /></F>
-          <F label="Referenzen / Inspirationen"><Textarea rows={2} value={form.references} onChange={e => set('references', e.target.value)} /></F>
-          <F label="Anmerkungen"><Textarea rows={3} value={form.notes} onChange={e => set('notes', e.target.value)} /></F>
-
-          <div className="flex items-center justify-end gap-2 pt-2">
-            <Button type="button" variant="secondary" onClick={() => setEditing(false)} disabled={saving}>
-              <X className="w-3.5 h-3.5 mr-1.5" />Abbrechen
-            </Button>
-            <Button type="button" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
-              Speichern
-            </Button>
-          </div>
-        </div>
+        <BriefingWizardForm
+          formData={form}
+          onFieldChange={handleFieldChange}
+          step={step}
+          onStepChange={setStep}
+          saving={saving}
+          onPersist={persist}
+          onFinish={handleSave}
+          finishLabel="Speichern"
+          finishIcon={<Save className="w-4 h-4 mr-1.5" />}
+          onCancel={() => setEditing(false)}
+          requireContact={false}
+        />
       ) : notFound || !briefing || (!briefing.isSubmitted && !briefing.companyName) ? (
         <div className="flex flex-col items-center gap-3 py-14 text-muted-foreground">
           <ClipboardList className="w-8 h-8 opacity-30" />

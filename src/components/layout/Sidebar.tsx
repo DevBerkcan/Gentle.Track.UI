@@ -4,8 +4,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, FolderOpen, Settings, MessageSquare, Shield, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import lockupDark from '@/assets/brand/gentle-track-lockup-dark.svg';
-import lockupLight from '@/assets/brand/gentle-track-lockup-light.svg';
 
 const menuItems = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -51,12 +49,6 @@ const NavItem: React.FC<NavItemProps> = ({ item, isActive, onClick }) => {
   );
 };
 
-const SidebarLogo: React.FC = () => (
-  <div className="px-3 py-2 mb-6">
-    <img src={lockupDark} alt="Gentle Track" className="h-6 w-auto" />
-  </div>
-);
-
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const currentSection = useCurrentSection();
@@ -72,8 +64,7 @@ const Sidebar: React.FC = () => {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-60 bg-sidebar shrink-0 border-r border-sidebar-border">
         <div className="p-4 pt-5 flex-1">
-          <SidebarLogo />
-          <div className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-widest px-3 mb-2">
+          <div className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-widest px-3 mb-2 mt-1">
             Navigation
           </div>
           <nav className="space-y-0.5">
@@ -98,7 +89,7 @@ const Sidebar: React.FC = () => {
         >
           <Menu className="w-5 h-5 text-muted-foreground" />
         </button>
-        <img src={lockupLight} alt="Gentle Track" className="h-5 w-auto ml-2" />
+        <span className="ml-2 text-sm font-semibold text-foreground">Navigation</span>
       </div>
 
       {/* Mobile: Sheet Drawer */}
@@ -109,16 +100,15 @@ const Sidebar: React.FC = () => {
           </SheetHeader>
           <div className="p-4 pt-5">
             <div className="flex items-center justify-between mb-6">
-              <SidebarLogo />
+              <span className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-widest px-3">
+                Navigation
+              </span>
               <button
                 onClick={() => setMobileOpen(false)}
                 className="p-1.5 rounded-lg hover:bg-sidebar-accent transition-colors"
               >
                 <X className="w-4 h-4 text-sidebar-foreground/60" />
               </button>
-            </div>
-            <div className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-widest px-3 mb-2">
-              Navigation
             </div>
             <nav className="space-y-0.5">
               {menuItems.map((item) => (

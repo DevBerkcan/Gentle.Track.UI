@@ -9,7 +9,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
-import { Trash2, AlertTriangle, Info } from 'lucide-react';
+import { Trash2, AlertTriangle, Info, Check, X } from 'lucide-react';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -38,6 +38,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     info: <Info className="w-10 h-10 text-info" />
   };
 
+  const confirmIconMap = {
+    danger: <Trash2 className="w-3.5 h-3.5 mr-1.5" />,
+    warning: <Check className="w-3.5 h-3.5 mr-1.5" />,
+    info: <Check className="w-3.5 h-3.5 mr-1.5" />
+  };
+
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => { if (!open) onCancel(); }}>
       <AlertDialogContent className="max-w-md">
@@ -52,13 +58,13 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </AlertDialogHeader>
         <AlertDialogFooter className="sm:justify-center gap-2">
           <AlertDialogCancel onClick={onCancel}>
-            {cancelText}
+            <X className="w-3.5 h-3.5 mr-1.5" />{cancelText}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className={type === 'danger' ? 'bg-error hover:bg-error/90' : ''}
           >
-            {confirmText}
+            {confirmIconMap[type]}{confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

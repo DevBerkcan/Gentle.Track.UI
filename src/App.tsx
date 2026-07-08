@@ -17,7 +17,7 @@ import CommentsManagement from './components/admin/CommentsManagement';
 // Admin Layout Wrapper (Protected)
 const AdminLayout = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute>
-    <div className="flex flex-1 min-h-0">
+    <div className="flex flex-col md:flex-row flex-1 min-h-0">
       <Sidebar />
       <main className="flex-1 overflow-y-auto bg-secondary/60 scrollbar-thin">
         <div className="p-4 sm:p-6 lg:p-8 page-fade-in">

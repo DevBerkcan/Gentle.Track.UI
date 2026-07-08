@@ -6,6 +6,7 @@ import Modal from '../common/Modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { UserPlus, X, Loader2 } from 'lucide-react';
 import type { Project } from '../../types';
 
 interface AdminModalProps {
@@ -160,10 +161,11 @@ const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose, onSaveSuccess 
         )}
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={loading}>
-            {loading ? 'Speichern...' : '✓ Administrator erstellen'}
+            {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <UserPlus className="w-4 h-4 mr-1.5" />}
+            {loading ? 'Speichern...' : 'Administrator erstellen'}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
-            Abbrechen
+            <X className="w-4 h-4 mr-1.5" />Abbrechen
           </Button>
         </div>
       </form>

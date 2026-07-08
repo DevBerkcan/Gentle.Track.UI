@@ -6,6 +6,7 @@ import Modal from '../common/Modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Save, Trash2, X, AlertTriangle, Loader2 } from 'lucide-react';
 import type { Admin, Project } from '../../types';
 
 interface EditAdminModalProps {
@@ -106,7 +107,7 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
       {showDeleteConfirm ? (
         <div className="space-y-6">
           <div className="text-center space-y-3">
-            <div className="text-5xl">⚠️</div>
+            <AlertTriangle className="w-10 h-10 text-destructive mx-auto" />
             <h3 className="text-lg font-semibold text-destructive">Administrator unwiderruflich löschen?</h3>
             <p className="text-sm text-muted-foreground">
               Der Administrator „{admin?.name}" ({admin?.email}) wird permanent gelöscht.
@@ -118,10 +119,11 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
           )}
           <div className="flex gap-2">
             <Button variant="destructive" onClick={handleDelete} disabled={loading} className="flex-1">
-              {loading ? 'Löschen...' : '🗑️ Ja, endgültig löschen'}
+              {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1.5" />}
+              {loading ? 'Löschen...' : 'Ja, endgültig löschen'}
             </Button>
             <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)} disabled={loading} className="flex-1">
-              Abbrechen
+              <X className="w-4 h-4 mr-1.5" />Abbrechen
             </Button>
           </div>
         </div>
@@ -206,13 +208,14 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
           )}
           <div className="flex gap-2 pt-2">
             <Button type="submit" disabled={loading}>
-              {loading ? 'Speichern...' : '✓ Speichern'}
+              {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Save className="w-4 h-4 mr-1.5" />}
+              {loading ? 'Speichern...' : 'Speichern'}
             </Button>
             <Button type="button" variant="destructive" onClick={() => setShowDeleteConfirm(true)} disabled={loading}>
-              🗑️ Löschen
+              <Trash2 className="w-4 h-4 mr-1.5" />Löschen
             </Button>
             <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
-              Abbrechen
+              <X className="w-4 h-4 mr-1.5" />Abbrechen
             </Button>
           </div>
         </form>

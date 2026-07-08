@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { adminService } from '../../api/services/adminService';
 import { useAuth } from '../../contexts/AuthContext';
 import Badge from '../common/Badge';
-import { formatDate } from '../../utils/dateFormatter';
 import AdminModal from '../modals/AdminModal';
 import EditAdminModal from '../modals/EditAdminModal';
 import Notification from '../common/Notification';
@@ -12,7 +11,7 @@ import ResponsiveTable from '../common/ResponsiveTable';
 import type { Admin } from '../../types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Shield, Lock, Loader2, Key, UserCheck } from 'lucide-react';
+import { Plus, Shield, Lock, Loader2, Key, UserCheck, Pencil, Ban, RotateCcw } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -116,16 +115,21 @@ const AdminManagement = () => {
       )
     },
     { header: 'Status', accessor: 'status', render: (v: string) => <Badge status={v} /> },
-    { header: 'Letzter Login', accessor: 'lastLogin', render: (v?: string) => <span className="text-sm text-muted-foreground">{v ? formatDate(v) : '—'}</span> },
     {
       header: 'Aktionen', accessor: 'adminID',
       render: (_: any, admin: Admin) => (
-        <div className="flex gap-2">
-          <Button size="sm" onClick={() => { setSelectedAdmin(admin); setIsEditModalOpen(true); }}>Bearbeiten</Button>
+        <div className="flex gap-1.5">
+          <Button size="icon-sm" onClick={() => { setSelectedAdmin(admin); setIsEditModalOpen(true); }} title="Bearbeiten" aria-label="Bearbeiten">
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
           {admin.status === 'Aktiv' ? (
-            <Button size="sm" variant="destructive" onClick={() => handleDelete(admin.adminID, admin.name)}>Deaktivieren</Button>
+            <Button size="icon-sm" variant="destructive" onClick={() => handleDelete(admin.adminID, admin.name)} title="Deaktivieren" aria-label="Deaktivieren">
+              <Ban className="w-3.5 h-3.5" />
+            </Button>
           ) : (
-            <Button size="sm" variant="outline" onClick={() => handleReactivate(admin)}>Reaktivieren</Button>
+            <Button size="icon-sm" variant="outline" onClick={() => handleReactivate(admin)} title="Reaktivieren" aria-label="Reaktivieren">
+              <RotateCcw className="w-3.5 h-3.5" />
+            </Button>
           )}
         </div>
       )

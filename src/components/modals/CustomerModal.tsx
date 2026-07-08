@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Save, Plus, X, Loader2 } from 'lucide-react';
 import type { Customer, CreateCustomerDto } from '../../types';
 
 interface CustomerModalProps {
@@ -85,10 +86,11 @@ const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, customer
         </div>
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={loading}>
-            {loading ? 'Speichern...' : (customer ? '✓ Aktualisieren' : '✓ Kunde anlegen')}
+            {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : customer ? <Save className="w-4 h-4 mr-1.5" /> : <Plus className="w-4 h-4 mr-1.5" />}
+            {loading ? 'Speichern...' : (customer ? 'Aktualisieren' : 'Kunde anlegen')}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
-            Abbrechen
+            <X className="w-4 h-4 mr-1.5" />Abbrechen
           </Button>
         </div>
       </form>

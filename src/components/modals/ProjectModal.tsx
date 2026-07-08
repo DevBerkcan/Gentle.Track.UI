@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Save, Plus, Trash2, X, AlertTriangle, Loader2 } from 'lucide-react';
 import type { Project, CreateProjectDto, Customer } from '../../types';
 
 interface ProjectModalProps {
@@ -121,7 +122,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             <div className="px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">{error}</div>
           )}
           <div className="text-center space-y-3">
-            <div className="text-5xl">⚠️</div>
+            <AlertTriangle className="w-10 h-10 text-destructive mx-auto" />
             <h3 className="text-lg font-semibold text-destructive">Projekt unwiderruflich löschen?</h3>
             <p className="text-sm text-muted-foreground">
               Das Projekt „{project?.projectName}" und alle zugehörigen Daten werden permanent gelöscht.
@@ -130,10 +131,11 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           </div>
           <div className="flex gap-2">
             <Button variant="destructive" onClick={handleDelete} disabled={loading} className="flex-1">
-              {loading ? 'Löschen...' : '🗑️ Ja, endgültig löschen'}
+              {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1.5" />}
+              {loading ? 'Löschen...' : 'Ja, endgültig löschen'}
             </Button>
             <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)} disabled={loading} className="flex-1">
-              Abbrechen
+              <X className="w-4 h-4 mr-1.5" />Abbrechen
             </Button>
           </div>
         </div>
@@ -192,15 +194,16 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           </div>
           <div className="flex gap-2 pt-2">
             <Button type="submit" disabled={loading}>
-              {loading ? 'Speichern...' : (project ? '✓ Speichern' : '✓ Projekt anlegen')}
+              {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : project ? <Save className="w-4 h-4 mr-1.5" /> : <Plus className="w-4 h-4 mr-1.5" />}
+              {loading ? 'Speichern...' : (project ? 'Speichern' : 'Projekt anlegen')}
             </Button>
             {project && (
               <Button type="button" variant="destructive" onClick={() => setShowDeleteConfirm(true)} disabled={loading}>
-                🗑️ Löschen
+                <Trash2 className="w-4 h-4 mr-1.5" />Löschen
               </Button>
             )}
             <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
-              Abbrechen
+              <X className="w-4 h-4 mr-1.5" />Abbrechen
             </Button>
           </div>
         </form>
