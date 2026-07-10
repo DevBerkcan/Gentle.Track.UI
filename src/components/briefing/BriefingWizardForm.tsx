@@ -17,47 +17,91 @@ export const REGION_OPTIONS = ['Lokal / Regional', 'Deutschlandweit', 'Internati
 export const STYLE_OPTIONS = ['Modern & minimalistisch', 'Luxuriös & premium', 'Verspielt & kreativ', 'Klassisch & seriös', 'Tech & digital', 'Natürlich & organisch'];
 export const ANIM_OPTIONS = ['Subtil & dezent', 'Ausgeprägt & beeindruckend', 'Keine'];
 export const PAGE_OPTIONS = ['Startseite', 'Über uns', 'Leistungen', 'Referenzen / Portfolio', 'Blog / News', 'Kontakt', 'Online-Shop', 'FAQ'];
-export const FEATURE_OPTIONS = ['Kontaktformular', 'Terminbuchung', 'Online-Shop / Bezahlung', 'Newsletter', 'Login-Bereich', 'Live-Chat', 'Mehrsprachigkeit', 'Bewertungen / Reviews'];
+export const FEATURE_OPTIONS = ['Kontaktformular', 'Bewerbungsformular', 'Terminbuchung', 'Online-Shop / Bezahlung', 'Newsletter', 'Login-Bereich', 'Live-Chat', 'Mehrsprachigkeit', 'Bewertungen / Reviews'];
 export const DEADLINE_OPTIONS = ['So schnell wie möglich', 'In 1–2 Monaten', 'In 3–6 Monaten', 'Kein fester Termin'];
 export const BUDGET_OPTIONS = ['Unter 1.000 €', '1.000 – 3.000 €', '3.000 – 8.000 €', 'Über 8.000 €', 'Noch unklar'];
 
 export const toList = (value?: string) => (value ? value.split(', ').filter(Boolean) : []);
 
-export const YesNoGroup = ({ value, onChange, options = ['Ja', 'Nein'] }: { value?: string; onChange: (v: string) => void; options?: string[] }) => (
-  <div className="flex flex-wrap gap-2">
-    {options.map(opt => (
-      <button
-        key={opt}
-        type="button"
-        onClick={() => onChange(opt)}
-        className={cn(
-          'flex-1 min-w-[100px] px-3 py-2.5 rounded-lg border text-sm font-medium transition-colors',
-          value === opt ? 'bg-primary/10 border-primary text-primary' : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
-        )}
-      >
-        {opt}
-      </button>
-    ))}
-  </div>
-);
+const OTHER_LABEL = 'Sonstiges';
+const OTHER_PREFIX = `${OTHER_LABEL}: `;
+const isOtherValue = (raw: string) => raw === OTHER_LABEL || raw.startsWith(OTHER_PREFIX);
+const parseOtherText = (raw: string) => (raw.startsWith(OTHER_PREFIX) ? raw.slice(OTHER_PREFIX.length) : '');
 
-export const MultiGroup = ({ value, onToggle, options }: { value?: string; onToggle: (opt: string) => void; options: string[] }) => {
-  const selected = toList(value);
+export const YesNoGroup = ({ value, onChange, options = ['Ja', 'Nein'] }: { value?: string; onChange: (v: string) => void; options?: string[] }) => {
+  const allOptions = [...options, OTHER_LABEL];
+  const otherActive = !!value && isOtherValue(value);
+  const otherText = otherActive ? parseOtherText(value!) : '';
+
   return (
-    <div className="flex flex-wrap gap-2">
-      {options.map(opt => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onToggle(opt)}
-          className={cn(
-            'px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors',
-            selected.includes(opt) ? 'bg-primary/10 border-primary text-primary' : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
-          )}
-        >
-          {opt}
-        </button>
-      ))}
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
+        {allOptions.map(opt => {
+          const active = opt === OTHER_LABEL ? otherActive : value === opt;
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => { if (opt !== OTHER_LABEL || !otherActive) onChange(opt); }}
+              className={cn(
+                'flex-1 min-w-[100px] px-3 py-2.5 rounded-lg border text-sm font-medium transition-colors',
+                active ? 'bg-primary/10 border-primary text-primary' : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
+              )}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+      {otherActive && (
+        <Input
+          value={otherText}
+          onChange={e => onChange(e.target.value ? `${OTHER_PREFIX}${e.target.value}` : OTHER_LABEL)}
+          placeholder="Bitte angeben…"
+          autoFocus
+        />
+      )}
+    </div>
+  );
+};
+
+export const MultiGroup = ({
+  value, onToggle, onOtherChange, options,
+}: { value?: string; onToggle: (opt: string) => void; onOtherChange: (text: string) => void; options: string[] }) => {
+  const selected = toList(value);
+  const allOptions = [...options, OTHER_LABEL];
+  const otherEntry = selected.find(isOtherValue);
+  const otherActive = !!otherEntry;
+  const otherText = otherEntry ? parseOtherText(otherEntry) : '';
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
+        {allOptions.map(opt => {
+          const active = opt === OTHER_LABEL ? otherActive : selected.includes(opt);
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => onToggle(opt)}
+              className={cn(
+                'px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors',
+                active ? 'bg-primary/10 border-primary text-primary' : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
+              )}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+      {otherActive && (
+        <Input
+          value={otherText}
+          onChange={e => onOtherChange(e.target.value)}
+          placeholder="Bitte angeben…"
+          autoFocus
+        />
+      )}
     </div>
   );
 };
@@ -99,10 +143,34 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
   formData, onFieldChange, step, onStepChange, saving, onPersist, onFinish, finishLabel, finishIcon, onCancel, requireContact = true,
 }) => {
   const set = (field: keyof UpsertBriefingDto, value: string) => onFieldChange(field, value);
+
+  // Multi-select fields: add/remove a chip from the comma-joined list.
+  // "Sonstiges" is matched by prefix rather than exact string, since once the
+  // customer types custom text the stored entry becomes "Sonstiges: <text>".
   const toggle = (field: keyof UpsertBriefingDto, option: string) => {
     const current = toList(formData[field]);
+    if (option === OTHER_LABEL) {
+      const hasOther = current.some(isOtherValue);
+      const next = hasOther ? current.filter(o => !isOtherValue(o)) : [...current, OTHER_LABEL];
+      onFieldChange(field, next.join(', '));
+      return;
+    }
     const next = current.includes(option) ? current.filter(o => o !== option) : [...current, option];
     onFieldChange(field, next.join(', '));
+  };
+
+  // Multi-select fields: replace the "Sonstiges" entry's free text, keeping the rest of the list intact.
+  const setOtherText = (field: keyof UpsertBriefingDto, text: string) => {
+    const current = toList(formData[field]);
+    const withoutOther = current.filter(o => !isOtherValue(o));
+    const nextOther = text ? `${OTHER_PREFIX}${text}` : OTHER_LABEL;
+    onFieldChange(field, [...withoutOther, nextOther].join(', '));
+  };
+
+  // Single-select fields rendered with the MultiGroup chip UI (Deadline, Budget):
+  // "Sonstiges" free text simply replaces the whole field value.
+  const setSingleOtherText = (field: keyof UpsertBriefingDto, text: string) => {
+    onFieldChange(field, text ? `${OTHER_PREFIX}${text}` : OTHER_LABEL);
   };
 
   const goNext = async () => {
@@ -157,13 +225,13 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
           {step === 2 && (
             <div className="space-y-3">
               <QCard label="Was ist das Hauptziel?">
-                <MultiGroup value={formData.goals} onToggle={o => toggle('goals', o)} options={GOAL_OPTIONS} />
+                <MultiGroup value={formData.goals} onToggle={o => toggle('goals', o)} onOtherChange={t => setOtherText('goals', t)} options={GOAL_OPTIONS} />
               </QCard>
               <QCard label="Wer ist deine Zielgruppe?">
-                <MultiGroup value={formData.audience} onToggle={o => toggle('audience', o)} options={AUDIENCE_OPTIONS} />
+                <MultiGroup value={formData.audience} onToggle={o => toggle('audience', o)} onOtherChange={t => setOtherText('audience', t)} options={AUDIENCE_OPTIONS} />
               </QCard>
               <QCard label="In welcher Region bist du tätig?">
-                <MultiGroup value={formData.region} onToggle={o => toggle('region', o)} options={REGION_OPTIONS} />
+                <MultiGroup value={formData.region} onToggle={o => toggle('region', o)} onOtherChange={t => setOtherText('region', t)} options={REGION_OPTIONS} />
               </QCard>
             </div>
           )}
@@ -171,7 +239,7 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
           {step === 3 && (
             <div className="space-y-3">
               <QCard label="Welchen Stil magst du?">
-                <MultiGroup value={formData.style} onToggle={o => toggle('style', o)} options={STYLE_OPTIONS} />
+                <MultiGroup value={formData.style} onToggle={o => toggle('style', o)} onOtherChange={t => setOtherText('style', t)} options={STYLE_OPTIONS} />
               </QCard>
               <QCard label="Welche Farben gefallen dir?" hint="optional">
                 <Input value={formData.colors} onChange={e => set('colors', e.target.value)} placeholder="z.B. Schwarz, Gold, Dunkelblau – oder Hex-Codes" />
@@ -180,7 +248,7 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
                 <Textarea rows={3} value={formData.references} onChange={e => set('references', e.target.value)} placeholder="z.B. www.apple.com, www.notion.so – einfach die Links einfügen" />
               </QCard>
               <QCard label="Animationen & Effekte?">
-                <MultiGroup value={formData.animations} onToggle={o => toggle('animations', o)} options={ANIM_OPTIONS} />
+                <MultiGroup value={formData.animations} onToggle={o => toggle('animations', o)} onOtherChange={t => setOtherText('animations', t)} options={ANIM_OPTIONS} />
               </QCard>
             </div>
           )}
@@ -188,13 +256,10 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
           {step === 4 && (
             <div className="space-y-3">
               <QCard label="Welche Seiten brauchst du?">
-                <MultiGroup value={formData.pages} onToggle={o => toggle('pages', o)} options={PAGE_OPTIONS} />
+                <MultiGroup value={formData.pages} onToggle={o => toggle('pages', o)} onOtherChange={t => setOtherText('pages', t)} options={PAGE_OPTIONS} />
               </QCard>
               <QCard label="Welche Funktionen brauchst du?">
-                <MultiGroup value={formData.features} onToggle={o => toggle('features', o)} options={FEATURE_OPTIONS} />
-              </QCard>
-              <QCard label="Brauchst du ein CMS, um Inhalte selbst zu pflegen?">
-                <YesNoGroup value={formData.needsCms} onChange={v => set('needsCms', v)} options={['Ja', 'Nein', 'Egal']} />
+                <MultiGroup value={formData.features} onToggle={o => toggle('features', o)} onOtherChange={t => setOtherText('features', t)} options={FEATURE_OPTIONS} />
               </QCard>
             </div>
           )}
@@ -219,10 +284,10 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
           {step === 6 && (
             <div className="space-y-3">
               <QCard label="Wann soll die Website live gehen?">
-                <MultiGroup value={formData.deadline} onToggle={o => set('deadline', o)} options={DEADLINE_OPTIONS} />
+                <MultiGroup value={formData.deadline} onToggle={o => set('deadline', o)} onOtherChange={t => setSingleOtherText('deadline', t)} options={DEADLINE_OPTIONS} />
               </QCard>
               <QCard label="Budget-Rahmen (ca.)?">
-                <MultiGroup value={formData.budget} onToggle={o => set('budget', o)} options={BUDGET_OPTIONS} />
+                <MultiGroup value={formData.budget} onToggle={o => set('budget', o)} onOtherChange={t => setSingleOtherText('budget', t)} options={BUDGET_OPTIONS} />
               </QCard>
               <QCard label="Sonstige Wünsche oder Anmerkungen?">
                 <Textarea rows={4} value={formData.notes} onChange={e => set('notes', e.target.value)} placeholder="Was ist dir noch wichtig? Besondere Anforderungen, Ideen, Fragen..." />
