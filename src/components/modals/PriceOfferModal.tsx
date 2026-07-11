@@ -10,7 +10,6 @@ import type { Offer, PricingTemplate } from '../../types';
 import { TEMPLATE_CONFIG, HYBRID_TERM_OPTIONS, computeOfferPricing } from '../../utils/offerPricing';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Loader2, Save, Send, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -42,7 +41,6 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [offer, setOffer] = useState<Offer | null>(null);
-  const [scope, setScope] = useState('');
   const [template, setTemplate] = useState<PricingTemplate>('Einmalzahlung');
   const [totalPrice, setTotalPrice] = useState('');
   const [depositPercent, setDepositPercent] = useState(TEMPLATE_CONFIG.Hybrid.depositDefault!);
@@ -61,7 +59,6 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
       offerService.getByProjectId(projectId)
         .then(o => {
           setOffer(o);
-          setScope(o.scope || '');
           setTemplate(o.pricingTemplate || 'Einmalzahlung');
           setTotalPrice(o.totalPrice != null ? String(o.totalPrice) : '');
           setDepositPercent(o.depositPercent ?? TEMPLATE_CONFIG.Hybrid.depositDefault!);
@@ -93,7 +90,6 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
   }), [template, totalPrice, depositPercent, surchargePercent, maintenanceFee, termMonths]);
 
   const buildDto = () => ({
-    scope,
     pricingTemplate: template,
     totalPrice: totalPrice ? parseFloat(totalPrice) : undefined,
     depositPercent: cfg.hasDeposit ? depositPercent : undefined,
@@ -168,11 +164,6 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
 
           {canEdit ? (
             <>
-              <div className="space-y-1">
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Leistungsumfang</Label>
-                <Textarea rows={4} value={scope} onChange={e => setScope(e.target.value)} placeholder="Beschreibung der Leistungen..." />
-              </div>
-
               <div className="space-y-1">
                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Projektpreis (€)</Label>
                 <Input type="number" min="0" step="0.01" value={totalPrice} onChange={e => setTotalPrice(e.target.value)} placeholder="z.B. 8000" className="text-base font-semibold" />
@@ -308,10 +299,6 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
             </>
           ) : (
             <>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Leistungsumfang</p>
-                <p className="text-sm text-foreground mt-0.5 whitespace-pre-wrap">{offer?.scope || '–'}</p>
-              </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Preismodell</p>
                 <p className="text-sm text-foreground mt-0.5">{offer ? TEMPLATE_CONFIG[offer.pricingTemplate]?.label ?? offer.pricingTemplate : '–'}</p>

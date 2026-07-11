@@ -90,11 +90,6 @@ const OfferResponse = () => {
         </div>
 
         <div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Leistungsumfang</p>
-          <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{offer.scope || '–'}</p>
-        </div>
-
-        <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Preismodell</p>
           <p className="text-sm text-foreground mt-1">{TEMPLATE_CONFIG[offer.pricingTemplate]?.label ?? offer.pricingTemplate}</p>
         </div>
