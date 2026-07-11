@@ -1,5 +1,5 @@
 import apiClient from '../apiClient';
-import type { Project, CreateProjectDto, DashboardStats } from '../../types';
+import type { Project, CreateProjectDto, DashboardStats, DashboardCustomer } from '../../types';
 
 export const projectService = {
   getAll: async (includeArchived: boolean = false): Promise<Project[]> => {
@@ -57,6 +57,13 @@ export const projectService = {
 
   getDashboardStats: async (): Promise<DashboardStats> => {
     const response = await apiClient.get<DashboardStats>('/Dashboard/stats');
+    return response.data;
+  },
+
+  getRecentCustomers: async (count: number = 5): Promise<DashboardCustomer[]> => {
+    const response = await apiClient.get<DashboardCustomer[]>('/Dashboard/recent-customers', {
+      params: { count },
+    });
     return response.data;
   },
 };

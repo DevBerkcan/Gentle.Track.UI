@@ -110,7 +110,7 @@ const OfferResponse = () => {
           )}
         </div>
 
-        <div className="flex items-center justify-center gap-3 pt-4 border-t border-border">
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-border">
           <Button
             type="button"
             variant="outline"

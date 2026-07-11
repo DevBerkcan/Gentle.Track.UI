@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Plus, Save, ArrowUp, ArrowDown, Trash2, Settings, Loader2, Layers } from 'lucide-react';
+import { Plus, Save, ArrowUp, ArrowDown, Trash2, Settings, Loader2, Layers, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NotificationState { show: boolean; type: 'success' | 'error' | 'warning' | 'info'; message: string; }
@@ -152,9 +152,9 @@ const PhaseManagement = () => {
                       <Label>Beschreibung</Label>
                       <Textarea value={newPhaseDescription} onChange={e => setNewPhaseDescription(e.target.value)} placeholder="Optionale Beschreibung…" rows={3} />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button onClick={handleSavePhase}><Save className="w-4 h-4 mr-1.5" />Speichern</Button>
-                      <Button variant="secondary" onClick={() => { setNewPhaseName(''); setNewPhaseDescription(''); setShowPhaseInput(false); }}>Abbrechen</Button>
+                      <Button variant="secondary" onClick={() => { setNewPhaseName(''); setNewPhaseDescription(''); setShowPhaseInput(false); }}><X className="w-4 h-4 mr-1.5" />Abbrechen</Button>
                     </div>
                   </CardContent>
                 </Card>

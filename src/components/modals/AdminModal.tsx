@@ -159,7 +159,7 @@ const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose, onSaveSuccess 
             </div>
           </div>
         )}
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-wrap gap-2 pt-2">
           <Button type="submit" disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <UserPlus className="w-4 h-4 mr-1.5" />}
             {loading ? 'Speichern...' : 'Administrator erstellen'}

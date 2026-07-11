@@ -138,7 +138,7 @@ const ProjectManagement = () => {
             </Button>
           )}
           {!project.isArchived ? (
-            <Button size="icon-sm" variant="secondary" onClick={() => handleArchive(project.projectID, project.projectName)} title="Archivieren" aria-label="Archivieren">
+            <Button size="icon-sm" variant="outline" onClick={() => handleArchive(project.projectID, project.projectName)} title="Archivieren" aria-label="Archivieren">
               <Archive className="w-3.5 h-3.5" />
             </Button>
           ) : (

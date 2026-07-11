@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { MessageSquare, Search, Bell, BellOff, Send, ChevronDown, Plus, Loader2 } from 'lucide-react';
+import { MessageSquare, Search, Bell, BellOff, Send, ChevronDown, Plus, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NotificationState { show: boolean; type: 'success' | 'error' | 'warning' | 'info'; message: string; }
@@ -189,11 +189,13 @@ const CommentsManagement = () => {
                           rows={4}
                         />
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Button size="sm" onClick={() => handleSendComment(projectIdNum)}>
                           <Send className="w-3.5 h-3.5 mr-1.5" />Senden
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => { setReplyingToProject(null); setCommentMessages(prev => ({ ...prev, [projectIdNum]: '' })); }}>Abbrechen</Button>
+                        <Button size="sm" variant="ghost" onClick={() => { setReplyingToProject(null); setCommentMessages(prev => ({ ...prev, [projectIdNum]: '' })); }}>
+                          <X className="w-3.5 h-3.5 mr-1.5" />Abbrechen
+                        </Button>
                       </div>
                     </div>
                   )}

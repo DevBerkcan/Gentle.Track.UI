@@ -84,7 +84,7 @@ const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, customer
           <Label>Adresse</Label>
           <Textarea rows={3} value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
         </div>
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-wrap gap-2 pt-2">
           <Button type="submit" disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : customer ? <Save className="w-4 h-4 mr-1.5" /> : <Plus className="w-4 h-4 mr-1.5" />}
             {loading ? 'Speichern...' : (customer ? 'Aktualisieren' : 'Kunde anlegen')}

@@ -123,6 +123,20 @@ export interface DashboardStats {
   totalCustomers: number;
   completedProjects: number;
   totalComments: number;
+  totalProjects: number;
+  projectsDueSoon: number;
+  pendingBriefings: number;
+  offersAwaitingResponse: number;
+  newCustomersThisMonth: number;
+}
+
+export interface DashboardCustomer {
+  customerID: number;
+  companyName: string;
+  contactPerson: string;
+  email: string;
+  projectCount: number;
+  createdAt: string;
 }
 
 export interface LoginDto {

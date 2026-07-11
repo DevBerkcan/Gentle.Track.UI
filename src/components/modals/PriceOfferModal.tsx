@@ -287,7 +287,7 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
                 )}
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={handleSaveDraft} disabled={saving}>
                   {saving ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
                   Entwurf speichern
@@ -321,7 +321,7 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
           )}
 
           {canRespond && (
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-border">
               <Button type="button" variant="outline" className="text-error border-error/25 hover:bg-error-bg" onClick={() => handleRespond(false)} disabled={saving}>
                 <ThumbsDown className="w-3.5 h-3.5 mr-1.5" />Als abgelehnt markieren
               </Button>

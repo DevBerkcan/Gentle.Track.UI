@@ -9,10 +9,13 @@ import ResponsiveTable from "../common/ResponsiveTable";
 import CustomSelect from "../common/CustomSelect";
 import { ProjectModal } from "../modals/ProjectModal";
 import { formatDate } from "../../utils/dateFormatter";
-import type { Project, DashboardStats } from "../../types";
+import type { Project, DashboardStats, DashboardCustomer } from "../../types";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { LayoutDashboard, Users, FolderCheck, MessageSquare, Search, Loader2, FolderOpen } from "lucide-react";
+import {
+  LayoutDashboard, Users, FolderCheck, MessageSquare, Search, Loader2, FolderOpen,
+  AlarmClock, ClipboardList, Tag, UserPlus,
+} from "lucide-react";
 
 interface NotificationState {
   show: boolean;
@@ -22,6 +25,7 @@ interface NotificationState {
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentCustomers, setRecentCustomers] = useState<DashboardCustomer[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,13 +47,15 @@ const Dashboard = () => {
   const loadDashboard = async () => {
     try {
       setLoading(true);
-      const [statsData, projectsData] = await Promise.all([
+      const [statsData, projectsData, customersData] = await Promise.all([
         projectService.getDashboardStats(),
         projectService.getAll(),
+        projectService.getRecentCustomers(5),
       ]);
       setStats(statsData);
       setProjects(projectsData);
       setFilteredProjects(projectsData.slice(0, 10));
+      setRecentCustomers(customersData);
     } catch {
       showNotification("error", "Fehler beim Laden der Dashboard-Daten");
     } finally {
@@ -169,6 +175,38 @@ const statusOptions = [
         />
       </div>
 
+      {/* Attention-needed Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Frist ≤ 14 Tage"
+          value={stats?.projectsDueSoon || 0}
+          icon={AlarmClock}
+          iconColor="text-warning"
+          iconBg="bg-warning-bg"
+        />
+        <StatCard
+          title="Briefings ausstehend"
+          value={stats?.pendingBriefings || 0}
+          icon={ClipboardList}
+          iconColor="text-info"
+          iconBg="bg-info-bg"
+        />
+        <StatCard
+          title="Angebote offen"
+          value={stats?.offersAwaitingResponse || 0}
+          icon={Tag}
+          iconColor="text-primary"
+          iconBg="bg-primary/10"
+        />
+        <StatCard
+          title="Neue Kunden (30 Tage)"
+          value={stats?.newCustomersThisMonth || 0}
+          icon={UserPlus}
+          iconColor="text-success"
+          iconBg="bg-success-bg"
+        />
+      </div>
+
       {/* Projects Table */}
       <Card className="border border-border shadow-sm">
         <CardHeader className="border-b border-border pb-4">
@@ -203,6 +241,41 @@ const statusOptions = [
             </div>
           ) : (
             <ResponsiveTable columns={columns} data={filteredProjects} keyField="projectID" />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Recent Customers */}
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b border-border pb-4">
+          <div className="flex items-center gap-2">
+            <UserPlus className="w-4 h-4 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">Neueste Kunden</h2>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {recentCustomers.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-10 text-muted-foreground">
+              <Users className="w-8 h-8 opacity-30" />
+              <p className="text-sm font-medium">Noch keine Kunden</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {recentCustomers.map((c) => (
+                <div key={c.customerID} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{c.companyName}</p>
+                    <p className="text-xs text-muted-foreground truncate">{c.contactPerson} · {c.email}</p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-md whitespace-nowrap">
+                      {c.projectCount} Projekt{c.projectCount !== 1 ? "e" : ""}
+                    </span>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{formatDate(c.createdAt)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>

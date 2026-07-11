@@ -126,7 +126,7 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Website-Briefing – ${projectName ?? ''}`}>
+    <Modal isOpen={isOpen} onClose={onClose} title={`Website-Briefing – ${projectName ?? ''}`} size="lg">
       {loading ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
