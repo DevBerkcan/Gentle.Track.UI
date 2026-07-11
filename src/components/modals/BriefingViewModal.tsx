@@ -6,7 +6,7 @@ import { briefingService } from '../../api/services/briefingService';
 import BriefingWizardForm from '../briefing/BriefingWizardForm';
 import type { Briefing, UpsertBriefingDto } from '../../types';
 import { Button } from '@/components/ui/button';
-import { Loader2, Copy, Check, ClipboardList, Mail, Pencil, Save } from 'lucide-react';
+import { Loader2, Copy, Check, ClipboardList, Mail, Pencil, Save, Send } from 'lucide-react';
 
 interface BriefingViewModalProps {
   isOpen: boolean;
@@ -109,6 +109,22 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
     notify('success', 'Briefing gespeichert.');
   };
 
+  const handleSubmit = async () => {
+    if (!projectId) return;
+    try {
+      setSaving(true);
+      const result = await briefingService.submitByProjectId(projectId, form);
+      setBriefing(result);
+      setNotFound(false);
+      setEditing(false);
+      notify('success', 'Briefing abgeschickt!');
+    } catch {
+      notify('error', 'Briefing konnte nicht abgeschickt werden.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Website-Briefing – ${projectName ?? ''}`}>
       {loading ? (
@@ -128,7 +144,7 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
           finishLabel="Speichern"
           finishIcon={<Save className="w-4 h-4 mr-1.5" />}
           onCancel={() => setEditing(false)}
-          requireContact={false}
+          secondaryFinish={{ label: 'Absenden', icon: <Send className="w-4 h-4 mr-1.5" />, onClick: handleSubmit }}
         />
       ) : notFound || !briefing || (!briefing.isSubmitted && !briefing.companyName) ? (
         <div className="flex flex-col items-center gap-3 py-14 text-muted-foreground">

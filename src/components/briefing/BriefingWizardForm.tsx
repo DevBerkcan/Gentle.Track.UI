@@ -4,7 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import ProgressBar from '../common/ProgressBar';
 import { Loader2, ArrowLeft, ArrowRight, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -136,11 +135,11 @@ interface BriefingWizardFormProps {
   finishLabel: string;
   finishIcon: React.ReactNode;
   onCancel?: () => void;
-  requireContact?: boolean;
+  secondaryFinish?: { label: string; icon: React.ReactNode; onClick: () => Promise<void> };
 }
 
 const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
-  formData, onFieldChange, step, onStepChange, saving, onPersist, onFinish, finishLabel, finishIcon, onCancel, requireContact = true,
+  formData, onFieldChange, step, onStepChange, saving, onPersist, onFinish, finishLabel, finishIcon, onCancel, secondaryFinish,
 }) => {
   const set = (field: keyof UpsertBriefingDto, value: string) => onFieldChange(field, value);
 
@@ -292,19 +291,11 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
               <QCard label="Sonstige Wünsche oder Anmerkungen?">
                 <Textarea rows={4} value={formData.notes} onChange={e => set('notes', e.target.value)} placeholder="Was ist dir noch wichtig? Besondere Anforderungen, Ideen, Fragen..." />
               </QCard>
-              <QCard label={requireContact ? 'Name & E-Mail' : 'Name & E-Mail (optional)'}>
-                <div className="space-y-2">
-                  <Label className="text-xs font-medium">Name {requireContact && '*'}</Label>
-                  <Input value={formData.contactName} onChange={e => set('contactName', e.target.value)} placeholder="Name" />
-                  <Label className="text-xs font-medium">E-Mail {requireContact && '*'}</Label>
-                  <Input type="email" value={formData.contactEmail} onChange={e => set('contactEmail', e.target.value)} placeholder="email@beispiel.de" />
-                </div>
-              </QCard>
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-3 pt-2">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-2">
               {onCancel && (
                 <Button type="button" variant="ghost" onClick={onCancel} disabled={saving}>
                   <X className="w-4 h-4 mr-1.5" />Abbrechen
@@ -318,15 +309,22 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
             </div>
 
             {step < TOTAL_STEPS ? (
-              <Button type="button" onClick={goNext} disabled={saving}>
+              <Button type="button" className="ml-auto" onClick={goNext} disabled={saving}>
                 {saving ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : null}
                 Weiter<ArrowRight className="w-4 h-4 ml-1.5" />
               </Button>
             ) : (
-              <Button type="button" onClick={onFinish} disabled={saving}>
-                {saving ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : finishIcon}
-                {finishLabel}
-              </Button>
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
+                <Button type="button" onClick={onFinish} disabled={saving}>
+                  {saving ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : finishIcon}
+                  {finishLabel}
+                </Button>
+                {secondaryFinish && (
+                  <Button type="button" variant="outline" onClick={secondaryFinish.onClick} disabled={saving}>
+                    {secondaryFinish.icon}{secondaryFinish.label}
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         </CardContent>

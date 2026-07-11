@@ -80,10 +80,6 @@ const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumbe
   };
 
   const handleSubmit = async () => {
-    if (!formData.contactName?.trim() || !formData.contactEmail?.trim()) {
-      notify('warning', 'Bitte geben Sie Ihren Namen und Ihre E-Mail-Adresse an.');
-      return;
-    }
     try {
       setSaving(true);
       const result = await briefingService.submit(trackingNumber, formData);
