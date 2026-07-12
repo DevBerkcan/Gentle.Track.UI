@@ -2,24 +2,62 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { offerService } from '../../api/services/offerService';
-import type { PublicOffer } from '../../types';
+import ConfirmDialog from '../common/ConfirmDialog';
+import type { PublicOffer, OfferOption, PricingTemplate } from '../../types';
 import { TEMPLATE_CONFIG } from '../../utils/offerPricing';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, ThumbsUp, ThumbsDown, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { Loader2, ThumbsDown, CheckCircle2, XCircle, AlertCircle, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const formatPrice = (value?: number) =>
   value == null ? '–' : value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
+const OptionCard = ({ option, onChoose }: { option: OfferOption; onChoose?: () => void }) => {
+  const cfg = TEMPLATE_CONFIG[option.template];
+  return (
+    <div className="rounded-xl border border-border p-4 flex flex-col gap-3">
+      <div>
+        <p className="text-sm font-semibold text-foreground">{cfg.label}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{cfg.description}</p>
+      </div>
+      <div className="space-y-0.5">
+        {option.template === 'Einmalzahlung' ? (
+          <p className="text-lg font-bold text-foreground">{formatPrice(option.upfrontAmount)}</p>
+        ) : (
+          <>
+            {!!option.upfrontAmount && (
+              <p className="text-xs text-muted-foreground">Anzahlung: <span className="font-semibold text-foreground">{formatPrice(option.upfrontAmount)}</span></p>
+            )}
+            <p className="text-lg font-bold text-foreground">
+              {formatPrice(option.monthlyPrice)} <span className="text-xs font-normal text-muted-foreground">/ Monat</span>
+            </p>
+            <p className="text-xs text-muted-foreground">über {option.termMonths} Monate · gesamt {formatPrice(option.totalPayable)}</p>
+          </>
+        )}
+      </div>
+      {onChoose && (
+        <Button type="button" variant="outline" className="mt-auto" onClick={onChoose}>
+          <Check className="w-3.5 h-3.5 mr-1.5" />Diese Option wählen
+        </Button>
+      )}
+    </div>
+  );
+};
+
+const PRICING_TEMPLATES: PricingTemplate[] = ['Einmalzahlung', 'Hybrid', 'Monatlich12', 'Monatlich24'];
+
 const OfferResponse = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
-  const highlightAction = searchParams.get('action');
+  const chooseParam = searchParams.get('choose');
 
   const [loading, setLoading] = useState(true);
   const [offer, setOffer] = useState<PublicOffer | null>(null);
   const [error, setError] = useState('');
   const [responding, setResponding] = useState(false);
+  const [pendingChoice, setPendingChoice] = useState<PricingTemplate | null>(null);
+  const [confirmDecline, setConfirmDecline] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -28,12 +66,21 @@ const OfferResponse = () => {
       return;
     }
     offerService.getPublicByToken(token)
-      .then(setOffer)
+      .then(o => {
+        setOffer(o);
+        // Coming from a per-option "choose this" link in the email: pre-open the matching
+        // confirmation instead of making the customer hunt for the right card again.
+        if (o.status === 'Freigegeben') {
+          if (chooseParam === 'decline') setConfirmDecline(true);
+          else if (chooseParam && PRICING_TEMPLATES.includes(chooseParam as PricingTemplate)) setPendingChoice(chooseParam as PricingTemplate);
+        }
+      })
       .catch(() => setError('Dieser Link ist ungültig oder abgelaufen.'))
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  const handleRespond = async (action: 'accept' | 'reject') => {
+  const handleRespond = async (action: PricingTemplate | 'decline') => {
     try {
       setResponding(true);
       const result = await offerService.respond(token, action);
@@ -42,6 +89,8 @@ const OfferResponse = () => {
       setError('Ihre Antwort konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.');
     } finally {
       setResponding(false);
+      setPendingChoice(null);
+      setConfirmDecline(false);
     }
   };
 
@@ -70,68 +119,73 @@ const OfferResponse = () => {
     return (
       <Card className="border border-border shadow-sm max-w-xl">
         <CardContent className="p-8 text-center space-y-4">
-          <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center mx-auto ${accepted ? 'bg-success-bg border-success' : 'bg-error-bg border-error'}`}>
+          <div className={cn('w-14 h-14 rounded-full border-2 flex items-center justify-center mx-auto', accepted ? 'bg-success-bg border-success' : 'bg-error-bg border-error')}>
             {accepted ? <CheckCircle2 className="w-7 h-7 text-success" /> : <XCircle className="w-7 h-7 text-error" />}
           </div>
           <h2 className="text-xl font-bold text-foreground">
-            Sie haben dieses Angebot bereits {accepted ? 'angenommen' : 'abgelehnt'}.
+            {accepted ? 'Sie haben eine Preisoption gewählt.' : 'Sie haben alle Preisoptionen abgelehnt.'}
           </h2>
           <p className="text-sm text-muted-foreground">{offer.projectName}</p>
+          {accepted && offer.pricingTemplate && (
+            <div className="max-w-xs mx-auto pt-2">
+              <OptionCard
+                option={{
+                  template: offer.pricingTemplate,
+                  upfrontAmount: offer.upfrontAmount,
+                  monthlyPrice: offer.monthlyPrice,
+                  termMonths: offer.termMonths ?? 0,
+                  totalPayable: undefined,
+                }}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border border-border shadow-sm max-w-xl">
+    <Card className="border border-border shadow-sm max-w-3xl">
       <CardContent className="p-8 space-y-5">
         <div>
           <h2 className="text-xl font-bold text-foreground">Preisangebot – {offer.projectName}</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Wählen Sie eine der folgenden vier Zahlungsoptionen für einen Projektpreis von {formatPrice(offer.totalPrice)}.
+          </p>
         </div>
 
-        <div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Preismodell</p>
-          <p className="text-sm text-foreground mt-1">{TEMPLATE_CONFIG[offer.pricingTemplate]?.label ?? offer.pricingTemplate}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {offer.options.map(opt => (
+            <OptionCard key={opt.template} option={opt} onChoose={() => setPendingChoice(opt.template)} />
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {offer.pricingTemplate === 'Einmalzahlung' ? 'Einmaliger Preis' : 'Anzahlung'}
-            </p>
-            <p className="text-lg font-semibold text-foreground mt-1">{formatPrice(offer.upfrontAmount)}</p>
-          </div>
-          {offer.pricingTemplate !== 'Einmalzahlung' && (
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Monatlicher Preis</p>
-              <p className="text-lg font-semibold text-foreground mt-1">{formatPrice(offer.monthlyPrice)}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">über {offer.termMonths} Monate</p>
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-border">
-          <Button
-            type="button"
-            variant="outline"
-            className={`text-error border-error/25 hover:bg-error-bg ${highlightAction === 'reject' ? 'ring-2 ring-error/30' : ''}`}
-            onClick={() => handleRespond('reject')}
-            disabled={responding}
-          >
-            {responding ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <ThumbsDown className="w-4 h-4 mr-1.5" />}
-            Angebot ablehnen
-          </Button>
-          <Button
-            type="button"
-            className={`bg-success hover:bg-success/90 ${highlightAction === 'accept' ? 'ring-2 ring-success/30' : ''}`}
-            onClick={() => handleRespond('accept')}
-            disabled={responding}
-          >
-            {responding ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <ThumbsUp className="w-4 h-4 mr-1.5" />}
-            Angebot annehmen
+        <div className="flex justify-center pt-4 border-t border-border">
+          <Button type="button" variant="outline" className="text-error border-error/25 hover:bg-error-bg" onClick={() => setConfirmDecline(true)} disabled={responding}>
+            <ThumbsDown className="w-4 h-4 mr-1.5" />Alle Optionen ablehnen
           </Button>
         </div>
       </CardContent>
+
+      <ConfirmDialog
+        isOpen={pendingChoice !== null}
+        title="Preisoption bestätigen"
+        message={pendingChoice ? `Möchten Sie die Option "${TEMPLATE_CONFIG[pendingChoice].label}" verbindlich wählen?` : ''}
+        confirmText="Bestätigen"
+        type="info"
+        onConfirm={() => pendingChoice && handleRespond(pendingChoice)}
+        onCancel={() => setPendingChoice(null)}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDecline}
+        title="Alle Optionen ablehnen?"
+        message="Möchten Sie wirklich alle vier Preisoptionen ablehnen?"
+        confirmText="Ablehnen"
+        type="danger"
+        onConfirm={() => handleRespond('decline')}
+        onCancel={() => setConfirmDecline(false)}
+      />
     </Card>
   );
 };

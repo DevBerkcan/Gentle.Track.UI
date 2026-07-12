@@ -215,6 +215,17 @@ export type UpsertBriefingDto = Omit<
 
 export type PricingTemplate = 'Einmalzahlung' | 'Hybrid' | 'Monatlich12' | 'Monatlich24';
 
+/** One of the four pricing variants, derived from the offer's base TotalPrice + per-template overrides. */
+export interface OfferOption {
+  template: PricingTemplate;
+  depositPercent?: number;
+  surchargePercent?: number;
+  upfrontAmount?: number;
+  monthlyPrice?: number;
+  termMonths: number;
+  totalPayable?: number;
+}
+
 export interface Offer {
   offerID: number;
   projectID: number;
@@ -222,11 +233,20 @@ export interface Offer {
   trackingNumber?: string;
 
   scope?: string;
-  pricingTemplate: PricingTemplate;
   totalPrice?: number;
-  depositPercent?: number;
-  surchargePercent?: number;
-  maintenanceFee?: number;
+
+  // Owner's per-template overrides (undefined = use the default for that field).
+  hybridDepositPercent?: number;
+  hybridSurchargePercent?: number;
+  hybridTermMonths: number;
+  monatlich12SurchargePercent?: number;
+  monatlich24SurchargePercent?: number;
+
+  /** All four calculated options - always present once totalPrice is set. */
+  options: OfferOption[];
+
+  /** The option the customer chose, once status is "Angenommen". */
+  pricingTemplate: PricingTemplate;
   upfrontAmount?: number;
   monthlyPrice?: number;
   termMonths: number;
@@ -239,20 +259,27 @@ export interface Offer {
   updatedAt: string;
 }
 
-export type UpsertOfferDto = Pick<Offer,
-  'scope' | 'pricingTemplate' | 'totalPrice' | 'depositPercent' | 'surchargePercent' | 'maintenanceFee' | 'termMonths'
->;
+export interface UpsertOfferDto {
+  scope?: string;
+  totalPrice?: number;
+  hybridDepositPercent?: number;
+  hybridSurchargePercent?: number;
+  hybridTermMonths?: number;
+  monatlich12SurchargePercent?: number;
+  monatlich24SurchargePercent?: number;
+}
 
 export interface PublicOffer {
   projectName: string;
-  scope?: string;
-  pricingTemplate: PricingTemplate;
+  status: Offer['status'];
   totalPrice?: number;
-  depositPercent?: number;
-  surchargePercent?: number;
-  maintenanceFee?: number;
+
+  /** The four selectable options - populated while status is "Freigegeben". */
+  options: OfferOption[];
+
+  /** The chosen option, once status is "Angenommen". */
+  pricingTemplate?: PricingTemplate;
   upfrontAmount?: number;
   monthlyPrice?: number;
-  termMonths: number;
-  status: Offer['status'];
+  termMonths?: number;
 }
