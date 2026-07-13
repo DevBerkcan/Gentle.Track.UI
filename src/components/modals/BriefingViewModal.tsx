@@ -4,9 +4,10 @@ import Modal from '../common/Modal';
 import Notification from '../common/Notification';
 import { briefingService } from '../../api/services/briefingService';
 import BriefingWizardForm from '../briefing/BriefingWizardForm';
+import BriefingFullView from '../briefing/BriefingFullView';
 import type { Briefing, UpsertBriefingDto } from '../../types';
 import { Button } from '@/components/ui/button';
-import { Loader2, Copy, Check, ClipboardList, Mail, Pencil, Save, Send } from 'lucide-react';
+import { Loader2, Copy, Check, ClipboardList, Mail, Pencil, Save, Send, Eye, ArrowLeft } from 'lucide-react';
 
 interface BriefingViewModalProps {
   isOpen: boolean;
@@ -51,6 +52,7 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [viewingFull, setViewingFull] = useState(false);
   const [step, setStep] = useState(1);
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [form, setForm] = useState<UpsertBriefingDto>(emptyForm);
@@ -66,6 +68,7 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
       setNotFound(false);
       setBriefing(null);
       setEditing(false);
+      setViewingFull(false);
       briefingService.getByProjectId(projectId)
         .then(setBriefing)
         .catch(() => setNotFound(true))
@@ -87,6 +90,7 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
     setForm(briefing ? formFromBriefing(briefing) : emptyForm);
     setStep(1);
     setEditing(true);
+    setViewingFull(false);
   };
 
   const persist = async () => {
@@ -146,6 +150,18 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
           onCancel={() => setEditing(false)}
           secondaryFinish={{ label: 'Absenden', icon: <Send className="w-4 h-4 mr-1.5" />, onClick: handleSubmit }}
         />
+      ) : viewingFull && briefing ? (
+        <div className="space-y-5">
+          <div className="flex justify-between">
+            <Button type="button" size="sm" variant="ghost" onClick={() => setViewingFull(false)}>
+              <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />Zurück
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={startEditing}>
+              <Pencil className="w-3.5 h-3.5 mr-1.5" />Bearbeiten
+            </Button>
+          </div>
+          <BriefingFullView formData={formFromBriefing(briefing)} />
+        </div>
       ) : notFound || !briefing || (!briefing.isSubmitted && !briefing.companyName) ? (
         <div className="flex flex-col items-center gap-3 py-14 text-muted-foreground">
           <ClipboardList className="w-8 h-8 opacity-30" />
@@ -163,7 +179,10 @@ export const BriefingViewModal: React.FC<BriefingViewModalProps> = ({ isOpen, on
             </div>
           )}
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <Button type="button" size="sm" variant="outline" onClick={() => setViewingFull(true)}>
+              <Eye className="w-3.5 h-3.5 mr-1.5" />Anzeigen
+            </Button>
             <Button type="button" size="sm" variant="outline" onClick={startEditing}>
               <Pencil className="w-3.5 h-3.5 mr-1.5" />Bearbeiten
             </Button>

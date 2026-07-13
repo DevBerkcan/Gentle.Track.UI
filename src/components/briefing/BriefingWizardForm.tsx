@@ -115,13 +115,13 @@ export const QCard = ({ label, hint, children }: { label: string; hint?: string;
   </div>
 );
 
-const STEP_META = [
+export const STEP_META = [
   { title: 'Dein Unternehmen', subtitle: 'Erzähl uns kurz, wer du bist.' },
   { title: 'Ziel der Website', subtitle: 'Was soll deine neue Website für dich tun?' },
   { title: 'Design & Stil', subtitle: 'Wie soll deine Website wirken?' },
   { title: 'Seiten & Funktionen', subtitle: 'Was soll deine Website können?' },
   { title: 'Content & Technik', subtitle: 'Was hast du bereits – was brauchen wir noch?' },
-  { title: 'Projekt & Kontakt', subtitle: 'Fast geschafft! Noch ein paar letzte Details.' },
+  { title: 'Budget & Zeitplan', subtitle: 'Fast geschafft! Noch ein paar letzte Details.' },
 ];
 
 interface BriefingWizardFormProps {
