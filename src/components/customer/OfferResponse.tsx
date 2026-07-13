@@ -1,6 +1,7 @@
 // src/components/customer/OfferResponse.tsx
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { offerService } from '../../api/services/offerService';
 import ConfirmDialog from '../common/ConfirmDialog';
 import type { PublicOffer, OfferOption, PricingTemplate } from '../../types';
@@ -14,12 +15,13 @@ const formatPrice = (value?: number) =>
   value == null ? '–' : value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
 const OptionCard = ({ option, onChoose }: { option: OfferOption; onChoose?: () => void }) => {
+  const { t } = useTranslation('customerPortal');
   const cfg = TEMPLATE_CONFIG[option.template];
   return (
     <div className="rounded-xl border border-border p-4 flex flex-col gap-3">
       <div>
-        <p className="text-sm font-semibold text-foreground">{cfg.label}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">{cfg.description}</p>
+        <p className="text-sm font-semibold text-foreground">{t(cfg.label)}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{t(cfg.description)}</p>
       </div>
       <div className="space-y-0.5">
         {option.template === 'Einmalzahlung' ? (
@@ -27,18 +29,18 @@ const OptionCard = ({ option, onChoose }: { option: OfferOption; onChoose?: () =
         ) : (
           <>
             {!!option.upfrontAmount && (
-              <p className="text-xs text-muted-foreground">Anzahlung: <span className="font-semibold text-foreground">{formatPrice(option.upfrontAmount)}</span></p>
+              <p className="text-xs text-muted-foreground">{t('offer.depositPrefix')} <span className="font-semibold text-foreground">{formatPrice(option.upfrontAmount)}</span></p>
             )}
             <p className="text-lg font-bold text-foreground">
-              {formatPrice(option.monthlyPrice)} <span className="text-xs font-normal text-muted-foreground">/ Monat</span>
+              {formatPrice(option.monthlyPrice)} <span className="text-xs font-normal text-muted-foreground">{t('offer.perMonthSuffix')}</span>
             </p>
-            <p className="text-xs text-muted-foreground">über {option.termMonths} Monate · gesamt {formatPrice(option.totalPayable)}</p>
+            <p className="text-xs text-muted-foreground">{t('offer.termSummary', { months: option.termMonths, total: formatPrice(option.totalPayable) })}</p>
           </>
         )}
       </div>
       {onChoose && (
         <Button type="button" variant="outline" className="mt-auto" onClick={onChoose}>
-          <Check className="w-3.5 h-3.5 mr-1.5" />Diese Option wählen
+          <Check className="w-3.5 h-3.5 mr-1.5" />{t('offer.chooseThisOptionButton')}
         </Button>
       )}
     </div>
@@ -48,6 +50,8 @@ const OptionCard = ({ option, onChoose }: { option: OfferOption; onChoose?: () =
 const PRICING_TEMPLATES: PricingTemplate[] = ['Einmalzahlung', 'Hybrid', 'Monatlich12', 'Monatlich24'];
 
 const OfferResponse = () => {
+  const { t } = useTranslation('customerPortal');
+  const { t: tc } = useTranslation('common');
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
   const chooseParam = searchParams.get('choose');
@@ -61,7 +65,7 @@ const OfferResponse = () => {
 
   useEffect(() => {
     if (!token) {
-      setError('Dieser Link ist ungültig.');
+      setError(t('offer.invalidLink'));
       setLoading(false);
       return;
     }
@@ -75,7 +79,7 @@ const OfferResponse = () => {
           else if (chooseParam && PRICING_TEMPLATES.includes(chooseParam as PricingTemplate)) setPendingChoice(chooseParam as PricingTemplate);
         }
       })
-      .catch(() => setError('Dieser Link ist ungültig oder abgelaufen.'))
+      .catch(() => setError(t('offer.invalidOrExpiredLink')))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
@@ -86,7 +90,7 @@ const OfferResponse = () => {
       const result = await offerService.respond(token, action);
       setOffer(result);
     } catch {
-      setError('Ihre Antwort konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.');
+      setError(t('offer.respondError'));
     } finally {
       setResponding(false);
       setPendingChoice(null);
@@ -98,7 +102,7 @@ const OfferResponse = () => {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-sm">Angebot wird geladen…</p>
+        <p className="text-sm">{t('offer.loadingText')}</p>
       </div>
     );
   }
@@ -108,7 +112,7 @@ const OfferResponse = () => {
       <Card className="border border-border shadow-sm max-w-xl">
         <CardContent className="p-8 text-center space-y-3">
           <AlertCircle className="w-10 h-10 text-warning mx-auto" />
-          <p className="text-sm text-muted-foreground">{error || 'Angebot nicht gefunden.'}</p>
+          <p className="text-sm text-muted-foreground">{error || t('offer.notFoundText')}</p>
         </CardContent>
       </Card>
     );
@@ -123,7 +127,7 @@ const OfferResponse = () => {
             {accepted ? <CheckCircle2 className="w-7 h-7 text-success" /> : <XCircle className="w-7 h-7 text-error" />}
           </div>
           <h2 className="text-xl font-bold text-foreground">
-            {accepted ? 'Sie haben eine Preisoption gewählt.' : 'Sie haben alle Preisoptionen abgelehnt.'}
+            {accepted ? t('offer.acceptedHeading') : t('offer.declinedHeading')}
           </h2>
           <p className="text-sm text-muted-foreground">{offer.projectName}</p>
           {accepted && offer.pricingTemplate && (
@@ -148,9 +152,9 @@ const OfferResponse = () => {
     <Card className="border border-border shadow-sm max-w-3xl">
       <CardContent className="p-8 space-y-5">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Preisangebot – {offer.projectName}</h2>
+          <h2 className="text-xl font-bold text-foreground">{t('offer.pageTitle', { projectName: offer.projectName })}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Wählen Sie eine der folgenden vier Zahlungsoptionen für einen Projektpreis von {formatPrice(offer.totalPrice)}.
+            {t('offer.chooseSubtitle', { price: formatPrice(offer.totalPrice) })}
           </p>
         </div>
 
@@ -162,16 +166,16 @@ const OfferResponse = () => {
 
         <div className="flex justify-center pt-4 border-t border-border">
           <Button type="button" variant="outline" className="text-error border-error/25 hover:bg-error-bg" onClick={() => setConfirmDecline(true)} disabled={responding}>
-            <ThumbsDown className="w-4 h-4 mr-1.5" />Alle Optionen ablehnen
+            <ThumbsDown className="w-4 h-4 mr-1.5" />{t('offer.declineAllButton')}
           </Button>
         </div>
       </CardContent>
 
       <ConfirmDialog
         isOpen={pendingChoice !== null}
-        title="Preisoption bestätigen"
-        message={pendingChoice ? `Möchten Sie die Option "${TEMPLATE_CONFIG[pendingChoice].label}" verbindlich wählen?` : ''}
-        confirmText="Bestätigen"
+        title={t('offer.confirmOptionTitle')}
+        message={pendingChoice ? t('offer.confirmOptionMessage', { label: t(TEMPLATE_CONFIG[pendingChoice].label) }) : ''}
+        confirmText={tc('actions.confirm')}
         type="info"
         onConfirm={() => pendingChoice && handleRespond(pendingChoice)}
         onCancel={() => setPendingChoice(null)}
@@ -179,9 +183,9 @@ const OfferResponse = () => {
 
       <ConfirmDialog
         isOpen={confirmDecline}
-        title="Alle Optionen ablehnen?"
-        message="Möchten Sie wirklich alle vier Preisoptionen ablehnen?"
-        confirmText="Ablehnen"
+        title={t('offer.declineAllTitle')}
+        message={t('offer.declineAllMessage')}
+        confirmText={t('offer.declineConfirmButton')}
         type="danger"
         onConfirm={() => handleRespond('decline')}
         onCancel={() => setConfirmDecline(false)}

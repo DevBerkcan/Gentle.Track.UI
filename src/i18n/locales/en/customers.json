@@ -1,0 +1,55 @@
+{
+  "list": {
+    "loading": "Loading customers…",
+    "errors": {
+      "load": "Error loading customers",
+      "delete": "Error deleting customer"
+    },
+    "notifications": {
+      "deleted": "Customer deleted successfully!",
+      "updated": "Customer updated successfully!",
+      "created": "Customer created successfully!"
+    },
+    "confirmDelete": {
+      "title": "Delete customer",
+      "message": "Are you sure you want to delete the customer \"{{name}}\"?"
+    },
+    "header": {
+      "title": "Customer Management",
+      "subtitle": "Manage and edit all customers",
+      "newCustomer": "New customer"
+    },
+    "search": {
+      "placeholder": "Search customers…"
+    },
+    "table": {
+      "companyName": "Company name",
+      "contactPerson": "Contact person",
+      "email": "Email",
+      "projects": "Projects",
+      "actions": "Actions"
+    },
+    "empty": "No customers found"
+  },
+  "modal": {
+    "title": {
+      "edit": "Edit customer",
+      "create": "Add new customer"
+    },
+    "errors": {
+      "save": "Error saving"
+    },
+    "labels": {
+      "companyName": "Company name *",
+      "contactPerson": "Contact person *",
+      "email": "Email *",
+      "phone": "Phone",
+      "address": "Address"
+    },
+    "buttons": {
+      "saving": "Saving...",
+      "update": "Update",
+      "create": "Create customer"
+    }
+  }
+}

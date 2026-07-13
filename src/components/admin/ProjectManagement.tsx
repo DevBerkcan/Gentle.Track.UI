@@ -1,5 +1,6 @@
 // src/components/admin/ProjectManagement.tsx
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { projectService } from "../../api/services/projectService";
 import Badge from "../common/Badge";
 import ProgressBar from "../common/ProgressBar";
@@ -22,6 +23,8 @@ interface NotificationState { show: boolean; type: "success" | "error" | "warnin
 interface ConfirmState { show: boolean; title: string; message: string; onConfirm: () => void; type?: "danger" | "warning" | "info"; }
 
 const ProjectManagement = () => {
+  const { t } = useTranslation('projects');
+  const { t: tc } = useTranslation('common');
   const { admin } = useAuth();
   const isOwner = admin?.role === "Owner";
   const [projects, setProjects] = useState<Project[]>([]);
@@ -48,7 +51,7 @@ const ProjectManagement = () => {
       const data = await projectService.getAll(true);
       setProjects(data);
     } catch {
-      showNotification("error", "Fehler beim Laden der Projekte");
+      showNotification("error", t('list.errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -69,30 +72,30 @@ const ProjectManagement = () => {
       setSelectedProject(project);
       setIsModalOpen(true);
     } catch {
-      showNotification("error", "Fehler beim Laden des Projekts");
+      showNotification("error", t('list.errors.loadOneFailed'));
     }
   };
 
   const handleArchive = (id: number, name: string) => {
-    showConfirm("Projekt archivieren", `Möchten Sie das Projekt "${name}" wirklich archivieren?`, async () => {
-      try { await projectService.archive(id); showNotification("success", "Projekt erfolgreich archiviert!"); loadProjects(); }
-      catch { showNotification("error", "Fehler beim Archivieren"); }
+    showConfirm(t('list.confirm.archiveTitle'), t('list.confirm.archiveMessage', { name }), async () => {
+      try { await projectService.archive(id); showNotification("success", t('list.notifications.archived')); loadProjects(); }
+      catch { showNotification("error", t('list.errors.archiveFailed')); }
       setConfirm(c => ({ ...c, show: false }));
     }, "warning");
   };
 
   const handleRestore = (id: number, name: string) => {
-    showConfirm("Projekt wiederherstellen", `Möchten Sie das Projekt "${name}" wiederherstellen?`, async () => {
-      try { await projectService.restore(id); showNotification("success", "Projekt wiederhergestellt!"); loadProjects(); }
-      catch { showNotification("error", "Fehler beim Wiederherstellen"); }
+    showConfirm(t('list.confirm.restoreTitle'), t('list.confirm.restoreMessage', { name }), async () => {
+      try { await projectService.restore(id); showNotification("success", t('list.notifications.restored')); loadProjects(); }
+      catch { showNotification("error", t('list.errors.restoreFailed')); }
       setConfirm(c => ({ ...c, show: false }));
     }, "info");
   };
 
   const handleRelease = (id: number, name: string) => {
-    showConfirm("Projekt freigeben", `Möchten Sie das Projekt "${name}" an GentleGroup freigeben? Es wird eine E-Mail-Benachrichtigung versendet.`, async () => {
-      try { await projectService.release(id); showNotification("success", "Projekt erfolgreich freigegeben!"); loadProjects(); }
-      catch { showNotification("error", "Fehler beim Freigeben"); }
+    showConfirm(t('list.actions.release'), t('list.confirm.releaseMessage', { name }), async () => {
+      try { await projectService.release(id); showNotification("success", t('list.notifications.released')); loadProjects(); }
+      catch { showNotification("error", t('list.errors.releaseFailed')); }
       setConfirm(c => ({ ...c, show: false }));
     }, "info");
   };
@@ -101,48 +104,48 @@ const ProjectManagement = () => {
     loadProjects();
     setIsModalOpen(false);
     setSelectedProject(null);
-    showNotification("success", selectedProject ? "Projekt erfolgreich aktualisiert!" : "Projekt erfolgreich angelegt!");
+    showNotification("success", selectedProject ? t('list.notifications.updated') : t('list.notifications.created'));
   };
 
   const archiveOptions = [
-    { value: "active", label: "Aktive Projekte" },
-    { value: "archived", label: "Archivierte Projekte" },
+    { value: "active", label: t('list.filters.active') },
+    { value: "archived", label: t('list.filters.archived') },
   ];
 
   const columns = [
-    { header: "Projektname", accessor: "projectName", render: (v: string) => <span className="font-semibold text-foreground">{v}</span> },
-    { header: "Kunde", accessor: "customerName" },
-    { header: "Tracking-Nr.", accessor: "trackingNumber", render: (v: string) => <span className="font-mono text-sm text-muted-foreground">{v}</span> },
-    { header: "Status", accessor: "status", render: (v: string) => <Badge status={v} /> },
-    { header: "Angebot", accessor: "offerStatus", render: (v?: string) => v ? <Badge status={v} /> : <span className="text-xs text-muted-foreground">–</span> },
-    { header: "Fortschritt", accessor: "progress", render: (v: number) => <ProgressBar progress={v} /> },
-    { header: "Start", accessor: "startDate", render: (v: string) => formatDate(v) },
-    { header: "Ende", accessor: "endDate", render: (v: string) => formatDate(v) },
+    { header: t('list.columns.projectName'), accessor: "projectName", render: (v: string) => <span className="font-semibold text-foreground">{v}</span> },
+    { header: t('list.columns.customer'), accessor: "customerName" },
+    { header: t('list.columns.trackingNumber'), accessor: "trackingNumber", render: (v: string) => <span className="font-mono text-sm text-muted-foreground">{v}</span> },
+    { header: t('list.columns.status'), accessor: "status", render: (v: string) => <Badge status={v} /> },
+    { header: t('list.columns.offer'), accessor: "offerStatus", render: (v?: string) => v ? <Badge status={v} /> : <span className="text-xs text-muted-foreground">–</span> },
+    { header: t('list.columns.progress'), accessor: "progress", render: (v: number) => <ProgressBar progress={v} /> },
+    { header: t('list.columns.start'), accessor: "startDate", render: (v: string) => formatDate(v) },
+    { header: t('list.columns.end'), accessor: "endDate", render: (v: string) => formatDate(v) },
     {
-      header: "Aktionen", accessor: "projectID",
+      header: t('list.columns.actions'), accessor: "projectID",
       render: (_: any, project: Project) => (
         <div className="flex flex-wrap gap-1.5">
-          <Button size="icon-sm" onClick={() => handleEdit(project.projectID)} title="Bearbeiten" aria-label="Bearbeiten">
+          <Button size="icon-sm" onClick={() => handleEdit(project.projectID)} title={tc('actions.edit')} aria-label={tc('actions.edit')}>
             <Pencil className="w-3.5 h-3.5" />
           </Button>
-          <Button size="icon-sm" variant="outline" onClick={() => setBriefingProject(project)} title="Briefing" aria-label="Briefing">
+          <Button size="icon-sm" variant="outline" onClick={() => setBriefingProject(project)} title={t('list.actions.briefing')} aria-label={t('list.actions.briefing')}>
             <ClipboardList className="w-3.5 h-3.5" />
           </Button>
           {!project.isReleased ? (
-            <Button size="icon-sm" variant="outline" onClick={() => handleRelease(project.projectID, project.projectName)} title="Projekt freigeben" aria-label="Projekt freigeben">
+            <Button size="icon-sm" variant="outline" onClick={() => handleRelease(project.projectID, project.projectName)} title={t('list.actions.release')} aria-label={t('list.actions.release')}>
               <Send className="w-3.5 h-3.5" />
             </Button>
           ) : (
-            <Button size="icon-sm" variant="outline" onClick={() => setOfferProject(project)} title={isOwner ? "Preis festlegen" : "Angebot"} aria-label={isOwner ? "Preis festlegen" : "Angebot"}>
+            <Button size="icon-sm" variant="outline" onClick={() => setOfferProject(project)} title={isOwner ? t('list.actions.priceOffer') : t('list.actions.offer')} aria-label={isOwner ? t('list.actions.priceOffer') : t('list.actions.offer')}>
               <Tag className="w-3.5 h-3.5" />
             </Button>
           )}
           {!project.isArchived ? (
-            <Button size="icon-sm" variant="outline" onClick={() => handleArchive(project.projectID, project.projectName)} title="Archivieren" aria-label="Archivieren">
+            <Button size="icon-sm" variant="outline" onClick={() => handleArchive(project.projectID, project.projectName)} title={t('list.actions.archive')} aria-label={t('list.actions.archive')}>
               <Archive className="w-3.5 h-3.5" />
             </Button>
           ) : (
-            <Button size="icon-sm" variant="outline" onClick={() => handleRestore(project.projectID, project.projectName)} title="Wiederherstellen" aria-label="Wiederherstellen">
+            <Button size="icon-sm" variant="outline" onClick={() => handleRestore(project.projectID, project.projectName)} title={t('list.actions.restore')} aria-label={t('list.actions.restore')}>
               <RotateCcw className="w-3.5 h-3.5" />
             </Button>
           )}
@@ -154,7 +157,7 @@ const ProjectManagement = () => {
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      <p className="text-sm">Projekte werden geladen…</p>
+      <p className="text-sm">{t('list.loading')}</p>
     </div>
   );
 
@@ -164,12 +167,12 @@ const ProjectManagement = () => {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <FolderOpen className="w-5 h-5 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">Projekte verwalten</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('list.title')}</h1>
           </div>
-          <p className="text-sm text-muted-foreground">Alle Projekte erstellen, bearbeiten und archivieren</p>
+          <p className="text-sm text-muted-foreground">{t('list.subtitle')}</p>
         </div>
         <Button onClick={() => setIsModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-1.5" />Neues Projekt
+          <Plus className="w-4 h-4 mr-1.5" />{t('list.newProject')}
         </Button>
       </div>
 
@@ -178,7 +181,7 @@ const ProjectManagement = () => {
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-              <Input placeholder="Projekt suchen…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8 h-8 text-sm w-48" />
+              <Input placeholder={t('list.searchPlaceholder')} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8 h-8 text-sm w-48" />
             </div>
             <CustomSelect value={archiveFilter} onChange={setArchiveFilter} options={archiveOptions} className="w-44 h-8 text-sm" />
           </div>
@@ -187,7 +190,7 @@ const ProjectManagement = () => {
           {filteredProjects.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
               <FolderOpen className="w-10 h-10 opacity-30" />
-              <p className="text-sm font-medium">Keine Projekte gefunden</p>
+              <p className="text-sm font-medium">{t('list.empty')}</p>
             </div>
           ) : (
             <ResponsiveTable columns={columns} data={filteredProjects} keyField="projectID" />
@@ -195,11 +198,11 @@ const ProjectManagement = () => {
         </CardContent>
       </Card>
 
-      <ProjectModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedProject(null); }} project={selectedProject} onSaveSuccess={handleSaveSuccess} onDeleteSuccess={() => { loadProjects(); setIsModalOpen(false); setSelectedProject(null); showNotification("success", "Projekt erfolgreich gelöscht!"); }} />
+      <ProjectModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setSelectedProject(null); }} project={selectedProject} onSaveSuccess={handleSaveSuccess} onDeleteSuccess={() => { loadProjects(); setIsModalOpen(false); setSelectedProject(null); showNotification("success", t('list.notifications.deleted')); }} />
       <BriefingViewModal isOpen={!!briefingProject} onClose={() => setBriefingProject(null)} projectId={briefingProject?.projectID ?? null} projectName={briefingProject?.projectName} />
       <PriceOfferModal isOpen={!!offerProject} onClose={() => setOfferProject(null)} projectId={offerProject?.projectID ?? null} projectName={offerProject?.projectName} onChanged={loadProjects} />
       {notification.show && <Notification type={notification.type} message={notification.message} onClose={() => setNotification(n => ({ ...n, show: false }))} />}
-      <ConfirmDialog isOpen={confirm.show} title={confirm.title} message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(c => ({ ...c, show: false }))} type={confirm.type} confirmText={confirm.type === "danger" ? "Löschen" : "Bestätigen"} />
+      <ConfirmDialog isOpen={confirm.show} title={confirm.title} message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(c => ({ ...c, show: false }))} type={confirm.type} confirmText={confirm.type === "danger" ? tc('actions.delete') : tc('actions.confirm')} />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 // src/components/modals/ProjectModal.tsx
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { projectService } from '../../api/services/projectService';
 import { customerService } from '../../api/services/customerService';
 import CustomSelect from '../common/CustomSelect';
@@ -22,6 +23,8 @@ interface ProjectModalProps {
 export const ProjectModal: React.FC<ProjectModalProps> = ({
   isOpen, onClose, project, onSaveSuccess, onDeleteSuccess,
 }) => {
+  const { t } = useTranslation('projects');
+  const { t: tc } = useTranslation('common');
   const [formData, setFormData] = useState<CreateProjectDto>({
     projectName: '', customerID: 0, status: 'Planung',
     progress: 0, description: '', startDate: '', endDate: '',
@@ -81,7 +84,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       }
       onSaveSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Fehler beim Speichern');
+      setError(err.response?.data?.message || t('modal.errors.saveFailed'));
     } finally {
       setLoading(false);
     }
@@ -96,26 +99,26 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       setShowDeleteConfirm(false);
       onDeleteSuccess?.();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Fehler beim Löschen des Projekts');
+      setError(err.response?.data?.message || t('modal.errors.deleteFailed'));
     } finally {
       setLoading(false);
     }
   };
 
   const customerOptions = [
-    { value: '0', label: '-- Kunde wählen --' },
+    { value: '0', label: t('modal.fields.selectCustomerPlaceholder') },
     ...customers.map(c => ({ value: c.customerID.toString(), label: c.companyName }))
   ];
 
   const statusOptions = [
-    { value: 'Planung', label: 'Planung' },
-    { value: 'In Bearbeitung', label: 'In Bearbeitung' },
-    { value: 'Warten auf Feedback', label: 'Warten auf Feedback' },
-    { value: 'Abgeschlossen', label: 'Abgeschlossen' },
+    { value: 'Planung', label: tc('statusValues.Planung') },
+    { value: 'In Bearbeitung', label: tc('statusValues.In Bearbeitung') },
+    { value: 'Warten auf Feedback', label: tc('statusValues.Warten auf Feedback') },
+    { value: 'Abgeschlossen', label: tc('statusValues.Abgeschlossen') },
   ];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={project ? 'Projekt bearbeiten' : 'Neues Projekt anlegen'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={project ? t('modal.title.edit') : t('modal.title.create')}>
       {showDeleteConfirm ? (
         <div className="space-y-6">
           {error && (
@@ -123,19 +126,18 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           )}
           <div className="text-center space-y-3">
             <AlertTriangle className="w-10 h-10 text-destructive mx-auto" />
-            <h3 className="text-lg font-semibold text-destructive">Projekt unwiderruflich löschen?</h3>
+            <h3 className="text-lg font-semibold text-destructive">{t('modal.deleteConfirm.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              Das Projekt „{project?.projectName}" und alle zugehörigen Daten werden permanent gelöscht.
-              Diese Aktion kann nicht rückgängig gemacht werden!
+              {t('modal.deleteConfirm.message', { name: project?.projectName })}
             </p>
           </div>
           <div className="flex gap-2">
             <Button variant="destructive" onClick={handleDelete} disabled={loading} className="flex-1">
               {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1.5" />}
-              {loading ? 'Löschen...' : 'Ja, endgültig löschen'}
+              {loading ? t('modal.deleteConfirm.deletingLabel') : t('modal.deleteConfirm.confirmLabel')}
             </Button>
             <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)} disabled={loading} className="flex-1">
-              <X className="w-4 h-4 mr-1.5" />Abbrechen
+              <X className="w-4 h-4 mr-1.5" />{tc('actions.cancel')}
             </Button>
           </div>
         </div>
@@ -145,15 +147,15 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             <div className="px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">{error}</div>
           )}
           <div className="space-y-1.5">
-            <Label>Tracking-Nummer</Label>
+            <Label>{t('modal.fields.trackingNumber')}</Label>
             <Input value={trackingNumber} readOnly className="bg-muted text-muted-foreground" />
           </div>
           <div className="space-y-1.5">
-            <Label>Projektname *</Label>
+            <Label>{t('modal.fields.projectName')}</Label>
             <Input required value={formData.projectName} onChange={e => setFormData({ ...formData, projectName: e.target.value })} />
           </div>
           <div className="space-y-1.5">
-            <Label>Kunde *</Label>
+            <Label>{t('modal.fields.customer')}</Label>
             <CustomSelect
               value={formData.customerID.toString()}
               onChange={value => setFormData({ ...formData, customerID: parseInt(value) })}
@@ -161,7 +163,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Status</Label>
+            <Label>{t('modal.fields.status')}</Label>
             <CustomSelect
               value={formData.status}
               onChange={value => setFormData({ ...formData, status: value })}
@@ -169,7 +171,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             />
           </div>
           <div className="space-y-2">
-            <Label>Fortschritt ({formData.progress}%)</Label>
+            <Label>{t('modal.fields.progress', { progress: formData.progress })}</Label>
             <input
               type="range" min="0" max="100"
               value={formData.progress}
@@ -179,31 +181,31 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             <div className="text-center text-2xl font-bold text-primary">{formData.progress}%</div>
           </div>
           <div className="space-y-1.5">
-            <Label>Beschreibung</Label>
+            <Label>{t('modal.fields.description')}</Label>
             <Textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={3} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Startdatum *</Label>
+              <Label>{t('modal.fields.startDate')}</Label>
               <Input type="date" required value={formData.startDate} onChange={e => setFormData({ ...formData, startDate: e.target.value })} />
             </div>
             <div className="space-y-1.5">
-              <Label>Enddatum *</Label>
+              <Label>{t('modal.fields.endDate')}</Label>
               <Input type="date" required value={formData.endDate} onChange={e => setFormData({ ...formData, endDate: e.target.value })} />
             </div>
           </div>
           <div className="flex flex-wrap gap-2 pt-2">
             <Button type="submit" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : project ? <Save className="w-4 h-4 mr-1.5" /> : <Plus className="w-4 h-4 mr-1.5" />}
-              {loading ? 'Speichern...' : (project ? 'Speichern' : 'Projekt anlegen')}
+              {loading ? t('modal.savingButton') : (project ? tc('actions.save') : t('modal.createButton'))}
             </Button>
             {project && (
               <Button type="button" variant="destructive" onClick={() => setShowDeleteConfirm(true)} disabled={loading}>
-                <Trash2 className="w-4 h-4 mr-1.5" />Löschen
+                <Trash2 className="w-4 h-4 mr-1.5" />{tc('actions.delete')}
               </Button>
             )}
             <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
-              <X className="w-4 h-4 mr-1.5" />Abbrechen
+              <X className="w-4 h-4 mr-1.5" />{tc('actions.cancel')}
             </Button>
           </div>
         </form>

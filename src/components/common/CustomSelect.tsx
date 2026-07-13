@@ -1,4 +1,5 @@
 // src/components/common/CustomSelect.tsx
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -25,14 +26,16 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   value,
   onChange,
   options,
-  placeholder = 'Wählen...',
+  placeholder,
   className = '',
   style = {}
 }) => {
+  const { t } = useTranslation('common');
+  const resolvedPlaceholder = placeholder ?? t('customSelect.placeholder');
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className={`w-full ${className}`} style={style}>
-        <SelectValue placeholder={placeholder} />
+        <SelectValue placeholder={resolvedPlaceholder} />
       </SelectTrigger>
       <SelectContent>
         {options.map((option) => (

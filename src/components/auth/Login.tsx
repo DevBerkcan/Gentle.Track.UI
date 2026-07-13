@@ -1,6 +1,7 @@
 // src/components/auth/Login.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,8 +9,11 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2, BarChart3, CheckCircle2, Users } from 'lucide-react';
 import lockupDark from '@/assets/brand/gentle-track-lockup-dark.svg';
 import lockupLight from '@/assets/brand/gentle-track-lockup-light.svg';
+import ThemeToggle from '../common/ThemeToggle';
+import LanguageToggle from '../common/LanguageToggle';
 
 const Login = () => {
+  const { t } = useTranslation('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,14 +29,26 @@ const Login = () => {
       await login(email, password);
       navigate('/admin/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Anmeldung fehlgeschlagen');
+      setError(err.message === 'INVALID_CREDENTIALS' ? t('login.invalidCredentials') : t('login.loginFailed'));
     } finally {
       setIsLoading(false);
     }
   };
 
+  const features = [
+    { icon: BarChart3, text: t('login.feature1') },
+    { icon: Users, text: t('login.feature2') },
+    { icon: CheckCircle2, text: t('login.feature3') },
+  ];
+
   return (
     <div className="min-h-screen flex">
+      {/* Toggles */}
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+        <LanguageToggle />
+        <ThemeToggle />
+      </div>
+
       {/* Linke Branding-Seite */}
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar flex-col justify-between p-12">
         <img src={lockupDark} alt="Gentle Track" className="h-8 w-auto" />
@@ -41,21 +57,17 @@ const Login = () => {
         <div className="space-y-8">
           <div>
             <h2 className="text-4xl font-bold text-sidebar-foreground leading-tight">
-              Projekte im Blick.
+              {t('login.brandHeadlineLine1')}
               <br />
-              <span className="text-primary">Kunden begeistert.</span>
+              <span className="text-primary">{t('login.brandHeadlineLine2')}</span>
             </h2>
             <p className="text-sidebar-foreground/60 mt-4 text-lg leading-relaxed">
-              Verwalten Sie Ihre Projekte, Phasen und Kundenkommunikation — alles an einem Ort.
+              {t('login.brandSubtext')}
             </p>
           </div>
 
           <div className="space-y-4">
-            {[
-              { icon: BarChart3, text: 'Echtzeit-Projektübersicht für alle Beteiligten' },
-              { icon: Users, text: 'Kunden können den Fortschritt jederzeit einsehen' },
-              { icon: CheckCircle2, text: 'Transparente Phasenverfolgung mit Kommentaren' },
-            ].map(({ icon: Icon, text }, i) => (
+            {features.map(({ icon: Icon, text }, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
                   <Icon className="w-4 h-4 text-primary" />
@@ -67,7 +79,7 @@ const Login = () => {
         </div>
 
         <p className="text-sidebar-foreground/30 text-xs">
-          © {new Date().getFullYear()} Gentle Webdesign
+          {t('login.copyright', { year: new Date().getFullYear() })}
         </p>
       </div>
 
@@ -80,8 +92,8 @@ const Login = () => {
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Willkommen zurück</h1>
-            <p className="text-muted-foreground mt-1 text-sm">Melden Sie sich mit Ihrem Admin-Konto an</p>
+            <h1 className="text-2xl font-bold text-foreground">{t('login.welcomeBack')}</h1>
+            <p className="text-muted-foreground mt-1 text-sm">{t('login.signInSubtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -93,7 +105,7 @@ const Login = () => {
             )}
 
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">E-Mail-Adresse</Label>
+              <Label htmlFor="email" className="text-sm font-medium">{t('login.emailLabel')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -107,7 +119,7 @@ const Login = () => {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium">Passwort</Label>
+              <Label htmlFor="password" className="text-sm font-medium">{t('login.passwordLabel')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -126,21 +138,21 @@ const Login = () => {
               disabled={isLoading}
             >
               {isLoading ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Anmeldung läuft…</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('login.signingIn')}</>
               ) : (
-                'Anmelden'
+                t('login.signIn')
               )}
             </Button>
           </form>
 
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              Kein Admin?{' '}
+              {t('login.notAdmin')}{' '}
               <a
                 href="/kundenansicht"
                 className="text-primary hover:text-primary/80 font-medium no-underline transition-colors"
               >
-                Zur Kundenansicht →
+                {t('login.goToCustomerView')}
               </a>
             </p>
           </div>

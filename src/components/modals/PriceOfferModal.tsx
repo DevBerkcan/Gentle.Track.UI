@@ -1,5 +1,6 @@
 // src/components/modals/PriceOfferModal.tsx
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Modal from '../common/Modal';
 import Notification from '../common/Notification';
 import ConfirmDialog from '../common/ConfirmDialog';
@@ -33,29 +34,32 @@ const formatPrice = (value?: number) =>
   value == null ? '–' : value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
 
 const OptionSummary = ({ option }: { option: OfferOption }) => {
+  const { t } = useTranslation('priceOffer');
   const cfg = TEMPLATE_CONFIG[option.template];
   return (
     <div className="space-y-1">
-      <div className="text-sm font-semibold text-foreground">{cfg.label}</div>
+      <div className="text-sm font-semibold text-foreground">{t(cfg.label)}</div>
       {option.template === 'Einmalzahlung' ? (
-        <p className="text-sm text-foreground">Einmalig: <span className="font-bold">{formatPrice(option.upfrontAmount)}</span></p>
+        <p className="text-sm text-foreground">{t('oneTimeLabel')} <span className="font-bold">{formatPrice(option.upfrontAmount)}</span></p>
       ) : (
         <>
           {!!option.upfrontAmount && (
-            <p className="text-xs text-muted-foreground">Anzahlung: <span className="font-semibold text-foreground">{formatPrice(option.upfrontAmount)}</span></p>
+            <p className="text-xs text-muted-foreground">{t('depositAmountPrefix')} <span className="font-semibold text-foreground">{formatPrice(option.upfrontAmount)}</span></p>
           )}
           <p className="text-sm text-foreground">
             <span className="font-bold">{formatPrice(option.monthlyPrice)}</span>
-            <span className="text-muted-foreground text-xs"> /Monat über {option.termMonths} Monate</span>
+            <span className="text-muted-foreground text-xs"> {t('perMonthOverTerm', { months: option.termMonths })}</span>
           </p>
         </>
       )}
-      <p className="text-xs text-muted-foreground">Gesamt: {formatPrice(option.totalPayable)}</p>
+      <p className="text-xs text-muted-foreground">{t('totalLabel', { total: formatPrice(option.totalPayable) })}</p>
     </div>
   );
 };
 
 export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClose, projectId, projectName, onChanged }) => {
+  const { t } = useTranslation('priceOffer');
+  const { t: tc } = useTranslation('common');
   const { admin } = useAuth();
   const isOwner = admin?.role === 'Owner';
 
@@ -88,7 +92,7 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
           setM12Surcharge(o.monatlich12SurchargePercent ?? TEMPLATE_CONFIG.Monatlich12.surchargeDefault);
           setM24Surcharge(o.monatlich24SurchargePercent ?? TEMPLATE_CONFIG.Monatlich24.surchargeDefault);
         })
-        .catch(() => notify('error', 'Angebot konnte nicht geladen werden.'))
+        .catch(() => notify('error', t('loadError')))
         .finally(() => setLoading(false));
     }
   }, [isOpen, projectId]);
@@ -124,10 +128,10 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
       setSaving(true);
       const result = await offerService.saveDraft(projectId, buildDto());
       setOffer(result);
-      notify('success', 'Entwurf gespeichert.');
+      notify('success', t('draftSavedSuccess'));
       onChanged?.();
     } catch (err: any) {
-      notify('error', err.response?.data?.message || 'Entwurf konnte nicht gespeichert werden.');
+      notify('error', err.response?.data?.message || t('draftSaveError'));
     } finally {
       setSaving(false);
     }
@@ -142,10 +146,10 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
       await offerService.saveDraft(projectId, buildDto());
       const result = await offerService.release(projectId);
       setOffer(result);
-      notify('success', 'Preisoptionen an Kreavolut freigegeben.');
+      notify('success', t('releaseSuccess'));
       onChanged?.();
     } catch (err: any) {
-      notify('error', err.response?.data?.message || 'Preis konnte nicht freigegeben werden. Bitte zuerst einen Projektpreis speichern.');
+      notify('error', err.response?.data?.message || t('releaseError'));
     } finally {
       setSaving(false);
     }
@@ -158,10 +162,10 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
       setSaving(true);
       const result = await offerService.accept(offer.offerID, template);
       setOffer(result);
-      notify('success', `Preisoption "${TEMPLATE_CONFIG[template].label}" als angenommen erfasst.`);
+      notify('success', t('choiceRecordedSuccess', { label: t(TEMPLATE_CONFIG[template].label) }));
       onChanged?.();
     } catch (err: any) {
-      notify('error', err.response?.data?.message || 'Aktion konnte nicht gespeichert werden.');
+      notify('error', err.response?.data?.message || t('actionError'));
     } finally {
       setSaving(false);
     }
@@ -174,10 +178,10 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
       setSaving(true);
       const result = await offerService.reject(offer.offerID);
       setOffer(result);
-      notify('success', 'Alle Preisoptionen als abgelehnt erfasst.');
+      notify('success', t('declineAllRecordedSuccess'));
       onChanged?.();
     } catch (err: any) {
-      notify('error', err.response?.data?.message || 'Aktion konnte nicht gespeichert werden.');
+      notify('error', err.response?.data?.message || t('actionError'));
     } finally {
       setSaving(false);
     }
@@ -187,11 +191,11 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
   const canRespond = offer?.status === 'Freigegeben';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Preisangebot – ${projectName ?? ''}`} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('title', { projectName: projectName ?? '' })} size="lg">
       {loading ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
-          <p className="text-sm">Angebot wird geladen…</p>
+          <p className="text-sm">{t('loadingText')}</p>
         </div>
       ) : (
         <div className="space-y-5">
@@ -200,46 +204,46 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
           {canEdit ? (
             <>
               <p className="text-xs text-muted-foreground">
-                Lege den Einmalzahlungs-Projektpreis fest und passe bei Bedarf die anderen drei Zahlungsoptionen an. Alle vier werden gemeinsam freigegeben.
+                {t('editIntro')}
               </p>
 
               <div className="space-y-1 max-w-xs">
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Projektpreis (€)</Label>
-                <Input type="number" min="0" step="0.01" value={totalPrice} onChange={e => setTotalPrice(e.target.value)} placeholder="z.B. 8000" className="text-base font-semibold" />
+                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('projectPriceLabel')}</Label>
+                <Input type="number" min="0" step="0.01" value={totalPrice} onChange={e => setTotalPrice(e.target.value)} placeholder={t('projectPricePlaceholder')} className="text-base font-semibold" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Einmalzahlung: fixed, just a preview */}
                 <div className="rounded-xl border border-border p-4 space-y-2">
-                  <p className="text-sm font-semibold text-foreground">{TEMPLATE_CONFIG.Einmalzahlung.label}</p>
-                  <p className="text-xs text-muted-foreground">{TEMPLATE_CONFIG.Einmalzahlung.description}</p>
+                  <p className="text-sm font-semibold text-foreground">{t(TEMPLATE_CONFIG.Einmalzahlung.label)}</p>
+                  <p className="text-xs text-muted-foreground">{t(TEMPLATE_CONFIG.Einmalzahlung.description)}</p>
                   <p className="text-lg font-bold text-foreground">{formatPrice(previewOptions[0].upfrontAmount)}</p>
                 </div>
 
                 {/* Hybrid: deposit + surcharge + term sliders */}
                 <div className="rounded-xl border border-border p-4 space-y-3">
                   <div>
-                    <p className="text-sm font-semibold text-foreground">{TEMPLATE_CONFIG.Hybrid.label}</p>
-                    <p className="text-xs text-muted-foreground">{TEMPLATE_CONFIG.Hybrid.description}</p>
+                    <p className="text-sm font-semibold text-foreground">{t(TEMPLATE_CONFIG.Hybrid.label)}</p>
+                    <p className="text-xs text-muted-foreground">{t(TEMPLATE_CONFIG.Hybrid.description)}</p>
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">Anzahlung</Label>
+                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">{t('depositLabel')}</Label>
                       <span className="text-xs font-semibold text-foreground">{hybridDeposit.toFixed(1)} %</span>
                     </div>
                     <Slider value={[hybridDeposit]} min={TEMPLATE_CONFIG.Hybrid.depositRange![0]} max={TEMPLATE_CONFIG.Hybrid.depositRange![1]} step={0.5} onValueChange={([v]) => setHybridDeposit(v)} />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">Aufschlag auf Restbetrag</Label>
+                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">{t('hybridSurchargeLabel')}</Label>
                       <span className="text-xs font-semibold text-foreground">{hybridSurcharge.toFixed(1)} %</span>
                     </div>
                     <Slider value={[hybridSurcharge]} min={TEMPLATE_CONFIG.Hybrid.surchargeRange[0]} max={TEMPLATE_CONFIG.Hybrid.surchargeRange[1]} step={0.5} onValueChange={([v]) => setHybridSurcharge(v)} />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">Laufzeit</Label>
-                      <span className="text-xs font-semibold text-foreground">{hybridTerm} Monate</span>
+                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">{t('termLabel')}</Label>
+                      <span className="text-xs font-semibold text-foreground">{t('monthsUnit', { count: hybridTerm })}</span>
                     </div>
                     <Slider value={[hybridTermIndex]} min={0} max={HYBRID_TERM_OPTIONS.length - 1} step={1} onValueChange={([i]) => setHybridTerm(HYBRID_TERM_OPTIONS[i])} />
                   </div>
@@ -249,12 +253,12 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
                 {/* Monatlich12: surcharge slider */}
                 <div className="rounded-xl border border-border p-4 space-y-3">
                   <div>
-                    <p className="text-sm font-semibold text-foreground">{TEMPLATE_CONFIG.Monatlich12.label}</p>
-                    <p className="text-xs text-muted-foreground">{TEMPLATE_CONFIG.Monatlich12.description}</p>
+                    <p className="text-sm font-semibold text-foreground">{t(TEMPLATE_CONFIG.Monatlich12.label)}</p>
+                    <p className="text-xs text-muted-foreground">{t(TEMPLATE_CONFIG.Monatlich12.description)}</p>
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">Aufschlag</Label>
+                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">{t('surchargeLabel')}</Label>
                       <span className="text-xs font-semibold text-foreground">{m12Surcharge.toFixed(1)} %</span>
                     </div>
                     <Slider value={[m12Surcharge]} min={TEMPLATE_CONFIG.Monatlich12.surchargeRange[0]} max={TEMPLATE_CONFIG.Monatlich12.surchargeRange[1]} step={0.5} onValueChange={([v]) => setM12Surcharge(v)} />
@@ -265,12 +269,12 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
                 {/* Monatlich24: surcharge slider */}
                 <div className="rounded-xl border border-border p-4 space-y-3">
                   <div>
-                    <p className="text-sm font-semibold text-foreground">{TEMPLATE_CONFIG.Monatlich24.label}</p>
-                    <p className="text-xs text-muted-foreground">{TEMPLATE_CONFIG.Monatlich24.description}</p>
+                    <p className="text-sm font-semibold text-foreground">{t(TEMPLATE_CONFIG.Monatlich24.label)}</p>
+                    <p className="text-xs text-muted-foreground">{t(TEMPLATE_CONFIG.Monatlich24.description)}</p>
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">Aufschlag</Label>
+                      <Label className="text-[11px] font-medium text-muted-foreground uppercase">{t('surchargeLabel')}</Label>
                       <span className="text-xs font-semibold text-foreground">{m24Surcharge.toFixed(1)} %</span>
                     </div>
                     <Slider value={[m24Surcharge]} min={TEMPLATE_CONFIG.Monatlich24.surchargeRange[0]} max={TEMPLATE_CONFIG.Monatlich24.surchargeRange[1]} step={0.5} onValueChange={([v]) => setM24Surcharge(v)} />
@@ -282,10 +286,10 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
               <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={handleSaveDraft} disabled={saving}>
                   {saving ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
-                  Entwurf speichern
+                  {t('saveDraftButton')}
                 </Button>
                 <Button type="button" onClick={() => setConfirmRelease(true)} disabled={saving || !totalPrice}>
-                  <Send className="w-3.5 h-3.5 mr-1.5" />Preis freigeben
+                  <Send className="w-3.5 h-3.5 mr-1.5" />{t('releaseButton')}
                 </Button>
               </div>
             </>
@@ -293,7 +297,7 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
             <>
               {offer?.status === 'Angenommen' && (
                 <div className="rounded-xl border border-success/25 bg-success-bg/60 p-4">
-                  <p className="text-xs font-semibold text-[#15805A] uppercase tracking-wide mb-1">Gewählte Option</p>
+                  <p className="text-xs font-semibold text-[#15805A] uppercase tracking-wide mb-1">{t('chosenOptionLabel')}</p>
                   <OptionSummary option={{
                     template: offer.pricingTemplate,
                     upfrontAmount: offer.upfrontAmount,
@@ -304,13 +308,13 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
                 </div>
               )}
               {offer?.status === 'Abgelehnt' && (
-                <p className="text-sm text-muted-foreground">Der Kunde hat alle vier Preisoptionen abgelehnt.</p>
+                <p className="text-sm text-muted-foreground">{t('declinedAllText')}</p>
               )}
               {offer?.status === 'Entwurf' && (
-                <p className="text-sm text-muted-foreground">Der Projektpreis wurde noch nicht vom Owner festgelegt.</p>
+                <p className="text-sm text-muted-foreground">{t('draftNotSetText')}</p>
               )}
               {offer?.status === 'Freigegeben' && (
-                <p className="text-sm text-muted-foreground">Preisoptionen wurden an Kreavolut gesendet – Antwort steht noch aus.</p>
+                <p className="text-sm text-muted-foreground">{t('releasedWaitingText')}</p>
               )}
             </>
           )}
@@ -318,7 +322,7 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
           {canRespond && offer && (
             <div className="space-y-3 pt-3 border-t border-border">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Antwort manuell erfassen (z.B. nach telefonischer Rückmeldung)
+                {t('manualResponseIntro')}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {offer.options.map(opt => (
@@ -341,7 +345,7 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
               </div>
               <div className="flex justify-end">
                 <Button type="button" variant="outline" className="text-error border-error/25 hover:bg-error-bg" onClick={() => setConfirmDecline(true)} disabled={saving}>
-                  <ThumbsDown className="w-3.5 h-3.5 mr-1.5" />Alle Optionen ablehnen
+                  <ThumbsDown className="w-3.5 h-3.5 mr-1.5" />{t('declineAllButton')}
                 </Button>
               </div>
             </div>
@@ -351,9 +355,9 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
 
       <ConfirmDialog
         isOpen={confirmRelease}
-        title="Preisoptionen freigeben?"
-        message="Dies versendet alle vier Zahlungsoptionen per E-Mail an Kreavolut (info@kreavolut.de) zur Auswahl."
-        confirmText="Freigeben"
+        title={t('releaseConfirmTitle')}
+        message={t('releaseConfirmMessage')}
+        confirmText={t('releaseConfirmButton')}
         type="info"
         onConfirm={handleRelease}
         onCancel={() => setConfirmRelease(false)}
@@ -361,9 +365,9 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
 
       <ConfirmDialog
         isOpen={pendingChoice !== null}
-        title="Bist du sicher?"
-        message={pendingChoice ? `Möchtest du die Option "${TEMPLATE_CONFIG[pendingChoice].label}" wirklich als angenommen erfassen?` : ''}
-        confirmText="Bestätigen"
+        title={tc('confirmDialog.defaultTitle')}
+        message={pendingChoice ? t('chooseConfirmMessage', { label: t(TEMPLATE_CONFIG[pendingChoice].label) }) : ''}
+        confirmText={tc('actions.confirm')}
         type="info"
         onConfirm={() => pendingChoice && handleChoose(pendingChoice)}
         onCancel={() => setPendingChoice(null)}
@@ -371,9 +375,9 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
 
       <ConfirmDialog
         isOpen={confirmDecline}
-        title="Alle Optionen ablehnen?"
-        message="Erfasst, dass der Kunde keine der vier Preisoptionen angenommen hat."
-        confirmText="Ablehnen"
+        title={t('declineAllConfirmTitle')}
+        message={t('declineAllConfirmMessage')}
+        confirmText={t('declineConfirmButton')}
         type="danger"
         onConfirm={handleDeclineAll}
         onCancel={() => setConfirmDecline(false)}

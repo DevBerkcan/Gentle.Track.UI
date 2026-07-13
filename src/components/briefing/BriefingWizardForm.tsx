@@ -1,5 +1,6 @@
 // src/components/briefing/BriefingWizardForm.tsx
 import type { UpsertBriefingDto } from '../../types';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +11,8 @@ import { cn } from '@/lib/utils';
 
 export const TOTAL_STEPS = 6;
 
+// Canonical option values are stored as-is in the database (German), independent of UI language.
+// Only the rendered label is translated via briefing:options.<value>.
 export const GOAL_OPTIONS = ['Kunden gewinnen', 'Online verkaufen', 'Marke aufbauen', 'Informieren', 'Termine buchen', 'Portfolio zeigen'];
 export const AUDIENCE_OPTIONS = ['Privatkunden (B2C)', 'Unternehmen (B2B)', 'Beide'];
 export const REGION_OPTIONS = ['Lokal / Regional', 'Deutschlandweit', 'International'];
@@ -28,6 +31,7 @@ const isOtherValue = (raw: string) => raw === OTHER_LABEL || raw.startsWith(OTHE
 const parseOtherText = (raw: string) => (raw.startsWith(OTHER_PREFIX) ? raw.slice(OTHER_PREFIX.length) : '');
 
 export const YesNoGroup = ({ value, onChange, options = ['Ja', 'Nein'] }: { value?: string; onChange: (v: string) => void; options?: string[] }) => {
+  const { t } = useTranslation('briefing');
   const allOptions = [...options, OTHER_LABEL];
   const otherActive = !!value && isOtherValue(value);
   const otherText = otherActive ? parseOtherText(value!) : '';
@@ -47,7 +51,7 @@ export const YesNoGroup = ({ value, onChange, options = ['Ja', 'Nein'] }: { valu
                 active ? 'bg-primary/10 border-primary text-primary' : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
               )}
             >
-              {opt}
+              {opt === OTHER_LABEL ? t('other') : t(`options.${opt}`, { defaultValue: opt })}
             </button>
           );
         })}
@@ -56,7 +60,7 @@ export const YesNoGroup = ({ value, onChange, options = ['Ja', 'Nein'] }: { valu
         <Input
           value={otherText}
           onChange={e => onChange(e.target.value ? `${OTHER_PREFIX}${e.target.value}` : OTHER_LABEL)}
-          placeholder="Bitte angeben…"
+          placeholder={t('otherPlaceholder')}
           autoFocus
         />
       )}
@@ -67,6 +71,7 @@ export const YesNoGroup = ({ value, onChange, options = ['Ja', 'Nein'] }: { valu
 export const MultiGroup = ({
   value, onToggle, onOtherChange, options,
 }: { value?: string; onToggle: (opt: string) => void; onOtherChange: (text: string) => void; options: string[] }) => {
+  const { t } = useTranslation('briefing');
   const selected = toList(value);
   const allOptions = [...options, OTHER_LABEL];
   const otherEntry = selected.find(isOtherValue);
@@ -88,7 +93,7 @@ export const MultiGroup = ({
                 active ? 'bg-primary/10 border-primary text-primary' : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground'
               )}
             >
-              {opt}
+              {opt === OTHER_LABEL ? t('other') : t(`options.${opt}`, { defaultValue: opt })}
             </button>
           );
         })}
@@ -97,7 +102,7 @@ export const MultiGroup = ({
         <Input
           value={otherText}
           onChange={e => onOtherChange(e.target.value)}
-          placeholder="Bitte angeben…"
+          placeholder={t('otherPlaceholder')}
           autoFocus
         />
       )}
@@ -116,13 +121,13 @@ export const QCard = ({ label, hint, children }: { label: string; hint?: string;
 );
 
 export const STEP_META = [
-  { title: 'Dein Unternehmen', subtitle: 'Erzähl uns kurz, wer du bist.' },
-  { title: 'Ziel der Website', subtitle: 'Was soll deine neue Website für dich tun?' },
-  { title: 'Design & Stil', subtitle: 'Wie soll deine Website wirken?' },
-  { title: 'Seiten & Funktionen', subtitle: 'Was soll deine Website können?' },
-  { title: 'Content & Technik', subtitle: 'Was hast du bereits – was brauchen wir noch?' },
-  { title: 'Budget & Zeitplan', subtitle: 'Fast geschafft! Noch ein paar letzte Details.' },
-];
+  { titleKey: 'steps.company.title', subtitleKey: 'steps.company.subtitle' },
+  { titleKey: 'steps.goal.title', subtitleKey: 'steps.goal.subtitle' },
+  { titleKey: 'steps.design.title', subtitleKey: 'steps.design.subtitle' },
+  { titleKey: 'steps.pagesFeatures.title', subtitleKey: 'steps.pagesFeatures.subtitle' },
+  { titleKey: 'steps.contentTech.title', subtitleKey: 'steps.contentTech.subtitle' },
+  { titleKey: 'steps.budgetTimeline.title', subtitleKey: 'steps.budgetTimeline.subtitle' },
+] as const;
 
 interface BriefingWizardFormProps {
   formData: UpsertBriefingDto;
@@ -141,6 +146,8 @@ interface BriefingWizardFormProps {
 const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
   formData, onFieldChange, step, onStepChange, saving, onPersist, onFinish, finishLabel, finishIcon, onCancel, secondaryFinish,
 }) => {
+  const { t } = useTranslation('briefing');
+  const { t: tc } = useTranslation('common');
   const set = (field: keyof UpsertBriefingDto, value: string) => onFieldChange(field, value);
 
   // Multi-select fields: add/remove a chip from the comma-joined list.
@@ -189,33 +196,33 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
     <div className="space-y-5">
       <div className="space-y-1.5">
         <ProgressBar progress={Math.round(((step - 1) / TOTAL_STEPS) * 100)} showLabel={false} />
-        <p className="text-xs text-muted-foreground">Schritt {step} von {TOTAL_STEPS}</p>
+        <p className="text-xs text-muted-foreground">{tc('status.step', { defaultValue: 'Schritt {{step}} von {{total}}', step, total: TOTAL_STEPS })}</p>
       </div>
 
       <Card className="border border-border shadow-sm">
         <CardContent className="p-6 space-y-4">
           <div>
-            <h2 className="text-lg font-bold text-foreground">{stepMeta.title}</h2>
-            <p className="text-sm text-muted-foreground mt-0.5">{stepMeta.subtitle}</p>
+            <h2 className="text-lg font-bold text-foreground">{t(stepMeta.titleKey)}</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">{t(stepMeta.subtitleKey)}</p>
           </div>
 
           {step === 1 && (
             <div className="space-y-3">
-              <QCard label="Wie heißt dein Unternehmen?">
-                <Input value={formData.companyName} onChange={e => set('companyName', e.target.value)} placeholder="z.B. Müller GmbH" />
+              <QCard label={t('questions.companyName.label')}>
+                <Input value={formData.companyName} onChange={e => set('companyName', e.target.value)} placeholder={t('questions.companyName.placeholder')} />
               </QCard>
-              <QCard label="Was machst du?" hint="in einem Satz">
-                <Textarea rows={3} value={formData.businessDescription} onChange={e => set('businessDescription', e.target.value)} placeholder="z.B. Wir sind ein Elektrobetrieb aus München und bieten Installationen für Privat- und Gewerbekunden an." />
+              <QCard label={t('questions.businessDescription.label')} hint={t('questions.businessDescription.hint')}>
+                <Textarea rows={3} value={formData.businessDescription} onChange={e => set('businessDescription', e.target.value)} placeholder={t('questions.businessDescription.placeholder')} />
               </QCard>
-              <QCard label="Hast du bereits ein Logo?">
+              <QCard label={t('questions.hasLogo.label')}>
                 <YesNoGroup value={formData.hasLogo} onChange={v => set('hasLogo', v)} />
               </QCard>
-              <QCard label="Gibt es bereits eine Website?">
+              <QCard label={t('questions.hasExistingWebsite.label')}>
                 <YesNoGroup value={formData.hasExistingWebsite} onChange={v => set('hasExistingWebsite', v)} options={['Ja', 'Nein, komplett neu']} />
               </QCard>
               {formData.hasExistingWebsite === 'Ja' && (
-                <QCard label="Wie lautet die aktuelle Website-URL?">
-                  <Input type="url" value={formData.existingUrl} onChange={e => set('existingUrl', e.target.value)} placeholder="https://www.beispiel.de" />
+                <QCard label={t('questions.existingUrl.label')}>
+                  <Input type="url" value={formData.existingUrl} onChange={e => set('existingUrl', e.target.value)} placeholder={t('questions.existingUrl.placeholder')} />
                 </QCard>
               )}
             </div>
@@ -223,58 +230,58 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
 
           {step === 2 && (
             <div className="space-y-3">
-              <QCard label="Was ist das Hauptziel?">
-                <MultiGroup value={formData.goals} onToggle={o => toggle('goals', o)} onOtherChange={t => setOtherText('goals', t)} options={GOAL_OPTIONS} />
+              <QCard label={t('questions.goals.label')}>
+                <MultiGroup value={formData.goals} onToggle={o => toggle('goals', o)} onOtherChange={t2 => setOtherText('goals', t2)} options={GOAL_OPTIONS} />
               </QCard>
-              <QCard label="Wer ist deine Zielgruppe?">
-                <MultiGroup value={formData.audience} onToggle={o => toggle('audience', o)} onOtherChange={t => setOtherText('audience', t)} options={AUDIENCE_OPTIONS} />
+              <QCard label={t('questions.audience.label')}>
+                <MultiGroup value={formData.audience} onToggle={o => toggle('audience', o)} onOtherChange={t2 => setOtherText('audience', t2)} options={AUDIENCE_OPTIONS} />
               </QCard>
-              <QCard label="In welcher Region bist du tätig?">
-                <MultiGroup value={formData.region} onToggle={o => toggle('region', o)} onOtherChange={t => setOtherText('region', t)} options={REGION_OPTIONS} />
+              <QCard label={t('questions.region.label')}>
+                <MultiGroup value={formData.region} onToggle={o => toggle('region', o)} onOtherChange={t2 => setOtherText('region', t2)} options={REGION_OPTIONS} />
               </QCard>
             </div>
           )}
 
           {step === 3 && (
             <div className="space-y-3">
-              <QCard label="Welchen Stil magst du?">
-                <MultiGroup value={formData.style} onToggle={o => toggle('style', o)} onOtherChange={t => setOtherText('style', t)} options={STYLE_OPTIONS} />
+              <QCard label={t('questions.style.label')}>
+                <MultiGroup value={formData.style} onToggle={o => toggle('style', o)} onOtherChange={t2 => setOtherText('style', t2)} options={STYLE_OPTIONS} />
               </QCard>
-              <QCard label="Welche Farben gefallen dir?" hint="optional">
-                <Input value={formData.colors} onChange={e => set('colors', e.target.value)} placeholder="z.B. Schwarz, Gold, Dunkelblau – oder Hex-Codes" />
+              <QCard label={t('questions.colors.label')} hint={t('questions.colors.hint')}>
+                <Input value={formData.colors} onChange={e => set('colors', e.target.value)} placeholder={t('questions.colors.placeholder')} />
               </QCard>
-              <QCard label="Hast du Website-Beispiele, die dir gefallen?">
-                <Textarea rows={3} value={formData.references} onChange={e => set('references', e.target.value)} placeholder="z.B. www.apple.com, www.notion.so – einfach die Links einfügen" />
+              <QCard label={t('questions.references.label')}>
+                <Textarea rows={3} value={formData.references} onChange={e => set('references', e.target.value)} placeholder={t('questions.references.placeholder')} />
               </QCard>
-              <QCard label="Animationen & Effekte?">
-                <MultiGroup value={formData.animations} onToggle={o => toggle('animations', o)} onOtherChange={t => setOtherText('animations', t)} options={ANIM_OPTIONS} />
+              <QCard label={t('questions.animations.label')}>
+                <MultiGroup value={formData.animations} onToggle={o => toggle('animations', o)} onOtherChange={t2 => setOtherText('animations', t2)} options={ANIM_OPTIONS} />
               </QCard>
             </div>
           )}
 
           {step === 4 && (
             <div className="space-y-3">
-              <QCard label="Welche Seiten brauchst du?">
-                <MultiGroup value={formData.pages} onToggle={o => toggle('pages', o)} onOtherChange={t => setOtherText('pages', t)} options={PAGE_OPTIONS} />
+              <QCard label={t('questions.pages.label')}>
+                <MultiGroup value={formData.pages} onToggle={o => toggle('pages', o)} onOtherChange={t2 => setOtherText('pages', t2)} options={PAGE_OPTIONS} />
               </QCard>
-              <QCard label="Welche Funktionen brauchst du?">
-                <MultiGroup value={formData.features} onToggle={o => toggle('features', o)} onOtherChange={t => setOtherText('features', t)} options={FEATURE_OPTIONS} />
+              <QCard label={t('questions.features.label')}>
+                <MultiGroup value={formData.features} onToggle={o => toggle('features', o)} onOtherChange={t2 => setOtherText('features', t2)} options={FEATURE_OPTIONS} />
               </QCard>
             </div>
           )}
 
           {step === 5 && (
             <div className="space-y-3">
-              <QCard label="Hast du bereits Texte für die Website?">
+              <QCard label={t('questions.hasTexts.label')}>
                 <YesNoGroup value={formData.hasTexts} onChange={v => set('hasTexts', v)} options={['Ja, vorhanden', 'Teilweise', 'Nein, bitte erstellen']} />
               </QCard>
-              <QCard label="Hast du eigene Bilder / Fotos?">
+              <QCard label={t('questions.hasImages.label')}>
                 <YesNoGroup value={formData.hasImages} onChange={v => set('hasImages', v)} options={['Ja', 'Teilweise', 'Nein – Stock-Bilder']} />
               </QCard>
-              <QCard label="Ist SEO (Google-Optimierung) wichtig für dich?">
+              <QCard label={t('questions.seoImportant.label')}>
                 <YesNoGroup value={formData.seoImportant} onChange={v => set('seoImportant', v)} options={['Ja, sehr wichtig', 'Etwas', 'Nein']} />
               </QCard>
-              <QCard label="Hast du bereits eine Domain / Hosting?">
+              <QCard label={t('questions.hasDomain.label')}>
                 <YesNoGroup value={formData.hasDomain} onChange={v => set('hasDomain', v)} />
               </QCard>
             </div>
@@ -282,14 +289,14 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
 
           {step === 6 && (
             <div className="space-y-3">
-              <QCard label="Wann soll die Website live gehen?">
-                <MultiGroup value={formData.deadline} onToggle={o => set('deadline', o)} onOtherChange={t => setSingleOtherText('deadline', t)} options={DEADLINE_OPTIONS} />
+              <QCard label={t('questions.deadline.label')}>
+                <MultiGroup value={formData.deadline} onToggle={o => set('deadline', o)} onOtherChange={t2 => setSingleOtherText('deadline', t2)} options={DEADLINE_OPTIONS} />
               </QCard>
-              <QCard label="Budget-Rahmen (ca.)?">
-                <MultiGroup value={formData.budget} onToggle={o => set('budget', o)} onOtherChange={t => setSingleOtherText('budget', t)} options={BUDGET_OPTIONS} />
+              <QCard label={t('questions.budget.label')}>
+                <MultiGroup value={formData.budget} onToggle={o => set('budget', o)} onOtherChange={t2 => setSingleOtherText('budget', t2)} options={BUDGET_OPTIONS} />
               </QCard>
-              <QCard label="Sonstige Wünsche oder Anmerkungen?">
-                <Textarea rows={4} value={formData.notes} onChange={e => set('notes', e.target.value)} placeholder="Was ist dir noch wichtig? Besondere Anforderungen, Ideen, Fragen..." />
+              <QCard label={t('questions.notes.label')}>
+                <Textarea rows={4} value={formData.notes} onChange={e => set('notes', e.target.value)} placeholder={t('questions.notes.placeholder')} />
               </QCard>
             </div>
           )}
@@ -298,12 +305,12 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
             <div className="flex flex-wrap items-center gap-2">
               {onCancel && (
                 <Button type="button" variant="ghost" onClick={onCancel} disabled={saving}>
-                  <X className="w-4 h-4 mr-1.5" />Abbrechen
+                  <X className="w-4 h-4 mr-1.5" />{tc('actions.cancel')}
                 </Button>
               )}
               {step > 1 && (
                 <Button type="button" variant="secondary" onClick={goBack} disabled={saving}>
-                  <ArrowLeft className="w-4 h-4 mr-1.5" />Zurück
+                  <ArrowLeft className="w-4 h-4 mr-1.5" />{tc('actions.back')}
                 </Button>
               )}
             </div>
@@ -311,7 +318,7 @@ const BriefingWizardForm: React.FC<BriefingWizardFormProps> = ({
             {step < TOTAL_STEPS ? (
               <Button type="button" className="ml-auto" onClick={goNext} disabled={saving}>
                 {saving ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : null}
-                Weiter<ArrowRight className="w-4 h-4 ml-1.5" />
+                {tc('actions.next')}<ArrowRight className="w-4 h-4 ml-1.5" />
               </Button>
             ) : (
               <div className="flex flex-wrap items-center gap-2 ml-auto">

@@ -1,0 +1,45 @@
+{
+  "title": "Kommentar-Verwaltung",
+  "stats": {
+    "total": "{{count}} gesamt",
+    "fromCustomers": "{{count}} von Kunden"
+  },
+  "search": {
+    "placeholder": "Projekt, Autor oder Nachricht…"
+  },
+  "loading": "Kommentare werden geladen…",
+  "emptyState": {
+    "noResults": "Keine Kommentare gefunden",
+    "noComments": "Noch keine Kommentare vorhanden"
+  },
+  "project": {
+    "commentCount_one": "{{count}} Kommentar",
+    "commentCount_other": "{{count}} Kommentare"
+  },
+  "actions": {
+    "email": "E-Mail",
+    "addComment": "Kommentar"
+  },
+  "replyForm": {
+    "title": "Kommentar als Admin hinzufügen",
+    "messageLabel": "Nachricht *",
+    "messagePlaceholder": "Kommentar eingeben…"
+  },
+  "author": {
+    "admin": "Admin",
+    "customer": "Kunde"
+  },
+  "notifications": {
+    "subscribeOn": "E-Mail-Benachrichtigungen aktiviert",
+    "subscribeOff": "E-Mail-Benachrichtigungen deaktiviert",
+    "commentSent": "Kommentar erfolgreich gesendet!"
+  },
+  "errors": {
+    "loadData": "Fehler beim Laden der Daten",
+    "toggleNotification": "Fehler beim Ändern der Benachrichtigungseinstellungen",
+    "sendComment": "Fehler beim Senden des Kommentars"
+  },
+  "validation": {
+    "messageRequired": "Bitte geben Sie eine Nachricht ein"
+  }
+}

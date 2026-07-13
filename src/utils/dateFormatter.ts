@@ -1,7 +1,10 @@
+import i18n from '../i18n';
+
 export const formatDate = (dateString: string | undefined): string => {
   if (!dateString) return '-';
   const date = new Date(dateString);
-  return date.toLocaleDateString('de-DE', {
+  const locale = i18n.language?.startsWith('en') ? 'en-GB' : 'de-DE';
+  return date.toLocaleDateString(locale, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

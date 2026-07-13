@@ -1,0 +1,55 @@
+{
+  "list": {
+    "loading": "Kunden werden geladen…",
+    "errors": {
+      "load": "Fehler beim Laden der Kunden",
+      "delete": "Fehler beim Löschen des Kunden"
+    },
+    "notifications": {
+      "deleted": "Kunde erfolgreich gelöscht!",
+      "updated": "Kunde erfolgreich aktualisiert!",
+      "created": "Kunde erfolgreich angelegt!"
+    },
+    "confirmDelete": {
+      "title": "Kunde löschen",
+      "message": "Möchten Sie den Kunden \"{{name}}\" wirklich löschen?"
+    },
+    "header": {
+      "title": "Kundenverwaltung",
+      "subtitle": "Alle Kunden verwalten und bearbeiten",
+      "newCustomer": "Neuer Kunde"
+    },
+    "search": {
+      "placeholder": "Kunden suchen…"
+    },
+    "table": {
+      "companyName": "Firmenname",
+      "contactPerson": "Ansprechpartner",
+      "email": "E-Mail",
+      "projects": "Projekte",
+      "actions": "Aktionen"
+    },
+    "empty": "Keine Kunden gefunden"
+  },
+  "modal": {
+    "title": {
+      "edit": "Kunde bearbeiten",
+      "create": "Neuen Kunden hinzufügen"
+    },
+    "errors": {
+      "save": "Fehler beim Speichern"
+    },
+    "labels": {
+      "companyName": "Firmenname *",
+      "contactPerson": "Ansprechpartner *",
+      "email": "E-Mail *",
+      "phone": "Telefon",
+      "address": "Adresse"
+    },
+    "buttons": {
+      "saving": "Speichern...",
+      "update": "Aktualisieren",
+      "create": "Kunde anlegen"
+    }
+  }
+}

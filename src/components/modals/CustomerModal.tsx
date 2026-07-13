@@ -1,5 +1,6 @@
 // src/components/modals/CustomerModal.tsx
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { customerService } from '../../api/services/customerService';
 import Modal from '../common/Modal';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,8 @@ interface CustomerModalProps {
 }
 
 const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, customer, onSaveSuccess }) => {
+  const { t } = useTranslation('customers');
+  const { t: tc } = useTranslation('common');
   const [formData, setFormData] = useState<CreateCustomerDto>({
     companyName: '', contactPerson: '', email: '', phone: '', address: '',
   });
@@ -50,14 +53,14 @@ const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, customer
       }
       onSaveSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Fehler beim Speichern');
+      setError(err.response?.data?.message || t('modal.errors.save'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={customer ? 'Kunde bearbeiten' : 'Neuen Kunden hinzufügen'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={customer ? t('modal.title.edit') : t('modal.title.create')}>
       {error && (
         <div className="mb-4 px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
           {error}
@@ -65,32 +68,32 @@ const CustomerModal: React.FC<CustomerModalProps> = ({ isOpen, onClose, customer
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
-          <Label>Firmenname *</Label>
+          <Label>{t('modal.labels.companyName')}</Label>
           <Input required value={formData.companyName} onChange={e => setFormData({ ...formData, companyName: e.target.value })} />
         </div>
         <div className="space-y-1.5">
-          <Label>Ansprechpartner *</Label>
+          <Label>{t('modal.labels.contactPerson')}</Label>
           <Input required value={formData.contactPerson} onChange={e => setFormData({ ...formData, contactPerson: e.target.value })} />
         </div>
         <div className="space-y-1.5">
-          <Label>E-Mail *</Label>
+          <Label>{t('modal.labels.email')}</Label>
           <Input type="email" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
         </div>
         <div className="space-y-1.5">
-          <Label>Telefon</Label>
+          <Label>{t('modal.labels.phone')}</Label>
           <Input type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
         </div>
         <div className="space-y-1.5">
-          <Label>Adresse</Label>
+          <Label>{t('modal.labels.address')}</Label>
           <Textarea rows={3} value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
         </div>
         <div className="flex flex-wrap gap-2 pt-2">
           <Button type="submit" disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : customer ? <Save className="w-4 h-4 mr-1.5" /> : <Plus className="w-4 h-4 mr-1.5" />}
-            {loading ? 'Speichern...' : (customer ? 'Aktualisieren' : 'Kunde anlegen')}
+            {loading ? t('modal.buttons.saving') : (customer ? t('modal.buttons.update') : t('modal.buttons.create'))}
           </Button>
           <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
-            <X className="w-4 h-4 mr-1.5" />Abbrechen
+            <X className="w-4 h-4 mr-1.5" />{tc('actions.cancel')}
           </Button>
         </div>
       </form>

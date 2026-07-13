@@ -1,0 +1,84 @@
+{
+  "list": {
+    "title": "Projekte verwalten",
+    "subtitle": "Alle Projekte erstellen, bearbeiten und archivieren",
+    "newProject": "Neues Projekt",
+    "searchPlaceholder": "Projekt suchen…",
+    "loading": "Projekte werden geladen…",
+    "empty": "Keine Projekte gefunden",
+    "filters": {
+      "active": "Aktive Projekte",
+      "archived": "Archivierte Projekte"
+    },
+    "columns": {
+      "projectName": "Projektname",
+      "customer": "Kunde",
+      "trackingNumber": "Tracking-Nr.",
+      "status": "Status",
+      "offer": "Angebot",
+      "progress": "Fortschritt",
+      "start": "Start",
+      "end": "Ende",
+      "actions": "Aktionen"
+    },
+    "actions": {
+      "briefing": "Briefing",
+      "release": "Projekt freigeben",
+      "priceOffer": "Preis festlegen",
+      "offer": "Angebot",
+      "archive": "Archivieren",
+      "restore": "Wiederherstellen"
+    },
+    "confirm": {
+      "archiveTitle": "Projekt archivieren",
+      "archiveMessage": "Möchten Sie das Projekt \"{{name}}\" wirklich archivieren?",
+      "restoreTitle": "Projekt wiederherstellen",
+      "restoreMessage": "Möchten Sie das Projekt \"{{name}}\" wiederherstellen?",
+      "releaseMessage": "Möchten Sie das Projekt \"{{name}}\" an GentleGroup freigeben? Es wird eine E-Mail-Benachrichtigung versendet."
+    },
+    "notifications": {
+      "archived": "Projekt erfolgreich archiviert!",
+      "restored": "Projekt wiederhergestellt!",
+      "released": "Projekt erfolgreich freigegeben!",
+      "updated": "Projekt erfolgreich aktualisiert!",
+      "created": "Projekt erfolgreich angelegt!",
+      "deleted": "Projekt erfolgreich gelöscht!"
+    },
+    "errors": {
+      "loadFailed": "Fehler beim Laden der Projekte",
+      "loadOneFailed": "Fehler beim Laden des Projekts",
+      "archiveFailed": "Fehler beim Archivieren",
+      "restoreFailed": "Fehler beim Wiederherstellen",
+      "releaseFailed": "Fehler beim Freigeben"
+    }
+  },
+  "modal": {
+    "title": {
+      "edit": "Projekt bearbeiten",
+      "create": "Neues Projekt anlegen"
+    },
+    "fields": {
+      "trackingNumber": "Tracking-Nummer",
+      "projectName": "Projektname *",
+      "customer": "Kunde *",
+      "selectCustomerPlaceholder": "-- Kunde wählen --",
+      "status": "Status",
+      "progress": "Fortschritt ({{progress}}%)",
+      "description": "Beschreibung",
+      "startDate": "Startdatum *",
+      "endDate": "Enddatum *"
+    },
+    "createButton": "Projekt anlegen",
+    "savingButton": "Speichern...",
+    "deleteConfirm": {
+      "title": "Projekt unwiderruflich löschen?",
+      "message": "Das Projekt „{{name}}\" und alle zugehörigen Daten werden permanent gelöscht. Diese Aktion kann nicht rückgängig gemacht werden!",
+      "confirmLabel": "Ja, endgültig löschen",
+      "deletingLabel": "Löschen..."
+    },
+    "errors": {
+      "saveFailed": "Fehler beim Speichern",
+      "deleteFailed": "Fehler beim Löschen des Projekts"
+    }
+  }
+}

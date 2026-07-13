@@ -1,4 +1,5 @@
 // src/components/common/ConfirmDialog.tsx
+import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -26,12 +27,16 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   isOpen,
   title,
   message,
-  confirmText = 'Bestätigen',
-  cancelText = 'Abbrechen',
+  confirmText,
+  cancelText,
   onConfirm,
   onCancel,
   type = 'warning'
 }) => {
+  const { t } = useTranslation('common');
+  const resolvedConfirmText = confirmText ?? t('actions.confirm');
+  const resolvedCancelText = cancelText ?? t('actions.cancel');
+
   const iconMap = {
     danger: <Trash2 className="w-10 h-10 text-error" />,
     warning: <AlertTriangle className="w-10 h-10 text-warning" />,
@@ -58,13 +63,13 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </AlertDialogHeader>
         <AlertDialogFooter className="sm:justify-center gap-2">
           <AlertDialogCancel onClick={onCancel}>
-            <X className="w-3.5 h-3.5 mr-1.5" />{cancelText}
+            <X className="w-3.5 h-3.5 mr-1.5" />{resolvedCancelText}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className={type === 'danger' ? 'bg-error hover:bg-error/90' : ''}
           >
-            {confirmIconMap[type]}{confirmText}
+            {confirmIconMap[type]}{resolvedConfirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

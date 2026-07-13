@@ -1,0 +1,48 @@
+{
+  "loading": "Loading dashboard…",
+  "errors": {
+    "loadDashboard": "Error loading dashboard data",
+    "loadProject": "Error loading project"
+  },
+  "notifications": {
+    "projectUpdated": "Project updated successfully!"
+  },
+  "header": {
+    "title": "Dashboard",
+    "subtitle": "Overview of all projects and activities"
+  },
+  "stats": {
+    "activeProjects": "Active projects",
+    "totalCustomers": "Total customers",
+    "completedProjects": "Completed",
+    "totalComments": "Comments",
+    "dueSoon": "Due within 14 days",
+    "pendingBriefings": "Pending briefings",
+    "openOffers": "Open offers",
+    "newCustomers": "New customers (30 days)"
+  },
+  "filters": {
+    "allStatuses": "All statuses",
+    "searchPlaceholder": "Search…"
+  },
+  "table": {
+    "project": "Project",
+    "customer": "Customer",
+    "status": "Status",
+    "progress": "Progress",
+    "trackingNumber": "Tracking no.",
+    "start": "Start",
+    "end": "End"
+  },
+  "projectsCard": {
+    "title": "Recent projects",
+    "emptyTitle": "No projects found",
+    "emptyHint": "Try a different search term or filter"
+  },
+  "recentCustomers": {
+    "title": "Newest customers",
+    "empty": "No customers yet",
+    "projectCount_one": "{{count}} project",
+    "projectCount_other": "{{count}} projects"
+  }
+}

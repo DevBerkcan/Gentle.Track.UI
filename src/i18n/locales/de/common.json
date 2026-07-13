@@ -1,0 +1,69 @@
+{
+  "actions": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view": "Anzeigen",
+    "add": "Hinzufügen",
+    "create": "Erstellen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "search": "Suchen",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "yes": "Ja",
+    "no": "Nein",
+    "submit": "Absenden",
+    "send": "Senden",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "download": "Herunterladen",
+    "retry": "Erneut versuchen",
+    "loadMore": "Mehr laden"
+  },
+  "status": {
+    "loading": "Wird geladen…",
+    "saving": "Wird gespeichert…",
+    "noResults": "Keine Ergebnisse gefunden",
+    "noData": "Keine Daten vorhanden",
+    "error": "Ein Fehler ist aufgetreten",
+    "success": "Erfolgreich",
+    "step": "Schritt {{step}} von {{total}}"
+  },
+  "confirmDialog": {
+    "defaultTitle": "Bist du sicher?",
+    "deleteTitle": "Löschen bestätigen"
+  },
+  "theme": {
+    "switchToLight": "Zum hellen Modus wechseln",
+    "switchToDark": "Zum dunklen Modus wechseln"
+  },
+  "language": {
+    "de": "Deutsch",
+    "en": "Englisch",
+    "switchLabel": "Sprache wechseln"
+  },
+  "customSelect": {
+    "placeholder": "Wählen..."
+  },
+  "searchableDropdown": {
+    "placeholder": "Wählen...",
+    "searchPlaceholder": "Suchen..."
+  },
+  "statusValues": {
+    "Planung": "Planung",
+    "In Bearbeitung": "In Bearbeitung",
+    "Warten auf Feedback": "Warten auf Feedback",
+    "Abgeschlossen": "Abgeschlossen",
+    "Noch nicht gestartet": "Noch nicht gestartet",
+    "Aktiv": "Aktiv",
+    "Inaktiv": "Inaktiv",
+    "Super Admin": "Super Admin",
+    "Admin": "Admin",
+    "Projektmanager": "Projektmanager",
+    "Freigegeben": "Freigegeben",
+    "Angenommen": "Angenommen",
+    "Abgelehnt": "Abgelehnt"
+  }
+}

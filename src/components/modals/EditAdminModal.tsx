@@ -1,5 +1,6 @@
 // src/components/modals/EditAdminModal.tsx
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { adminService } from '../../api/services/adminService';
 import { projectService } from '../../api/services/projectService';
 import Modal from '../common/Modal';
@@ -18,6 +19,8 @@ interface EditAdminModalProps {
 }
 
 const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSaveSuccess, onDeleteSuccess, admin }) => {
+  const { t } = useTranslation('admins');
+  const { t: tc } = useTranslation('common');
   const [formData, setFormData] = useState({
     name: '', email: '',
     role: 'Admin' as 'Owner' | 'Admin',
@@ -53,9 +56,9 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!admin) return;
-    if (!formData.name || !formData.email) { setError('Bitte füllen Sie alle Pflichtfelder aus'); return; }
+    if (!formData.name || !formData.email) { setError(t('editModal.errors.requiredFields')); return; }
     if (formData.role === 'Admin' && formData.projectAccess === 'Zugewiesene Projekte' && formData.assignedProjectIDs.length === 0) {
-      setError('Bitte wählen Sie mindestens ein Projekt aus'); return;
+      setError(t('editModal.errors.selectProject')); return;
     }
     try {
       setLoading(true); setError('');
@@ -66,7 +69,7 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
       });
       onSaveSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.message || err.response?.data?.title || err.message || 'Fehler beim Aktualisieren');
+      setError(err.response?.data?.message || err.response?.data?.title || err.message || t('editModal.errors.updateFailed'));
     } finally { setLoading(false); }
   };
 
@@ -78,7 +81,7 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
       setShowDeleteConfirm(false);
       onDeleteSuccess?.();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Fehler beim Löschen');
+      setError(err.response?.data?.message || t('editModal.errors.deleteFailed'));
     } finally { setLoading(false); }
   };
 
@@ -103,15 +106,14 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
   const selectClass = "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Administrator bearbeiten">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('editModal.title')}>
       {showDeleteConfirm ? (
         <div className="space-y-6">
           <div className="text-center space-y-3">
             <AlertTriangle className="w-10 h-10 text-destructive mx-auto" />
-            <h3 className="text-lg font-semibold text-destructive">Administrator unwiderruflich löschen?</h3>
+            <h3 className="text-lg font-semibold text-destructive">{t('editModal.deleteConfirm.title')}</h3>
             <p className="text-sm text-muted-foreground">
-              Der Administrator „{admin?.name}" ({admin?.email}) wird permanent gelöscht.
-              Diese Aktion kann nicht rückgängig gemacht werden!
+              {t('editModal.deleteConfirm.message', { name: admin?.name, email: admin?.email })}
             </p>
           </div>
           {error && (
@@ -120,10 +122,10 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
           <div className="flex gap-2">
             <Button variant="destructive" onClick={handleDelete} disabled={loading} className="flex-1">
               {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Trash2 className="w-4 h-4 mr-1.5" />}
-              {loading ? 'Löschen...' : 'Ja, endgültig löschen'}
+              {loading ? t('editModal.deleteConfirm.submitting') : t('editModal.deleteConfirm.confirmButton')}
             </Button>
             <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)} disabled={loading} className="flex-1">
-              <X className="w-4 h-4 mr-1.5" />Abbrechen
+              <X className="w-4 h-4 mr-1.5" />{tc('actions.cancel')}
             </Button>
           </div>
         </div>
@@ -133,25 +135,25 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
             <div className="px-4 py-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">{error}</div>
           )}
           <div className="space-y-1.5">
-            <Label>Name *</Label>
+            <Label>{t('editModal.nameLabel')}</Label>
             <Input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
           </div>
           <div className="space-y-1.5">
-            <Label>E-Mail *</Label>
+            <Label>{t('editModal.emailLabel')}</Label>
             <Input type="email" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
           </div>
           <div className="space-y-1.5">
-            <Label>Rolle *</Label>
+            <Label>{t('editModal.roleLabel')}</Label>
             <select className={selectClass} value={formData.role} onChange={e => handleRoleChange(e.target.value as 'Owner' | 'Admin')}>
               <option value="Admin">Admin</option>
               <option value="Owner">Owner</option>
             </select>
             <p className="text-xs text-muted-foreground">
-              {formData.role === 'Owner' ? '🔑 Vollzugriff auf alle Funktionen und Projekte' : '👤 Eingeschränkter Zugriff basierend auf Projektzuweisung'}
+              {formData.role === 'Owner' ? t('editModal.roleHint.owner') : t('editModal.roleHint.admin')}
             </p>
           </div>
           <div className="space-y-1.5">
-            <Label>Status *</Label>
+            <Label>{t('editModal.statusLabel')}</Label>
             <select className={selectClass} value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as 'Aktiv' | 'Inaktiv' })}>
               <option value="Aktiv">Aktiv</option>
               <option value="Inaktiv">Inaktiv</option>
@@ -159,7 +161,7 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
           </div>
           {formData.role === 'Admin' && (
             <div className="space-y-1.5">
-              <Label>Projektzugriff *</Label>
+              <Label>{t('editModal.projectAccessLabel')}</Label>
               <select
                 className={selectClass}
                 value={formData.projectAccess}
@@ -172,16 +174,16 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
                 <option value="Zugewiesene Projekte">Zugewiesene Projekte</option>
               </select>
               <p className="text-xs text-muted-foreground">
-                {formData.projectAccess === 'Alle Projekte' ? '📂 Zugriff auf alle Projekte und Kunden' : '📁 Nur Zugriff auf ausgewählte Projekte'}
+                {formData.projectAccess === 'Alle Projekte' ? t('editModal.projectAccessHint.all') : t('editModal.projectAccessHint.assigned')}
               </p>
             </div>
           )}
           {showProjectSelection && (
             <div className="space-y-1.5">
-              <Label>Projekte zuweisen * ({formData.assignedProjectIDs.length} ausgewählt)</Label>
+              <Label>{t('editModal.assignProjectsLabel', { count: formData.assignedProjectIDs.length })}</Label>
               <div className="max-h-48 overflow-y-auto rounded-lg border border-input p-2 space-y-1">
                 {projects.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">Keine Projekte verfügbar</p>
+                  <p className="text-sm text-muted-foreground text-center py-4">{t('editModal.noProjectsAvailable')}</p>
                 ) : projects.map(project => (
                   <label
                     key={project.projectID}
@@ -209,13 +211,13 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ isOpen, onClose, onSave
           <div className="flex flex-wrap gap-2 pt-2">
             <Button type="submit" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Save className="w-4 h-4 mr-1.5" />}
-              {loading ? 'Speichern...' : 'Speichern'}
+              {loading ? t('editModal.submitting') : tc('actions.save')}
             </Button>
             <Button type="button" variant="destructive" onClick={() => setShowDeleteConfirm(true)} disabled={loading}>
-              <Trash2 className="w-4 h-4 mr-1.5" />Löschen
+              <Trash2 className="w-4 h-4 mr-1.5" />{tc('actions.delete')}
             </Button>
             <Button type="button" variant="secondary" onClick={onClose} disabled={loading}>
-              <X className="w-4 h-4 mr-1.5" />Abbrechen
+              <X className="w-4 h-4 mr-1.5" />{tc('actions.cancel')}
             </Button>
           </div>
         </form>

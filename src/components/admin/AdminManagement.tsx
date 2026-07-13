@@ -1,5 +1,6 @@
 // src/components/admin/AdminManagement.tsx
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { adminService } from '../../api/services/adminService';
 import { useAuth } from '../../contexts/AuthContext';
 import Badge from '../common/Badge';
@@ -19,6 +20,8 @@ interface NotificationState { show: boolean; type: 'success' | 'error' | 'warnin
 interface ConfirmState { show: boolean; title: string; message: string; onConfirm: () => void; type?: 'danger' | 'warning' | 'info'; }
 
 const AdminManagement = () => {
+  const { t } = useTranslation('admins');
+  const { t: tc } = useTranslation('common');
   const { admin: currentAdmin } = useAuth();
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [filteredAdmins, setFilteredAdmins] = useState<Admin[]>([]);
@@ -46,27 +49,27 @@ const AdminManagement = () => {
       const data = await adminService.getAll();
       setAdmins(data);
     } catch (error: any) {
-      showNotification('error', error.response?.status === 403 ? 'Keine Berechtigung. Nur Owners können Administratoren verwalten.' : 'Fehler beim Laden der Administratoren');
+      showNotification('error', error.response?.status === 403 ? t('list.errors.forbidden') : t('list.errors.loadAdmins'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = (id: number, name: string) => {
-    showConfirm('Administrator deaktivieren', `Möchten Sie den Administrator "${name}" wirklich deaktivieren?`, async () => {
-      try { await adminService.delete(id); showNotification('success', 'Administrator deaktiviert!'); loadAdmins(); }
-      catch { showNotification('error', 'Fehler beim Deaktivieren'); }
+    showConfirm(t('list.confirmDeactivate.title'), t('list.confirmDeactivate.message', { name }), async () => {
+      try { await adminService.delete(id); showNotification('success', t('list.notifications.deactivated')); loadAdmins(); }
+      catch { showNotification('error', t('list.errors.deactivateFailed')); }
       setConfirm(c => ({ ...c, show: false }));
     }, 'danger');
   };
 
   const handleReactivate = (admin: Admin) => {
-    showConfirm('Administrator reaktivieren', `Möchten Sie "${admin.name}" wieder aktivieren?`, async () => {
+    showConfirm(t('list.confirmReactivate.title'), t('list.confirmReactivate.message', { name: admin.name }), async () => {
       try {
         await adminService.update(admin.adminID, { name: admin.name, email: admin.email, role: admin.role, projectAccess: admin.projectAccess, status: 'Aktiv', assignedProjectIDs: admin.assignedProjectIDs || [] });
-        showNotification('success', 'Administrator reaktiviert!');
+        showNotification('success', t('list.notifications.reactivated'));
         loadAdmins();
-      } catch { showNotification('error', 'Fehler beim Reaktivieren'); }
+      } catch { showNotification('error', t('list.errors.reactivateFailed')); }
       setConfirm(c => ({ ...c, show: false }));
     }, 'info');
   };
@@ -74,7 +77,7 @@ const AdminManagement = () => {
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      <p className="text-sm">Administratoren werden geladen…</p>
+      <p className="text-sm">{t('list.loading')}</p>
     </div>
   );
 
@@ -84,8 +87,8 @@ const AdminManagement = () => {
         <Lock className="w-8 h-8 text-text-muted" />
       </div>
       <div>
-        <h2 className="text-lg font-semibold text-foreground mb-1">Zugriff verweigert</h2>
-        <p className="text-sm text-muted-foreground">Nur Benutzer mit der Rolle "Owner" können Administratoren verwalten.</p>
+        <h2 className="text-lg font-semibold text-foreground mb-1">{t('list.accessDenied.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('list.accessDenied.message')}</p>
       </div>
     </div>
   );
@@ -93,10 +96,10 @@ const AdminManagement = () => {
   const inactiveCount = admins.filter(a => a.status === 'Inaktiv').length;
 
   const columns = [
-    { header: 'Name', accessor: 'name', render: (v: string) => <span className="font-semibold text-foreground">{v}</span> },
-    { header: 'E-Mail', accessor: 'email', render: (v: string) => <span className="text-sm text-muted-foreground">{v}</span> },
+    { header: t('list.columns.name'), accessor: 'name', render: (v: string) => <span className="font-semibold text-foreground">{v}</span> },
+    { header: t('list.columns.email'), accessor: 'email', render: (v: string) => <span className="text-sm text-muted-foreground">{v}</span> },
     {
-      header: 'Rolle', accessor: 'role',
+      header: t('list.columns.role'), accessor: 'role',
       render: (v: string) => (
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${v === 'Owner' ? 'bg-warning-bg text-[#9A6510] border border-warning/25' : 'bg-info-bg text-[#2557B0] border border-info/25'}`}>
           {v === 'Owner' ? <Key className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}{v}
@@ -104,30 +107,30 @@ const AdminManagement = () => {
       )
     },
     {
-      header: 'Projektzugriff', accessor: 'projectAccess',
+      header: t('list.columns.projectAccess'), accessor: 'projectAccess',
       render: (v: string, admin: Admin) => (
         <div>
           <Badge status={v} />
           {v === 'Zugewiesene Projekte' && admin.assignedProjectIDs && (
-            <p className="text-xs text-muted-foreground mt-1">{admin.assignedProjectIDs.length} Projekt{admin.assignedProjectIDs.length !== 1 ? 'e' : ''}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('list.projectCount', { count: admin.assignedProjectIDs.length })}</p>
           )}
         </div>
       )
     },
-    { header: 'Status', accessor: 'status', render: (v: string) => <Badge status={v} /> },
+    { header: t('list.columns.status'), accessor: 'status', render: (v: string) => <Badge status={v} /> },
     {
-      header: 'Aktionen', accessor: 'adminID',
+      header: t('list.columns.actions'), accessor: 'adminID',
       render: (_: any, admin: Admin) => (
         <div className="flex gap-1.5">
-          <Button size="icon-sm" onClick={() => { setSelectedAdmin(admin); setIsEditModalOpen(true); }} title="Bearbeiten" aria-label="Bearbeiten">
+          <Button size="icon-sm" onClick={() => { setSelectedAdmin(admin); setIsEditModalOpen(true); }} title={tc('actions.edit')} aria-label={tc('actions.edit')}>
             <Pencil className="w-3.5 h-3.5" />
           </Button>
           {admin.status === 'Aktiv' ? (
-            <Button size="icon-sm" variant="destructive" onClick={() => handleDelete(admin.adminID, admin.name)} title="Deaktivieren" aria-label="Deaktivieren">
+            <Button size="icon-sm" variant="destructive" onClick={() => handleDelete(admin.adminID, admin.name)} title={t('list.actionTitles.deactivate')} aria-label={t('list.actionTitles.deactivate')}>
               <Ban className="w-3.5 h-3.5" />
             </Button>
           ) : (
-            <Button size="icon-sm" variant="outline" onClick={() => handleReactivate(admin)} title="Reaktivieren" aria-label="Reaktivieren">
+            <Button size="icon-sm" variant="outline" onClick={() => handleReactivate(admin)} title={t('list.actionTitles.reactivate')} aria-label={t('list.actionTitles.reactivate')}>
               <RotateCcw className="w-3.5 h-3.5" />
             </Button>
           )}
@@ -142,27 +145,27 @@ const AdminManagement = () => {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <Shield className="w-5 h-5 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">Admin-Verwaltung</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('list.title')}</h1>
           </div>
-          <p className="text-sm text-muted-foreground">Administratoren und Rollen verwalten</p>
+          <p className="text-sm text-muted-foreground">{t('list.subtitle')}</p>
         </div>
         <Button onClick={() => setIsModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-1.5" />Neuer Administrator
+          <Plus className="w-4 h-4 mr-1.5" />{t('list.newAdmin')}
         </Button>
       </div>
 
       {/* Info card */}
       <Card className="border border-primary/20 bg-primary/5">
         <CardContent className="p-4">
-          <h4 className="text-sm font-semibold text-primary mb-2">Rollen-Übersicht</h4>
+          <h4 className="text-sm font-semibold text-primary mb-2">{t('list.roleOverview.heading')}</h4>
           <div className="space-y-1.5 text-sm text-muted-foreground">
-            <p><span className="font-medium text-[#9A6510]">Owner:</span> Vollzugriff auf alle Funktionen, Projekte und Kunden</p>
-            <p><span className="font-medium text-[#2557B0]">Admin:</span> Zugriff auf alle oder zugewiesene Projekte</p>
+            <p><span className="font-medium text-[#9A6510]">{t('list.roleOverview.owner')}</span> {t('list.roleOverview.ownerDescription')}</p>
+            <p><span className="font-medium text-[#2557B0]">{t('list.roleOverview.admin')}</span> {t('list.roleOverview.adminDescription')}</p>
           </div>
           <div className="flex gap-3 mt-3 text-xs font-medium flex-wrap">
-            <span className="bg-primary/10 text-primary px-2 py-1 rounded-md">Gesamt: {admins.length}</span>
-            <span className="bg-success-bg text-[#15805A] px-2 py-1 rounded-md">Aktiv: {admins.filter(a => a.status === 'Aktiv').length}</span>
-            {inactiveCount > 0 && <span className="bg-error-bg text-[#A23531] px-2 py-1 rounded-md">Inaktiv: {inactiveCount}</span>}
+            <span className="bg-primary/10 text-primary px-2 py-1 rounded-md">{t('list.stats.total', { count: admins.length })}</span>
+            <span className="bg-success-bg text-[#15805A] px-2 py-1 rounded-md">{t('list.stats.active', { count: admins.filter(a => a.status === 'Aktiv').length })}</span>
+            {inactiveCount > 0 && <span className="bg-error-bg text-[#A23531] px-2 py-1 rounded-md">{t('list.stats.inactive', { count: inactiveCount })}</span>}
           </div>
         </CardContent>
       </Card>
@@ -171,14 +174,14 @@ const AdminManagement = () => {
         <CardHeader className="border-b border-border pb-4">
           <div className="flex items-center gap-3">
             <Switch id="show-inactive" checked={showInactive} onCheckedChange={setShowInactive} />
-            <Label htmlFor="show-inactive" className="text-sm cursor-pointer">Inaktive Admins anzeigen</Label>
+            <Label htmlFor="show-inactive" className="text-sm cursor-pointer">{t('list.showInactive')}</Label>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {filteredAdmins.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
               <Shield className="w-10 h-10 opacity-30" />
-              <p className="text-sm font-medium">Keine Administratoren gefunden</p>
+              <p className="text-sm font-medium">{t('list.emptyState')}</p>
             </div>
           ) : (
             <ResponsiveTable columns={columns} data={filteredAdmins} keyField="adminID" />
@@ -186,10 +189,10 @@ const AdminManagement = () => {
         </CardContent>
       </Card>
 
-      <AdminModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSaveSuccess={() => { loadAdmins(); setIsModalOpen(false); showNotification('success', 'Administrator angelegt!'); }} />
-      <EditAdminModal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); setSelectedAdmin(null); }} onSaveSuccess={() => { loadAdmins(); setIsEditModalOpen(false); setSelectedAdmin(null); showNotification('success', 'Administrator aktualisiert!'); }} onDeleteSuccess={() => { loadAdmins(); setIsEditModalOpen(false); setSelectedAdmin(null); showNotification('success', 'Administrator gelöscht!'); }} admin={selectedAdmin} />
+      <AdminModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSaveSuccess={() => { loadAdmins(); setIsModalOpen(false); showNotification('success', t('list.notifications.created')); }} />
+      <EditAdminModal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); setSelectedAdmin(null); }} onSaveSuccess={() => { loadAdmins(); setIsEditModalOpen(false); setSelectedAdmin(null); showNotification('success', t('list.notifications.updated')); }} onDeleteSuccess={() => { loadAdmins(); setIsEditModalOpen(false); setSelectedAdmin(null); showNotification('success', t('list.notifications.deleted')); }} admin={selectedAdmin} />
       {notification.show && <Notification type={notification.type} message={notification.message} onClose={() => setNotification(n => ({ ...n, show: false }))} />}
-      <ConfirmDialog isOpen={confirm.show} title={confirm.title} message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(c => ({ ...c, show: false }))} type={confirm.type} confirmText={confirm.type === 'danger' ? 'Deaktivieren' : 'Bestätigen'} />
+      <ConfirmDialog isOpen={confirm.show} title={confirm.title} message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(c => ({ ...c, show: false }))} type={confirm.type} confirmText={confirm.type === 'danger' ? t('list.actionTitles.deactivate') : tc('actions.confirm')} />
     </div>
   );
 };

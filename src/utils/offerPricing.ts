@@ -4,8 +4,10 @@ import type { PricingTemplate } from '../types';
 export const HYBRID_TERM_OPTIONS = [6, 12, 18, 24, 36] as const;
 
 export interface TemplateConfig {
+  /** i18n key (in the `templates` namespace section) resolving to the display label — pass to t(). */
   label: string;
   shortLabel: string;
+  /** i18n key (in the `templates` namespace section) resolving to the description — pass to t(). */
   description: string;
   hasDeposit: boolean;
   depositRange?: [number, number];
@@ -18,9 +20,9 @@ export interface TemplateConfig {
 
 export const TEMPLATE_CONFIG: Record<PricingTemplate, TemplateConfig> = {
   Einmalzahlung: {
-    label: 'Einmalzahlung',
+    label: 'templates.einmalzahlung.label',
     shortLabel: 'Einmalig',
-    description: '100 % Projektpreis · keine monatliche Zahlung · günstigste Variante',
+    description: 'templates.einmalzahlung.description',
     hasDeposit: false,
     surchargeRange: [0, 0],
     surchargeDefault: 0,
@@ -28,9 +30,9 @@ export const TEMPLATE_CONFIG: Record<PricingTemplate, TemplateConfig> = {
     termDefault: 0,
   },
   Hybrid: {
-    label: 'Hybrid-Modell',
+    label: 'templates.hybrid.label',
     shortLabel: 'Hybrid',
-    description: 'Anzahlung · Rest in Raten · Laufzeit wählbar',
+    description: 'templates.hybrid.description',
     hasDeposit: true,
     depositRange: [0, 40],
     depositDefault: 37.5,
@@ -40,9 +42,9 @@ export const TEMPLATE_CONFIG: Record<PricingTemplate, TemplateConfig> = {
     termDefault: 12,
   },
   Monatlich12: {
-    label: 'Monatlich 12 Monate',
+    label: 'templates.monatlich12.label',
     shortLabel: 'Monatlich · 12',
-    description: '0 € Anzahlung · voller Preis + Aufschlag über 12 Monate',
+    description: 'templates.monatlich12.description',
     hasDeposit: false,
     surchargeRange: [0, 30],
     surchargeDefault: 25,
@@ -50,9 +52,9 @@ export const TEMPLATE_CONFIG: Record<PricingTemplate, TemplateConfig> = {
     termDefault: 12,
   },
   Monatlich24: {
-    label: 'Monatlich 24 Monate',
+    label: 'templates.monatlich24.label',
     shortLabel: 'Monatlich · 24',
-    description: '0 € Anzahlung · voller Preis + Aufschlag über 24 Monate',
+    description: 'templates.monatlich24.description',
     hasDeposit: false,
     surchargeRange: [0, 50],
     surchargeDefault: 42.5,

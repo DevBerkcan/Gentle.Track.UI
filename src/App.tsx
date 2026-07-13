@@ -1,6 +1,7 @@
 // src/App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './components/auth/Login';
 import Header from './components/layout/Header';
@@ -41,42 +42,44 @@ const CustomerLayout = ({ children }: { children: React.ReactNode }) => (
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="min-h-screen bg-background flex flex-col">
-          <Routes>
-            {/* Login Route (No Header) */}
-            <Route path="/login" element={<Login />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="min-h-screen bg-background flex flex-col">
+            <Routes>
+              {/* Login Route (No Header) */}
+              <Route path="/login" element={<Login />} />
 
-            {/* Routes with Header */}
-            <Route path="/*" element={
-              <>
-                <Header />
-                <div className="flex flex-col flex-1 min-h-0">
-                  <Routes>
-                    {/* Admin Routes (Protected) */}
-                    <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
-                    <Route path="/admin/dashboard" element={<AdminLayout><Dashboard /></AdminLayout>} />
-                    <Route path="/admin/customers" element={<AdminLayout><CustomerManagement /></AdminLayout>} />
-                    <Route path="/admin/projects" element={<AdminLayout><ProjectManagement /></AdminLayout>} />
-                    <Route path="/admin/phases" element={<AdminLayout><PhaseManagement /></AdminLayout>} />
-                    <Route path="/admin/comments" element={<AdminLayout><CommentsManagement /></AdminLayout>} />
-                    <Route path="/admin/admins" element={<AdminLayout><AdminManagement /></AdminLayout>} />
+              {/* Routes with Header */}
+              <Route path="/*" element={
+                <>
+                  <Header />
+                  <div className="flex flex-col flex-1 min-h-0">
+                    <Routes>
+                      {/* Admin Routes (Protected) */}
+                      <Route path="/admin" element={<AdminLayout><Dashboard /></AdminLayout>} />
+                      <Route path="/admin/dashboard" element={<AdminLayout><Dashboard /></AdminLayout>} />
+                      <Route path="/admin/customers" element={<AdminLayout><CustomerManagement /></AdminLayout>} />
+                      <Route path="/admin/projects" element={<AdminLayout><ProjectManagement /></AdminLayout>} />
+                      <Route path="/admin/phases" element={<AdminLayout><PhaseManagement /></AdminLayout>} />
+                      <Route path="/admin/comments" element={<AdminLayout><CommentsManagement /></AdminLayout>} />
+                      <Route path="/admin/admins" element={<AdminLayout><AdminManagement /></AdminLayout>} />
 
-                    {/* Customer Routes (Public) */}
-                    <Route path="/kundenansicht" element={<CustomerLayout><ProjectTracking /></CustomerLayout>} />
-                    <Route path="/angebot" element={<CustomerLayout><OfferResponse /></CustomerLayout>} />
+                      {/* Customer Routes (Public) */}
+                      <Route path="/kundenansicht" element={<CustomerLayout><ProjectTracking /></CustomerLayout>} />
+                      <Route path="/angebot" element={<CustomerLayout><OfferResponse /></CustomerLayout>} />
 
-                    {/* Default Route - redirect to customer view (public) */}
-                    <Route path="/" element={<Navigate to="/kundenansicht" replace />} />
-                  </Routes>
-                </div>
-              </>
-            } />
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
+                      {/* Default Route - redirect to customer view (public) */}
+                      <Route path="/" element={<Navigate to="/kundenansicht" replace />} />
+                    </Routes>
+                  </div>
+                </>
+              } />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

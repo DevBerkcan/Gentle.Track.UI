@@ -1,0 +1,18 @@
+{
+  "header": {
+    "admin": "Admin",
+    "customerView": "Kundenansicht",
+    "logout": "Abmelden",
+    "login": "Login"
+  },
+  "sidebar": {
+    "navigation": "Navigation",
+    "openMenu": "Menü öffnen",
+    "dashboard": "Dashboard",
+    "customers": "Kunden",
+    "projects": "Projekte",
+    "phases": "Projekt-Phasen",
+    "comments": "Kommentare",
+    "admins": "Admin-Verwaltung"
+  }
+}

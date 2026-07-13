@@ -1,6 +1,7 @@
 // src/components/customer/ProjectTracking.tsx
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { projectService } from '../../api/services/projectService';
 import { commentService } from '../../api/services/commentService';
 import { notificationService } from '../../api/services/notificationService';
@@ -48,6 +49,8 @@ const PhaseStatusIcon = ({ status }: { status: string }) => {
 };
 
 const ProjectTracking = () => {
+  const { t } = useTranslation('customerPortal');
+  const { t: tc } = useTranslation('common');
   const [searchParams, setSearchParams] = useSearchParams();
   const [trackingNumber, setTrackingNumber] = useState('');
   const [project, setProject] = useState<Project | null>(null);
@@ -65,7 +68,7 @@ const ProjectTracking = () => {
   const showNotificationMsg = (type: NotificationState['type'], message: string) => setNotification({ show: true, type, message });
 
   const loadProjectByTracking = async (tracking: string) => {
-    if (!tracking.trim()) { showNotificationMsg('warning', 'Bitte geben Sie eine Tracking-Nummer ein'); return; }
+    if (!tracking.trim()) { showNotificationMsg('warning', t('tracking.emptyTrackingNumberWarning')); return; }
     try {
       setError('');
       const data = await projectService.getByTrackingNumber(tracking);
@@ -75,7 +78,7 @@ const ProjectTracking = () => {
       const savedEmail = localStorage.getItem(`notification_email_${data.projectID}`);
       if (savedEmail) { setNotificationEmail(savedEmail); checkSubscription(data.projectID, savedEmail); }
     } catch {
-      setError('Projekt mit dieser Tracking-Nummer nicht gefunden');
+      setError(t('tracking.notFoundError'));
       setShowDetails(false);
     }
   };
@@ -89,32 +92,32 @@ const ProjectTracking = () => {
   };
 
   const handleToggleNotification = async () => {
-    if (!project || !notificationEmail.trim()) { showNotificationMsg('warning', 'Bitte geben Sie Ihre E-Mail-Adresse ein'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationEmail)) { showNotificationMsg('warning', 'Bitte geben Sie eine gültige E-Mail-Adresse ein'); return; }
+    if (!project || !notificationEmail.trim()) { showNotificationMsg('warning', t('tracking.emptyEmailWarning')); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationEmail)) { showNotificationMsg('warning', t('tracking.invalidEmailWarning')); return; }
     try {
       const result = await notificationService.toggle(project.projectID, notificationEmail);
       setIsSubscribed(result.isActive);
       result.isActive ? localStorage.setItem(`notification_email_${project.projectID}`, notificationEmail) : localStorage.removeItem(`notification_email_${project.projectID}`);
-      showNotificationMsg('success', result.isActive ? 'E-Mail-Benachrichtigungen aktiviert!' : 'E-Mail-Benachrichtigungen deaktiviert.');
+      showNotificationMsg('success', result.isActive ? t('tracking.notificationsEnabledSuccess') : t('tracking.notificationsDisabledSuccess'));
       setShowNotificationForm(false);
-    } catch { showNotificationMsg('error', 'Fehler beim Ändern der Benachrichtigungseinstellungen'); }
+    } catch { showNotificationMsg('error', t('tracking.notificationToggleError')); }
   };
 
   const handleSendComment = async () => {
-    if (!commentMessage.trim()) { showNotificationMsg('warning', 'Bitte geben Sie eine Nachricht ein'); return; }
-    if (!authorName.trim()) { showNotificationMsg('warning', 'Bitte geben Sie Ihren Namen ein'); return; }
+    if (!commentMessage.trim()) { showNotificationMsg('warning', t('tracking.emptyMessageWarning')); return; }
+    if (!authorName.trim()) { showNotificationMsg('warning', t('tracking.emptyNameWarning')); return; }
     if (!project) return;
     try {
       const commentData: CreateCommentDto = { projectID: project.projectID, message: commentMessage, authorName: authorName.trim() };
       await commentService.createCustomerComment(commentData);
-      showNotificationMsg('success', 'Kommentar erfolgreich gesendet!');
+      showNotificationMsg('success', t('tracking.commentSentSuccess'));
       setCommentMessage('');
       loadComments(project.projectID);
-    } catch { showNotificationMsg('error', 'Fehler beim Senden des Kommentars'); }
+    } catch { showNotificationMsg('error', t('tracking.commentSendError')); }
   };
 
   const handleTrack = async () => {
-    if (!trackingNumber.trim()) { showNotificationMsg('warning', 'Bitte geben Sie eine Tracking-Nummer ein'); return; }
+    if (!trackingNumber.trim()) { showNotificationMsg('warning', t('tracking.emptyTrackingNumberWarning')); return; }
     setSearchParams({ tracking: trackingNumber });
     await loadProjectByTracking(trackingNumber);
   };
@@ -140,9 +143,9 @@ const ProjectTracking = () => {
         {/* Branding */}
         <img src={lockupLight} alt="Gentle Track" className="h-9 w-auto mb-8" />
 
-        <h1 className="text-3xl font-bold text-foreground mb-2">Projektfortschritt verfolgen</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">{t('tracking.searchTitle')}</h1>
         <p className="text-muted-foreground mb-8 max-w-sm">
-          Geben Sie Ihre Tracking-Nummer ein, um den aktuellen Status Ihres Projekts zu sehen.
+          {t('tracking.searchSubtitle')}
         </p>
 
         <div className="flex gap-2 w-full max-w-md">
@@ -150,7 +153,7 @@ const ProjectTracking = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="z.B. TR-2024-001"
+              placeholder={t('tracking.trackingNumberPlaceholder')}
               value={trackingNumber}
               onChange={e => setTrackingNumber(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleTrack()}
@@ -158,7 +161,7 @@ const ProjectTracking = () => {
             />
           </div>
           <Button onClick={handleTrack} className="h-11 px-5 shrink-0">
-            <Search className="w-4 h-4 mr-1.5" />Verfolgen
+            <Search className="w-4 h-4 mr-1.5" />{t('tracking.trackButton')}
           </Button>
         </div>
 
@@ -181,7 +184,7 @@ const ProjectTracking = () => {
     <div className="space-y-5 max-w-3xl">
       {/* Back button */}
       <Button variant="ghost" size="sm" onClick={resetTracking} className="text-muted-foreground hover:text-foreground -ml-2">
-        <ArrowLeft className="w-4 h-4 mr-1.5" />Zurück zur Suche
+        <ArrowLeft className="w-4 h-4 mr-1.5" />{t('tracking.backToSearch')}
       </Button>
 
       {/* Partner-Branding */}
@@ -197,7 +200,7 @@ const ProjectTracking = () => {
           className={cn('flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
             activeTab === 'status' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
         >
-          <LayoutDashboard className="w-3.5 h-3.5" />Projektstatus
+          <LayoutDashboard className="w-3.5 h-3.5" />{t('tracking.statusTab')}
         </button>
         <button
           type="button"
@@ -205,7 +208,7 @@ const ProjectTracking = () => {
           className={cn('flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
             activeTab === 'briefing' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
         >
-          <ClipboardList className="w-3.5 h-3.5" />Website-Briefing
+          <ClipboardList className="w-3.5 h-3.5" />{t('tracking.briefingTab')}
         </button>
       </div>
 
@@ -228,7 +231,7 @@ const ProjectTracking = () => {
             <div className="flex items-center gap-2 flex-wrap">
               {isSubscribed && (
                 <span className="inline-flex items-center gap-1.5 bg-success-bg border border-success/20 text-[#15805A] px-3 py-1 rounded-full text-xs font-medium">
-                  <Bell className="w-3 h-3" />Benachrichtigungen aktiv
+                  <Bell className="w-3 h-3" />{t('tracking.notificationsActiveBadge')}
                 </span>
               )}
               <Badge status={project.status} />
@@ -237,7 +240,7 @@ const ProjectTracking = () => {
 
           <div className="mb-5">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gesamtfortschritt</span>
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('tracking.overallProgress')}</span>
             </div>
             <ProgressBar progress={project.progress} />
           </div>
@@ -250,11 +253,11 @@ const ProjectTracking = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4 border-t border-border">
             {[
-              { label: 'Startdatum', value: formatDate(project.startDate) },
-              { label: 'Enddatum', value: formatDate(project.endDate) },
+              { label: t('tracking.startDateLabel'), value: formatDate(project.startDate) },
+              { label: t('tracking.endDateLabel'), value: formatDate(project.endDate) },
               ...(project.daysUntilDeadline !== undefined ? [{
-                label: 'Verbleibend',
-                value: `${project.daysUntilDeadline} Tage`,
+                label: t('tracking.remainingLabel'),
+                value: t('tracking.daysRemaining', { count: project.daysUntilDeadline }),
                 urgent: project.daysUntilDeadline < 7,
               }] : []),
             ].map(item => (
@@ -274,7 +277,7 @@ const ProjectTracking = () => {
       {project.phases && project.phases.length > 0 && (
         <Card className="border border-border shadow-sm">
           <CardHeader className="border-b border-border pb-4">
-            <h2 className="text-base font-semibold text-foreground">Projekt-Phasen</h2>
+            <h2 className="text-base font-semibold text-foreground">{t('tracking.phasesTitle')}</h2>
           </CardHeader>
           <CardContent className="p-5">
             <div className="space-y-0">
@@ -301,8 +304,8 @@ const ProjectTracking = () => {
                         </h4>
                       </div>
                       {phase.description && <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{phase.description}</p>}
-                      {phase.completedAt && <p className="text-xs text-muted-foreground/60 mt-1.5">Abgeschlossen am {formatDate(phase.completedAt)}</p>}
-                      {phase.startedAt && !phase.completedAt && <p className="text-xs text-muted-foreground/60 mt-1.5">Gestartet am {formatDate(phase.startedAt)}</p>}
+                      {phase.completedAt && <p className="text-xs text-muted-foreground/60 mt-1.5">{t('tracking.completedOnDate', { date: formatDate(phase.completedAt) })}</p>}
+                      {phase.startedAt && !phase.completedAt && <p className="text-xs text-muted-foreground/60 mt-1.5">{t('tracking.startedOnDate', { date: formatDate(phase.startedAt) })}</p>}
                     </div>
                   </div>
                 </div>
@@ -321,28 +324,28 @@ const ProjectTracking = () => {
                 <Bell className="w-4 h-4 text-success" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-foreground">E-Mail-Benachrichtigungen</h3>
+                <h3 className="text-sm font-semibold text-foreground">{t('tracking.emailNotificationsTitle')}</h3>
                 <p className="text-xs text-muted-foreground">
-                  {isSubscribed ? `Aktiv für: ${notificationEmail}` : 'Updates per E-Mail erhalten'}
+                  {isSubscribed ? t('tracking.notificationActiveFor', { email: notificationEmail }) : t('tracking.notificationSubtitle')}
                 </p>
               </div>
             </div>
             <Button variant={showNotificationForm ? 'secondary' : 'outline'} size="sm" onClick={() => setShowNotificationForm(!showNotificationForm)}>
-              {showNotificationForm ? 'Schließen' : isSubscribed ? 'Verwalten' : 'Aktivieren'}
+              {showNotificationForm ? tc('actions.close') : isSubscribed ? t('tracking.manageButton') : t('tracking.activateButton')}
             </Button>
           </div>
 
           {showNotificationForm && (
             <div className="mt-4 p-4 bg-success-bg/60 border border-success/15 rounded-xl space-y-3">
               <p className="text-sm text-muted-foreground">
-                {isSubscribed ? 'Sie erhalten bereits Benachrichtigungen. E-Mail ändern oder deaktivieren:' : 'Erhalten Sie Updates über neue Kommentare und Fortschritte.'}
+                {isSubscribed ? t('tracking.alreadySubscribedText') : t('tracking.subscribePromptText')}
               </p>
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">E-Mail-Adresse *</Label>
-                <Input type="email" placeholder="ihre@email.de" value={notificationEmail} onChange={e => setNotificationEmail(e.target.value)} className="h-9" />
+                <Label className="text-xs font-medium">{t('tracking.emailAddressLabel')}</Label>
+                <Input type="email" placeholder={t('tracking.emailPlaceholder')} value={notificationEmail} onChange={e => setNotificationEmail(e.target.value)} className="h-9" />
               </div>
               <Button size="sm" variant={isSubscribed ? 'destructive' : 'default'} onClick={handleToggleNotification}>
-                {isSubscribed ? <><BellOff className="w-3.5 h-3.5 mr-1.5" />Deaktivieren</> : <><Bell className="w-3.5 h-3.5 mr-1.5" />Aktivieren</>}
+                {isSubscribed ? <><BellOff className="w-3.5 h-3.5 mr-1.5" />{t('tracking.deactivateButton')}</> : <><Bell className="w-3.5 h-3.5 mr-1.5" />{t('tracking.activateButton')}</>}
               </Button>
             </div>
           )}
@@ -354,7 +357,7 @@ const ProjectTracking = () => {
         <CardHeader className="border-b border-border pb-4">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-primary" />
-            Kommentare & Diskussion
+            {t('tracking.commentsTitle')}
             {comments.length > 0 && (
               <span className="ml-auto text-xs font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">{comments.length}</span>
             )}
@@ -363,17 +366,17 @@ const ProjectTracking = () => {
         <CardContent className="p-5 space-y-5">
           {/* New Comment Form */}
           <div className="p-4 bg-secondary border border-border rounded-xl space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">Kommentar schreiben</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t('tracking.writeCommentTitle')}</h3>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Ihr Name *</Label>
-              <Input type="text" placeholder="z.B. Max Mustermann" value={authorName} onChange={e => setAuthorName(e.target.value)} className="h-9" />
+              <Label className="text-xs font-medium">{t('tracking.yourNameLabel')}</Label>
+              <Input type="text" placeholder={t('tracking.namePlaceholder')} value={authorName} onChange={e => setAuthorName(e.target.value)} className="h-9" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Nachricht *</Label>
-              <Textarea placeholder="Ihre Fragen, Feedback oder Anmerkungen…" value={commentMessage} onChange={e => setCommentMessage(e.target.value)} rows={3} />
+              <Label className="text-xs font-medium">{t('tracking.messageLabel')}</Label>
+              <Textarea placeholder={t('tracking.messagePlaceholder')} value={commentMessage} onChange={e => setCommentMessage(e.target.value)} rows={3} />
             </div>
             <Button size="sm" onClick={handleSendComment}>
-              <Send className="w-3.5 h-3.5 mr-1.5" />Kommentar senden
+              <Send className="w-3.5 h-3.5 mr-1.5" />{t('tracking.sendCommentButton')}
             </Button>
           </div>
 
@@ -391,7 +394,7 @@ const ProjectTracking = () => {
                     </div>
                     <span className="text-sm font-semibold text-foreground">{comment.authorName}</span>
                     <span className={cn('text-xs px-2 py-0.5 rounded-full', comment.authorType === 'Admin' ? 'bg-primary/10 text-primary' : 'bg-info-bg text-[#2557B0]')}>
-                      {comment.authorType === 'Admin' ? 'Admin' : 'Kunde'}
+                      {comment.authorType === 'Admin' ? t('tracking.commentAuthorAdmin') : t('tracking.commentAuthorCustomer')}
                     </span>
                     <span className="text-xs text-muted-foreground ml-auto">{formatDate(comment.createdAt)}</span>
                   </div>
@@ -402,14 +405,14 @@ const ProjectTracking = () => {
           ) : (
             <div className="flex flex-col items-center gap-2 py-10 text-muted-foreground">
               <MessageSquare className="w-8 h-8 opacity-30" />
-              <p className="text-sm font-medium">Noch keine Kommentare</p>
-              <p className="text-xs">Seien Sie der Erste!</p>
+              <p className="text-sm font-medium">{t('tracking.noCommentsTitle')}</p>
+              <p className="text-xs">{t('tracking.noCommentsSubtitle')}</p>
             </div>
           )}
 
           <div className="flex items-start gap-2 p-3.5 bg-success-bg/60 border border-success/15 rounded-lg text-xs text-[#15805A]">
             <Mail className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-            <span>Alle Kommentare sind für das Projektteam sichtbar.{isSubscribed && ' Sie erhalten E-Mail-Benachrichtigungen bei neuen Antworten.'}</span>
+            <span>{t('tracking.commentsVisibilityNote')}{isSubscribed && t('tracking.commentsNotificationNote')}</span>
           </div>
         </CardContent>
       </Card>

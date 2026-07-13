@@ -1,0 +1,57 @@
+{
+  "templates": {
+    "einmalzahlung": {
+      "label": "One-time Payment",
+      "description": "100% of the project price · no monthly payment · cheapest option"
+    },
+    "hybrid": {
+      "label": "Hybrid Model",
+      "description": "Deposit · remainder in installments · flexible term"
+    },
+    "monatlich12": {
+      "label": "Monthly, 12 Months",
+      "description": "€0 deposit · full price + surcharge over 12 months"
+    },
+    "monatlich24": {
+      "label": "Monthly, 24 Months",
+      "description": "€0 deposit · full price + surcharge over 24 months"
+    }
+  },
+  "title": "Price Offer – {{projectName}}",
+  "loadingText": "Loading offer…",
+  "loadError": "Offer could not be loaded.",
+  "editIntro": "Set the one-time payment project price and adjust the other three payment options if needed. All four will be released together.",
+  "projectPriceLabel": "Project Price (€)",
+  "projectPricePlaceholder": "e.g. 8000",
+  "depositLabel": "Deposit",
+  "hybridSurchargeLabel": "Surcharge on Remaining Amount",
+  "termLabel": "Term",
+  "monthsUnit": "{{count}} months",
+  "surchargeLabel": "Surcharge",
+  "saveDraftButton": "Save Draft",
+  "releaseButton": "Release Price",
+  "chosenOptionLabel": "Selected Option",
+  "declinedAllText": "The customer has declined all four price options.",
+  "draftNotSetText": "The project price has not yet been set by the owner.",
+  "releasedWaitingText": "Price options have been sent to Kreavolut – response pending.",
+  "manualResponseIntro": "Record response manually (e.g. after a phone call)",
+  "declineAllButton": "Decline All Options",
+  "releaseConfirmTitle": "Release price options?",
+  "releaseConfirmMessage": "This will send all four payment options by email to Kreavolut (info@kreavolut.de) for selection.",
+  "releaseConfirmButton": "Release",
+  "chooseConfirmMessage": "Do you really want to record the option \"{{label}}\" as accepted?",
+  "declineAllConfirmTitle": "Decline all options?",
+  "declineAllConfirmMessage": "Records that the customer has not accepted any of the four price options.",
+  "declineConfirmButton": "Decline",
+  "draftSavedSuccess": "Draft saved.",
+  "draftSaveError": "Draft could not be saved.",
+  "releaseSuccess": "Price options released to Kreavolut.",
+  "releaseError": "Price could not be released. Please save a project price first.",
+  "choiceRecordedSuccess": "Price option \"{{label}}\" recorded as accepted.",
+  "actionError": "Action could not be saved.",
+  "declineAllRecordedSuccess": "All price options recorded as declined.",
+  "oneTimeLabel": "One-time:",
+  "depositAmountPrefix": "Deposit:",
+  "perMonthOverTerm": "/month over {{months}} months",
+  "totalLabel": "Total: {{total}}"
+}

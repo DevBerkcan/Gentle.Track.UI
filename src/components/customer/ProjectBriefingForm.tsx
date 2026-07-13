@@ -1,5 +1,6 @@
 // src/components/customer/ProjectBriefingForm.tsx
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { briefingService } from '../../api/services/briefingService';
 import Notification from '../common/Notification';
 import BriefingWizardForm from '../briefing/BriefingWizardForm';
@@ -28,6 +29,8 @@ const emptyForm: UpsertBriefingDto = {
 };
 
 const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumber }) => {
+  const { t } = useTranslation('briefing');
+  const { t: tc } = useTranslation('common');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState(1);
@@ -73,7 +76,7 @@ const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumbe
       setSaving(true);
       await briefingService.saveDraft(trackingNumber, formData);
     } catch {
-      notify('error', 'Zwischenspeichern fehlgeschlagen. Ihre Eingaben bleiben aber im Formular erhalten.');
+      notify('error', t('customerForm.draftSaveError'));
     } finally {
       setSaving(false);
     }
@@ -86,10 +89,10 @@ const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumbe
       setWasSubmitted(true);
       setShowThankYou(true);
       fillFromBriefing(result);
-      notify('success', 'Briefing erfolgreich übermittelt!');
+      notify('success', t('customerForm.submitSuccess'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
-      notify('error', 'Das Briefing konnte nicht übermittelt werden. Bitte versuchen Sie es erneut.');
+      notify('error', t('customerForm.submitError'));
     } finally {
       setSaving(false);
     }
@@ -99,7 +102,7 @@ const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumbe
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-sm">Briefing wird geladen…</p>
+        <p className="text-sm">{tc('status.loading')}</p>
       </div>
     );
   }
@@ -111,13 +114,12 @@ const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumbe
           <div className="w-14 h-14 rounded-full bg-success-bg border-2 border-success flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-7 h-7 text-success" />
           </div>
-          <h2 className="text-xl font-bold text-foreground">Vielen Dank für Ihr Briefing!</h2>
+          <h2 className="text-xl font-bold text-foreground">{t('customerForm.thankYouTitle')}</h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Wir haben Ihre Angaben erhalten und melden uns in Kürze bei Ihnen. Sie können Ihre Antworten
-            über diesen Link jederzeit ändern, solange die Arbeit an Ihrer Website noch nicht begonnen hat.
+            {t('customerForm.thankYouBody')}
           </p>
           <Button variant="outline" onClick={() => setShowThankYou(false)}>
-            <Pencil className="w-3.5 h-3.5 mr-1.5" />Angaben bearbeiten
+            <Pencil className="w-3.5 h-3.5 mr-1.5" />{t('customerForm.editAnswers')}
           </Button>
           {notification.show && <Notification type={notification.type} message={notification.message} onClose={() => setNotification(n => ({ ...n, show: false }))} />}
         </CardContent>
@@ -130,7 +132,7 @@ const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumbe
       {wasSubmitted && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary border border-border rounded-lg px-3 py-2 mb-5">
           <Pencil className="w-3.5 h-3.5 shrink-0" />
-          Sie bearbeiten ein bereits übermitteltes Briefing. Speichern Sie erneut, um Ihre Änderungen zu übernehmen.
+          {t('customerForm.editingSubmittedNotice')}
         </div>
       )}
 
@@ -142,7 +144,7 @@ const ProjectBriefingForm: React.FC<ProjectBriefingFormProps> = ({ trackingNumbe
         saving={saving}
         onPersist={persistDraft}
         onFinish={handleSubmit}
-        finishLabel="Briefing abschicken"
+        finishLabel={t('customerForm.submitButton')}
         finishIcon={<Send className="w-4 h-4 mr-1.5" />}
       />
 

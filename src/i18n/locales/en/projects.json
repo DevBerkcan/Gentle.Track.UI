@@ -1,0 +1,84 @@
+{
+  "list": {
+    "title": "Manage Projects",
+    "subtitle": "Create, edit and archive all projects",
+    "newProject": "New Project",
+    "searchPlaceholder": "Search project…",
+    "loading": "Loading projects…",
+    "empty": "No projects found",
+    "filters": {
+      "active": "Active projects",
+      "archived": "Archived projects"
+    },
+    "columns": {
+      "projectName": "Project name",
+      "customer": "Customer",
+      "trackingNumber": "Tracking no.",
+      "status": "Status",
+      "offer": "Offer",
+      "progress": "Progress",
+      "start": "Start",
+      "end": "End",
+      "actions": "Actions"
+    },
+    "actions": {
+      "briefing": "Briefing",
+      "release": "Release project",
+      "priceOffer": "Set price",
+      "offer": "Offer",
+      "archive": "Archive",
+      "restore": "Restore"
+    },
+    "confirm": {
+      "archiveTitle": "Archive project",
+      "archiveMessage": "Do you really want to archive the project \"{{name}}\"?",
+      "restoreTitle": "Restore project",
+      "restoreMessage": "Do you want to restore the project \"{{name}}\"?",
+      "releaseMessage": "Do you want to release the project \"{{name}}\" to GentleGroup? An email notification will be sent."
+    },
+    "notifications": {
+      "archived": "Project successfully archived!",
+      "restored": "Project restored!",
+      "released": "Project successfully released!",
+      "updated": "Project successfully updated!",
+      "created": "Project successfully created!",
+      "deleted": "Project successfully deleted!"
+    },
+    "errors": {
+      "loadFailed": "Error loading projects",
+      "loadOneFailed": "Error loading project",
+      "archiveFailed": "Error archiving",
+      "restoreFailed": "Error restoring",
+      "releaseFailed": "Error releasing"
+    }
+  },
+  "modal": {
+    "title": {
+      "edit": "Edit project",
+      "create": "Create new project"
+    },
+    "fields": {
+      "trackingNumber": "Tracking number",
+      "projectName": "Project name *",
+      "customer": "Customer *",
+      "selectCustomerPlaceholder": "-- Select customer --",
+      "status": "Status",
+      "progress": "Progress ({{progress}}%)",
+      "description": "Description",
+      "startDate": "Start date *",
+      "endDate": "End date *"
+    },
+    "createButton": "Create project",
+    "savingButton": "Saving...",
+    "deleteConfirm": {
+      "title": "Permanently delete project?",
+      "message": "The project \"{{name}}\" and all associated data will be permanently deleted. This action cannot be undone!",
+      "confirmLabel": "Yes, delete permanently",
+      "deletingLabel": "Deleting..."
+    },
+    "errors": {
+      "saveFailed": "Error saving",
+      "deleteFailed": "Error deleting the project"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "loading": "Dashboard wird geladen…",
+  "errors": {
+    "loadDashboard": "Fehler beim Laden der Dashboard-Daten",
+    "loadProject": "Fehler beim Laden des Projekts"
+  },
+  "notifications": {
+    "projectUpdated": "Projekt erfolgreich aktualisiert!"
+  },
+  "header": {
+    "title": "Dashboard",
+    "subtitle": "Übersicht aller Projekte und Aktivitäten"
+  },
+  "stats": {
+    "activeProjects": "Aktive Projekte",
+    "totalCustomers": "Kunden gesamt",
+    "completedProjects": "Abgeschlossen",
+    "totalComments": "Kommentare",
+    "dueSoon": "Frist ≤ 14 Tage",
+    "pendingBriefings": "Briefings ausstehend",
+    "openOffers": "Angebote offen",
+    "newCustomers": "Neue Kunden (30 Tage)"
+  },
+  "filters": {
+    "allStatuses": "Alle Status",
+    "searchPlaceholder": "Suchen…"
+  },
+  "table": {
+    "project": "Projekt",
+    "customer": "Kunde",
+    "status": "Status",
+    "progress": "Fortschritt",
+    "trackingNumber": "Tracking-Nr.",
+    "start": "Start",
+    "end": "Ende"
+  },
+  "projectsCard": {
+    "title": "Aktuelle Projekte",
+    "emptyTitle": "Keine Projekte gefunden",
+    "emptyHint": "Versuche einen anderen Suchbegriff oder Filter"
+  },
+  "recentCustomers": {
+    "title": "Neueste Kunden",
+    "empty": "Noch keine Kunden",
+    "projectCount_one": "{{count}} Projekt",
+    "projectCount_other": "{{count}} Projekte"
+  }
+}

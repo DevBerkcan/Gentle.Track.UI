@@ -1,0 +1,18 @@
+{
+  "header": {
+    "admin": "Admin",
+    "customerView": "Customer view",
+    "logout": "Log out",
+    "login": "Login"
+  },
+  "sidebar": {
+    "navigation": "Navigation",
+    "openMenu": "Open menu",
+    "dashboard": "Dashboard",
+    "customers": "Customers",
+    "projects": "Projects",
+    "phases": "Project phases",
+    "comments": "Comments",
+    "admins": "Admin management"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "templates": {
+    "einmalzahlung": {
+      "label": "Einmalzahlung",
+      "description": "100 % Projektpreis · keine monatliche Zahlung · günstigste Variante"
+    },
+    "hybrid": {
+      "label": "Hybrid-Modell",
+      "description": "Anzahlung · Rest in Raten · Laufzeit wählbar"
+    },
+    "monatlich12": {
+      "label": "Monatlich 12 Monate",
+      "description": "0 € Anzahlung · voller Preis + Aufschlag über 12 Monate"
+    },
+    "monatlich24": {
+      "label": "Monatlich 24 Monate",
+      "description": "0 € Anzahlung · voller Preis + Aufschlag über 24 Monate"
+    }
+  },
+  "title": "Preisangebot – {{projectName}}",
+  "loadingText": "Angebot wird geladen…",
+  "loadError": "Angebot konnte nicht geladen werden.",
+  "editIntro": "Lege den Einmalzahlungs-Projektpreis fest und passe bei Bedarf die anderen drei Zahlungsoptionen an. Alle vier werden gemeinsam freigegeben.",
+  "projectPriceLabel": "Projektpreis (€)",
+  "projectPricePlaceholder": "z.B. 8000",
+  "depositLabel": "Anzahlung",
+  "hybridSurchargeLabel": "Aufschlag auf Restbetrag",
+  "termLabel": "Laufzeit",
+  "monthsUnit": "{{count}} Monate",
+  "surchargeLabel": "Aufschlag",
+  "saveDraftButton": "Entwurf speichern",
+  "releaseButton": "Preis freigeben",
+  "chosenOptionLabel": "Gewählte Option",
+  "declinedAllText": "Der Kunde hat alle vier Preisoptionen abgelehnt.",
+  "draftNotSetText": "Der Projektpreis wurde noch nicht vom Owner festgelegt.",
+  "releasedWaitingText": "Preisoptionen wurden an Kreavolut gesendet – Antwort steht noch aus.",
+  "manualResponseIntro": "Antwort manuell erfassen (z.B. nach telefonischer Rückmeldung)",
+  "declineAllButton": "Alle Optionen ablehnen",
+  "releaseConfirmTitle": "Preisoptionen freigeben?",
+  "releaseConfirmMessage": "Dies versendet alle vier Zahlungsoptionen per E-Mail an Kreavolut (info@kreavolut.de) zur Auswahl.",
+  "releaseConfirmButton": "Freigeben",
+  "chooseConfirmMessage": "Möchtest du die Option \"{{label}}\" wirklich als angenommen erfassen?",
+  "declineAllConfirmTitle": "Alle Optionen ablehnen?",
+  "declineAllConfirmMessage": "Erfasst, dass der Kunde keine der vier Preisoptionen angenommen hat.",
+  "declineConfirmButton": "Ablehnen",
+  "draftSavedSuccess": "Entwurf gespeichert.",
+  "draftSaveError": "Entwurf konnte nicht gespeichert werden.",
+  "releaseSuccess": "Preisoptionen an Kreavolut freigegeben.",
+  "releaseError": "Preis konnte nicht freigegeben werden. Bitte zuerst einen Projektpreis speichern.",
+  "choiceRecordedSuccess": "Preisoption \"{{label}}\" als angenommen erfasst.",
+  "actionError": "Aktion konnte nicht gespeichert werden.",
+  "declineAllRecordedSuccess": "Alle Preisoptionen als abgelehnt erfasst.",
+  "oneTimeLabel": "Einmalig:",
+  "depositAmountPrefix": "Anzahlung:",
+  "perMonthOverTerm": "/Monat über {{months}} Monate",
+  "totalLabel": "Gesamt: {{total}}"
+}

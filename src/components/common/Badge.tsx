@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 interface BadgeProps {
@@ -39,8 +40,10 @@ const dotColors: Record<string, string> = {
 };
 
 const Badge: React.FC<BadgeProps> = ({ status, style }) => {
+  const { t } = useTranslation('common');
   const badgeClass = statusStyles[status] ?? 'bg-secondary text-foreground/70 border border-border';
   const dotClass = dotColors[status] ?? 'bg-text-muted';
+  const label = t(`statusValues.${status}`, { defaultValue: status });
 
   return (
     <span
@@ -48,7 +51,7 @@ const Badge: React.FC<BadgeProps> = ({ status, style }) => {
       style={style}
     >
       <span className={cn('w-1.5 h-1.5 rounded-full', dotClass)} />
-      {status}
+      {label}
     </span>
   );
 };

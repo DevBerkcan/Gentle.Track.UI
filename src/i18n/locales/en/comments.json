@@ -1,0 +1,45 @@
+{
+  "title": "Comment Management",
+  "stats": {
+    "total": "{{count}} total",
+    "fromCustomers": "{{count}} from customers"
+  },
+  "search": {
+    "placeholder": "Project, author or message…"
+  },
+  "loading": "Loading comments…",
+  "emptyState": {
+    "noResults": "No comments found",
+    "noComments": "No comments yet"
+  },
+  "project": {
+    "commentCount_one": "{{count}} comment",
+    "commentCount_other": "{{count}} comments"
+  },
+  "actions": {
+    "email": "Email",
+    "addComment": "Comment"
+  },
+  "replyForm": {
+    "title": "Add comment as admin",
+    "messageLabel": "Message *",
+    "messagePlaceholder": "Enter comment…"
+  },
+  "author": {
+    "admin": "Admin",
+    "customer": "Customer"
+  },
+  "notifications": {
+    "subscribeOn": "Email notifications enabled",
+    "subscribeOff": "Email notifications disabled",
+    "commentSent": "Comment sent successfully!"
+  },
+  "errors": {
+    "loadData": "Error loading data",
+    "toggleNotification": "Error changing notification settings",
+    "sendComment": "Error sending comment"
+  },
+  "validation": {
+    "messageRequired": "Please enter a message"
+  }
+}

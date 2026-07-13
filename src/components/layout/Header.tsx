@@ -1,13 +1,17 @@
 // src/components/layout/Header.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { LogOut, LogIn, ChevronDown, LayoutDashboard, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import lockupLight from '@/assets/brand/gentle-track-lockup-light.svg';
+import ThemeToggle from '../common/ThemeToggle';
+import LanguageToggle from '../common/LanguageToggle';
 
 const Header: React.FC = () => {
+  const { t } = useTranslation('layout');
   const navigate = useNavigate();
   const location = useLocation();
   const { admin, isAuthenticated, logout } = useAuth();
@@ -57,7 +61,7 @@ const Header: React.FC = () => {
         {isAuthenticated && (
           <button
             onClick={() => handleViewChange('admin')}
-            title="Admin"
+            title={t('header.admin')}
             className={cn(
               'flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shrink-0',
               currentView === 'admin'
@@ -66,13 +70,13 @@ const Header: React.FC = () => {
             )}
           >
             <LayoutDashboard className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Admin</span>
+            <span className="hidden sm:inline">{t('header.admin')}</span>
           </button>
         )}
 
         <button
           onClick={() => handleViewChange('customer')}
-          title="Kundenansicht"
+          title={t('header.customerView')}
           className={cn(
             'flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 shrink-0',
             currentView === 'customer'
@@ -81,8 +85,13 @@ const Header: React.FC = () => {
           )}
         >
           <Eye className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Kundenansicht</span>
+          <span className="hidden sm:inline">{t('header.customerView')}</span>
         </button>
+
+        <div className="w-px h-5 bg-border mx-0.5 sm:mx-1 shrink-0" />
+
+        <LanguageToggle />
+        <ThemeToggle />
 
         <div className="w-px h-5 bg-border mx-0.5 sm:mx-1 shrink-0" />
 
@@ -120,7 +129,7 @@ const Header: React.FC = () => {
                     className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/8 rounded-lg transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
-                    Abmelden
+                    {t('header.logout')}
                   </button>
                 </div>
               </div>
@@ -134,7 +143,7 @@ const Header: React.FC = () => {
             onClick={() => navigate('/login')}
           >
             <LogIn className="w-3.5 h-3.5 mr-1.5" />
-            Login
+            {t('header.login')}
           </Button>
         )}
       </div>

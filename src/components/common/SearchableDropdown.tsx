@@ -1,5 +1,6 @@
 // src/components/common/SearchableDropdown.tsx
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 
 interface DropdownOption {
@@ -21,10 +22,14 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
   options,
   value,
   onChange,
-  placeholder = 'Select...',
-  searchPlaceholder = 'Search...',
-  noResultsText = 'No results found'
+  placeholder,
+  searchPlaceholder,
+  noResultsText
 }) => {
+  const { t } = useTranslation('common');
+  const resolvedPlaceholder = placeholder ?? t('searchableDropdown.placeholder');
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t('searchableDropdown.searchPlaceholder');
+  const resolvedNoResultsText = noResultsText ?? t('status.noResults');
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -92,7 +97,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
             ref={inputRef}
             type="text"
             className="w-full bg-transparent outline-none placeholder:text-muted-foreground"
-            placeholder={isOpen ? searchPlaceholder : placeholder}
+            placeholder={isOpen ? resolvedSearchPlaceholder : resolvedPlaceholder}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onClick={handleInputClick}
@@ -106,7 +111,7 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
         <div className="absolute z-50 mt-1 w-full rounded-md border border-input bg-popover shadow-lg max-h-60 overflow-y-auto">
           {filteredOptions.length === 0 ? (
             <div className="px-3 py-4 text-sm text-muted-foreground text-center">
-              {noResultsText}
+              {resolvedNoResultsText}
             </div>
           ) : (
             filteredOptions.map((option) => (

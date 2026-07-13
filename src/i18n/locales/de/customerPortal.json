@@ -1,0 +1,93 @@
+{
+  "templates": {
+    "einmalzahlung": {
+      "label": "Einmalzahlung",
+      "description": "100 % Projektpreis · keine monatliche Zahlung · günstigste Variante"
+    },
+    "hybrid": {
+      "label": "Hybrid-Modell",
+      "description": "Anzahlung · Rest in Raten · Laufzeit wählbar"
+    },
+    "monatlich12": {
+      "label": "Monatlich 12 Monate",
+      "description": "0 € Anzahlung · voller Preis + Aufschlag über 12 Monate"
+    },
+    "monatlich24": {
+      "label": "Monatlich 24 Monate",
+      "description": "0 € Anzahlung · voller Preis + Aufschlag über 24 Monate"
+    }
+  },
+  "tracking": {
+    "emptyTrackingNumberWarning": "Bitte geben Sie eine Tracking-Nummer ein",
+    "notFoundError": "Projekt mit dieser Tracking-Nummer nicht gefunden",
+    "emptyEmailWarning": "Bitte geben Sie Ihre E-Mail-Adresse ein",
+    "invalidEmailWarning": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "notificationsEnabledSuccess": "E-Mail-Benachrichtigungen aktiviert!",
+    "notificationsDisabledSuccess": "E-Mail-Benachrichtigungen deaktiviert.",
+    "notificationToggleError": "Fehler beim Ändern der Benachrichtigungseinstellungen",
+    "emptyMessageWarning": "Bitte geben Sie eine Nachricht ein",
+    "emptyNameWarning": "Bitte geben Sie Ihren Namen ein",
+    "commentSentSuccess": "Kommentar erfolgreich gesendet!",
+    "commentSendError": "Fehler beim Senden des Kommentars",
+    "searchTitle": "Projektfortschritt verfolgen",
+    "searchSubtitle": "Geben Sie Ihre Tracking-Nummer ein, um den aktuellen Status Ihres Projekts zu sehen.",
+    "trackingNumberPlaceholder": "z.B. TR-2024-001",
+    "trackButton": "Verfolgen",
+    "backToSearch": "Zurück zur Suche",
+    "statusTab": "Projektstatus",
+    "briefingTab": "Website-Briefing",
+    "notificationsActiveBadge": "Benachrichtigungen aktiv",
+    "overallProgress": "Gesamtfortschritt",
+    "startDateLabel": "Startdatum",
+    "endDateLabel": "Enddatum",
+    "remainingLabel": "Verbleibend",
+    "daysRemaining": "{{count}} Tage",
+    "phasesTitle": "Projekt-Phasen",
+    "completedOnDate": "Abgeschlossen am {{date}}",
+    "startedOnDate": "Gestartet am {{date}}",
+    "emailNotificationsTitle": "E-Mail-Benachrichtigungen",
+    "notificationActiveFor": "Aktiv für: {{email}}",
+    "notificationSubtitle": "Updates per E-Mail erhalten",
+    "manageButton": "Verwalten",
+    "activateButton": "Aktivieren",
+    "alreadySubscribedText": "Sie erhalten bereits Benachrichtigungen. E-Mail ändern oder deaktivieren:",
+    "subscribePromptText": "Erhalten Sie Updates über neue Kommentare und Fortschritte.",
+    "emailAddressLabel": "E-Mail-Adresse *",
+    "emailPlaceholder": "ihre@email.de",
+    "deactivateButton": "Deaktivieren",
+    "commentsTitle": "Kommentare & Diskussion",
+    "writeCommentTitle": "Kommentar schreiben",
+    "yourNameLabel": "Ihr Name *",
+    "namePlaceholder": "z.B. Max Mustermann",
+    "messageLabel": "Nachricht *",
+    "messagePlaceholder": "Ihre Fragen, Feedback oder Anmerkungen…",
+    "sendCommentButton": "Kommentar senden",
+    "commentAuthorAdmin": "Admin",
+    "commentAuthorCustomer": "Kunde",
+    "noCommentsTitle": "Noch keine Kommentare",
+    "noCommentsSubtitle": "Seien Sie der Erste!",
+    "commentsVisibilityNote": "Alle Kommentare sind für das Projektteam sichtbar.",
+    "commentsNotificationNote": " Sie erhalten E-Mail-Benachrichtigungen bei neuen Antworten."
+  },
+  "offer": {
+    "invalidLink": "Dieser Link ist ungültig.",
+    "invalidOrExpiredLink": "Dieser Link ist ungültig oder abgelaufen.",
+    "respondError": "Ihre Antwort konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+    "loadingText": "Angebot wird geladen…",
+    "notFoundText": "Angebot nicht gefunden.",
+    "acceptedHeading": "Sie haben eine Preisoption gewählt.",
+    "declinedHeading": "Sie haben alle Preisoptionen abgelehnt.",
+    "pageTitle": "Preisangebot – {{projectName}}",
+    "chooseSubtitle": "Wählen Sie eine der folgenden vier Zahlungsoptionen für einen Projektpreis von {{price}}.",
+    "declineAllButton": "Alle Optionen ablehnen",
+    "confirmOptionTitle": "Preisoption bestätigen",
+    "confirmOptionMessage": "Möchten Sie die Option \"{{label}}\" verbindlich wählen?",
+    "declineAllTitle": "Alle Optionen ablehnen?",
+    "declineAllMessage": "Möchten Sie wirklich alle vier Preisoptionen ablehnen?",
+    "declineConfirmButton": "Ablehnen",
+    "depositPrefix": "Anzahlung:",
+    "perMonthSuffix": "/ Monat",
+    "termSummary": "über {{months}} Monate · gesamt {{total}}",
+    "chooseThisOptionButton": "Diese Option wählen"
+  }
+}

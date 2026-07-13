@@ -1,0 +1,120 @@
+{
+  "list": {
+    "title": "Admin Management",
+    "subtitle": "Manage administrators and roles",
+    "newAdmin": "New Administrator",
+    "loading": "Loading administrators…",
+    "roleOverview": {
+      "heading": "Role Overview",
+      "owner": "Owner:",
+      "ownerDescription": "Full access to all features, projects and customers",
+      "admin": "Admin:",
+      "adminDescription": "Access to all or assigned projects"
+    },
+    "stats": {
+      "total": "Total: {{count}}",
+      "active": "Active: {{count}}",
+      "inactive": "Inactive: {{count}}"
+    },
+    "showInactive": "Show inactive admins",
+    "emptyState": "No administrators found",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "projectAccess": "Project Access",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "projectCount_one": "{{count}} project",
+    "projectCount_other": "{{count}} projects",
+    "actionTitles": {
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate"
+    },
+    "accessDenied": {
+      "title": "Access Denied",
+      "message": "Only users with the \"Owner\" role can manage administrators."
+    },
+    "confirmDeactivate": {
+      "title": "Deactivate Administrator",
+      "message": "Do you really want to deactivate the administrator \"{{name}}\"?"
+    },
+    "confirmReactivate": {
+      "title": "Reactivate Administrator",
+      "message": "Do you want to reactivate \"{{name}}\" again?"
+    },
+    "notifications": {
+      "deactivated": "Administrator deactivated!",
+      "reactivated": "Administrator reactivated!",
+      "created": "Administrator created!",
+      "updated": "Administrator updated!",
+      "deleted": "Administrator deleted!"
+    },
+    "errors": {
+      "forbidden": "No permission. Only owners can manage administrators.",
+      "loadAdmins": "Error loading administrators",
+      "deactivateFailed": "Error deactivating",
+      "reactivateFailed": "Error reactivating"
+    }
+  },
+  "createModal": {
+    "title": "New Administrator",
+    "nameLabel": "Name *",
+    "namePlaceholder": "e.g. Max Mustermann",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "e.g. max@example.com",
+    "passwordLabel": "Password *",
+    "passwordPlaceholder": "At least 8 characters",
+    "roleLabel": "Role *",
+    "roleHint": {
+      "owner": "🔑 Full access to all features and projects",
+      "admin": "👤 Restricted access based on project assignment"
+    },
+    "projectAccessLabel": "Project Access *",
+    "projectAccessHint": {
+      "all": "📂 Access to all projects and customers",
+      "assigned": "📁 Access to selected projects only"
+    },
+    "assignProjectsLabel": "Assign projects * ({{count}} selected)",
+    "noProjectsAvailable": "No projects available",
+    "submit": "Create Administrator",
+    "submitting": "Saving...",
+    "errors": {
+      "requiredFields": "Please fill in all required fields",
+      "selectProject": "Please select at least one project",
+      "createFailed": "Error creating"
+    }
+  },
+  "editModal": {
+    "title": "Edit Administrator",
+    "nameLabel": "Name *",
+    "emailLabel": "Email *",
+    "roleLabel": "Role *",
+    "roleHint": {
+      "owner": "🔑 Full access to all features and projects",
+      "admin": "👤 Restricted access based on project assignment"
+    },
+    "statusLabel": "Status *",
+    "projectAccessLabel": "Project Access *",
+    "projectAccessHint": {
+      "all": "📂 Access to all projects and customers",
+      "assigned": "📁 Access to selected projects only"
+    },
+    "assignProjectsLabel": "Assign projects * ({{count}} selected)",
+    "noProjectsAvailable": "No projects available",
+    "submitting": "Saving...",
+    "deleteConfirm": {
+      "title": "Permanently delete administrator?",
+      "message": "The administrator \"{{name}}\" ({{email}}) will be permanently deleted. This action cannot be undone!",
+      "confirmButton": "Yes, delete permanently",
+      "submitting": "Deleting..."
+    },
+    "errors": {
+      "requiredFields": "Please fill in all required fields",
+      "selectProject": "Please select at least one project",
+      "updateFailed": "Error updating",
+      "deleteFailed": "Error deleting"
+    }
+  }
+}

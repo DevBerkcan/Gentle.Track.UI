@@ -59,9 +59,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
     } catch (error: any) {
       if (error.response?.status === 401) {
-        throw new Error('Ungültige Anmeldedaten');
+        throw new Error('INVALID_CREDENTIALS');
       }
-      throw new Error('Anmeldung fehlgeschlagen');
+      throw new Error('LOGIN_FAILED');
     }
   };
 

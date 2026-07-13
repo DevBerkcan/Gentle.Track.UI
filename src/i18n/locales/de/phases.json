@@ -1,0 +1,51 @@
+{
+  "title": "Projekt-Phasen verwalten",
+  "subtitle": "Phasen für Projekte anlegen, sortieren und verwalten",
+  "loading": "Phasen werden geladen…",
+  "selectProjectPrompt": "Bitte wählen Sie ein Projekt aus",
+  "fields": {
+    "selectProject": "Projekt auswählen",
+    "phaseName": "Phasenname *",
+    "phaseNamePlaceholder": "z.B. Design, Entwicklung, Testing",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Optionale Beschreibung…"
+  },
+  "dropdown": {
+    "placeholder": "Projekt auswählen…",
+    "searchPlaceholder": "Projekt suchen…",
+    "noResults": "Kein Projekt gefunden"
+  },
+  "actions": {
+    "addPhase": "Neue Phase hinzufügen",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten"
+  },
+  "empty": {
+    "title": "Noch keine Phasen vorhanden",
+    "hint": "Erstellen Sie die erste Phase für dieses Projekt"
+  },
+  "phase": {
+    "completedAt": "Abgeschlossen am {{date}}",
+    "startedAt": "Gestartet am {{date}}"
+  },
+  "confirm": {
+    "deleteTitle": "Phase löschen",
+    "deleteMessage": "Möchten Sie die Phase \"{{name}}\" wirklich löschen?"
+  },
+  "notifications": {
+    "added": "Phase erfolgreich hinzugefügt!",
+    "statusUpdated": "Status aktualisiert!",
+    "deleted": "Phase gelöscht!"
+  },
+  "validation": {
+    "nameRequired": "Bitte geben Sie einen Namen für die Phase ein"
+  },
+  "errors": {
+    "loadProjectsFailed": "Fehler beim Laden der Projekte",
+    "loadPhasesFailed": "Fehler beim Laden der Phasen",
+    "addFailed": "Fehler beim Hinzufügen der Phase",
+    "statusUpdateFailed": "Fehler beim Aktualisieren des Status",
+    "deleteFailed": "Fehler beim Löschen der Phase",
+    "moveFailed": "Verschieben nicht möglich"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "templates": {
+    "einmalzahlung": {
+      "label": "One-time Payment",
+      "description": "100% of the project price · no monthly payment · cheapest option"
+    },
+    "hybrid": {
+      "label": "Hybrid Model",
+      "description": "Deposit · remainder in installments · flexible term"
+    },
+    "monatlich12": {
+      "label": "Monthly, 12 Months",
+      "description": "€0 deposit · full price + surcharge over 12 months"
+    },
+    "monatlich24": {
+      "label": "Monthly, 24 Months",
+      "description": "€0 deposit · full price + surcharge over 24 months"
+    }
+  },
+  "tracking": {
+    "emptyTrackingNumberWarning": "Please enter a tracking number",
+    "notFoundError": "No project found with this tracking number",
+    "emptyEmailWarning": "Please enter your email address",
+    "invalidEmailWarning": "Please enter a valid email address",
+    "notificationsEnabledSuccess": "Email notifications enabled!",
+    "notificationsDisabledSuccess": "Email notifications disabled.",
+    "notificationToggleError": "Error changing notification settings",
+    "emptyMessageWarning": "Please enter a message",
+    "emptyNameWarning": "Please enter your name",
+    "commentSentSuccess": "Comment sent successfully!",
+    "commentSendError": "Error sending comment",
+    "searchTitle": "Track Project Progress",
+    "searchSubtitle": "Enter your tracking number to see the current status of your project.",
+    "trackingNumberPlaceholder": "e.g. TR-2024-001",
+    "trackButton": "Track",
+    "backToSearch": "Back to Search",
+    "statusTab": "Project Status",
+    "briefingTab": "Website Briefing",
+    "notificationsActiveBadge": "Notifications active",
+    "overallProgress": "Overall Progress",
+    "startDateLabel": "Start Date",
+    "endDateLabel": "End Date",
+    "remainingLabel": "Remaining",
+    "daysRemaining": "{{count}} days",
+    "phasesTitle": "Project Phases",
+    "completedOnDate": "Completed on {{date}}",
+    "startedOnDate": "Started on {{date}}",
+    "emailNotificationsTitle": "Email Notifications",
+    "notificationActiveFor": "Active for: {{email}}",
+    "notificationSubtitle": "Get updates by email",
+    "manageButton": "Manage",
+    "activateButton": "Activate",
+    "alreadySubscribedText": "You are already receiving notifications. Change email or disable:",
+    "subscribePromptText": "Receive updates on new comments and progress.",
+    "emailAddressLabel": "Email Address *",
+    "emailPlaceholder": "your@email.com",
+    "deactivateButton": "Disable",
+    "commentsTitle": "Comments & Discussion",
+    "writeCommentTitle": "Write a Comment",
+    "yourNameLabel": "Your Name *",
+    "namePlaceholder": "e.g. John Doe",
+    "messageLabel": "Message *",
+    "messagePlaceholder": "Your questions, feedback, or comments…",
+    "sendCommentButton": "Send Comment",
+    "commentAuthorAdmin": "Admin",
+    "commentAuthorCustomer": "Customer",
+    "noCommentsTitle": "No comments yet",
+    "noCommentsSubtitle": "Be the first!",
+    "commentsVisibilityNote": "All comments are visible to the project team.",
+    "commentsNotificationNote": " You will receive email notifications for new replies."
+  },
+  "offer": {
+    "invalidLink": "This link is invalid.",
+    "invalidOrExpiredLink": "This link is invalid or has expired.",
+    "respondError": "Your response could not be saved. Please try again.",
+    "loadingText": "Loading offer…",
+    "notFoundText": "Offer not found.",
+    "acceptedHeading": "You have selected a price option.",
+    "declinedHeading": "You have declined all price options.",
+    "pageTitle": "Price Offer – {{projectName}}",
+    "chooseSubtitle": "Choose one of the following four payment options for a project price of {{price}}.",
+    "declineAllButton": "Decline All Options",
+    "confirmOptionTitle": "Confirm Price Option",
+    "confirmOptionMessage": "Do you want to bindingly select the option \"{{label}}\"?",
+    "declineAllTitle": "Decline all options?",
+    "declineAllMessage": "Do you really want to decline all four price options?",
+    "declineConfirmButton": "Decline",
+    "depositPrefix": "Deposit:",
+    "perMonthSuffix": "/ month",
+    "termSummary": "over {{months}} months · total {{total}}",
+    "chooseThisOptionButton": "Choose This Option"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "list": {
+    "title": "Admin-Verwaltung",
+    "subtitle": "Administratoren und Rollen verwalten",
+    "newAdmin": "Neuer Administrator",
+    "loading": "Administratoren werden geladen…",
+    "roleOverview": {
+      "heading": "Rollen-Übersicht",
+      "owner": "Owner:",
+      "ownerDescription": "Vollzugriff auf alle Funktionen, Projekte und Kunden",
+      "admin": "Admin:",
+      "adminDescription": "Zugriff auf alle oder zugewiesene Projekte"
+    },
+    "stats": {
+      "total": "Gesamt: {{count}}",
+      "active": "Aktiv: {{count}}",
+      "inactive": "Inaktiv: {{count}}"
+    },
+    "showInactive": "Inaktive Admins anzeigen",
+    "emptyState": "Keine Administratoren gefunden",
+    "columns": {
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "projectAccess": "Projektzugriff",
+      "status": "Status",
+      "actions": "Aktionen"
+    },
+    "projectCount_one": "{{count}} Projekt",
+    "projectCount_other": "{{count}} Projekte",
+    "actionTitles": {
+      "deactivate": "Deaktivieren",
+      "reactivate": "Reaktivieren"
+    },
+    "accessDenied": {
+      "title": "Zugriff verweigert",
+      "message": "Nur Benutzer mit der Rolle \"Owner\" können Administratoren verwalten."
+    },
+    "confirmDeactivate": {
+      "title": "Administrator deaktivieren",
+      "message": "Möchten Sie den Administrator \"{{name}}\" wirklich deaktivieren?"
+    },
+    "confirmReactivate": {
+      "title": "Administrator reaktivieren",
+      "message": "Möchten Sie \"{{name}}\" wieder aktivieren?"
+    },
+    "notifications": {
+      "deactivated": "Administrator deaktiviert!",
+      "reactivated": "Administrator reaktiviert!",
+      "created": "Administrator angelegt!",
+      "updated": "Administrator aktualisiert!",
+      "deleted": "Administrator gelöscht!"
+    },
+    "errors": {
+      "forbidden": "Keine Berechtigung. Nur Owners können Administratoren verwalten.",
+      "loadAdmins": "Fehler beim Laden der Administratoren",
+      "deactivateFailed": "Fehler beim Deaktivieren",
+      "reactivateFailed": "Fehler beim Reaktivieren"
+    }
+  },
+  "createModal": {
+    "title": "Neuer Administrator",
+    "nameLabel": "Name *",
+    "namePlaceholder": "z.B. Max Mustermann",
+    "emailLabel": "E-Mail *",
+    "emailPlaceholder": "z.B. max@beispiel.de",
+    "passwordLabel": "Passwort *",
+    "passwordPlaceholder": "Mindestens 8 Zeichen",
+    "roleLabel": "Rolle *",
+    "roleHint": {
+      "owner": "🔑 Vollzugriff auf alle Funktionen und Projekte",
+      "admin": "👤 Eingeschränkter Zugriff basierend auf Projektzuweisung"
+    },
+    "projectAccessLabel": "Projektzugriff *",
+    "projectAccessHint": {
+      "all": "📂 Zugriff auf alle Projekte und Kunden",
+      "assigned": "📁 Nur Zugriff auf ausgewählte Projekte"
+    },
+    "assignProjectsLabel": "Projekte zuweisen * ({{count}} ausgewählt)",
+    "noProjectsAvailable": "Keine Projekte verfügbar",
+    "submit": "Administrator erstellen",
+    "submitting": "Speichern...",
+    "errors": {
+      "requiredFields": "Bitte füllen Sie alle Pflichtfelder aus",
+      "selectProject": "Bitte wählen Sie mindestens ein Projekt aus",
+      "createFailed": "Fehler beim Erstellen"
+    }
+  },
+  "editModal": {
+    "title": "Administrator bearbeiten",
+    "nameLabel": "Name *",
+    "emailLabel": "E-Mail *",
+    "roleLabel": "Rolle *",
+    "roleHint": {
+      "owner": "🔑 Vollzugriff auf alle Funktionen und Projekte",
+      "admin": "👤 Eingeschränkter Zugriff basierend auf Projektzuweisung"
+    },
+    "statusLabel": "Status *",
+    "projectAccessLabel": "Projektzugriff *",
+    "projectAccessHint": {
+      "all": "📂 Zugriff auf alle Projekte und Kunden",
+      "assigned": "📁 Nur Zugriff auf ausgewählte Projekte"
+    },
+    "assignProjectsLabel": "Projekte zuweisen * ({{count}} ausgewählt)",
+    "noProjectsAvailable": "Keine Projekte verfügbar",
+    "submitting": "Speichern...",
+    "deleteConfirm": {
+      "title": "Administrator unwiderruflich löschen?",
+      "message": "Der Administrator „{{name}}\" ({{email}}) wird permanent gelöscht. Diese Aktion kann nicht rückgängig gemacht werden!",
+      "confirmButton": "Ja, endgültig löschen",
+      "submitting": "Löschen..."
+    },
+    "errors": {
+      "requiredFields": "Bitte füllen Sie alle Pflichtfelder aus",
+      "selectProject": "Bitte wählen Sie mindestens ein Projekt aus",
+      "updateFailed": "Fehler beim Aktualisieren",
+      "deleteFailed": "Fehler beim Löschen"
+    }
+  }
+}

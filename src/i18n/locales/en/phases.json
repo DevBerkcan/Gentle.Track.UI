@@ -1,0 +1,51 @@
+{
+  "title": "Manage Project Phases",
+  "subtitle": "Create, sort and manage phases for projects",
+  "loading": "Loading phases…",
+  "selectProjectPrompt": "Please select a project",
+  "fields": {
+    "selectProject": "Select project",
+    "phaseName": "Phase name *",
+    "phaseNamePlaceholder": "e.g. Design, Development, Testing",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional description…"
+  },
+  "dropdown": {
+    "placeholder": "Select project…",
+    "searchPlaceholder": "Search project…",
+    "noResults": "No project found"
+  },
+  "actions": {
+    "addPhase": "Add new phase",
+    "moveUp": "Move up",
+    "moveDown": "Move down"
+  },
+  "empty": {
+    "title": "No phases yet",
+    "hint": "Create the first phase for this project"
+  },
+  "phase": {
+    "completedAt": "Completed on {{date}}",
+    "startedAt": "Started on {{date}}"
+  },
+  "confirm": {
+    "deleteTitle": "Delete phase",
+    "deleteMessage": "Do you really want to delete the phase \"{{name}}\"?"
+  },
+  "notifications": {
+    "added": "Phase successfully added!",
+    "statusUpdated": "Status updated!",
+    "deleted": "Phase deleted!"
+  },
+  "validation": {
+    "nameRequired": "Please enter a name for the phase"
+  },
+  "errors": {
+    "loadProjectsFailed": "Error loading projects",
+    "loadPhasesFailed": "Error loading phases",
+    "addFailed": "Error adding the phase",
+    "statusUpdateFailed": "Error updating status",
+    "deleteFailed": "Error deleting the phase",
+    "moveFailed": "Move not possible"
+  }
+}

@@ -1,5 +1,6 @@
 // src/components/admin/CommentsManagement.tsx
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { commentService } from '../../api/services/commentService';
 import { projectService } from '../../api/services/projectService';
 import { notificationService } from '../../api/services/notificationService';
@@ -22,6 +23,8 @@ interface GroupedComments {
 }
 
 const CommentsManagement = () => {
+  const { t } = useTranslation('comments');
+  const { t: tc } = useTranslation('common');
   const { admin } = useAuth();
   const [, setProjects] = useState<Project[]>([]);
   const [allComments, setAllComments] = useState<Comment[]>([]);
@@ -57,7 +60,7 @@ const CommentsManagement = () => {
       }
       setSubscriptions(subscriptionStatuses);
     } catch {
-      showNotification('error', 'Fehler beim Laden der Daten');
+      showNotification('error', t('errors.loadData'));
     } finally {
       setLoading(false);
     }
@@ -68,20 +71,20 @@ const CommentsManagement = () => {
     try {
       const result = await notificationService.toggleAdmin(projectId, admin.email);
       setSubscriptions(prev => ({ ...prev, [projectId]: result.isActive }));
-      showNotification('success', result.isActive ? 'E-Mail-Benachrichtigungen aktiviert' : 'E-Mail-Benachrichtigungen deaktiviert');
-    } catch { showNotification('error', 'Fehler beim Ändern der Benachrichtigungseinstellungen'); }
+      showNotification('success', result.isActive ? t('notifications.subscribeOn') : t('notifications.subscribeOff'));
+    } catch { showNotification('error', t('errors.toggleNotification')); }
   };
 
   const handleSendComment = async (projectId: number) => {
     const message = commentMessages[projectId];
-    if (!message?.trim()) { showNotification('warning', 'Bitte geben Sie eine Nachricht ein'); return; }
+    if (!message?.trim()) { showNotification('warning', t('validation.messageRequired')); return; }
     try {
       await commentService.createAdminComment(projectId, message, '');
-      showNotification('success', 'Kommentar erfolgreich gesendet!');
+      showNotification('success', t('notifications.commentSent'));
       setCommentMessages(prev => ({ ...prev, [projectId]: '' }));
       setReplyingToProject(null);
       loadData();
-    } catch { showNotification('error', 'Fehler beim Senden des Kommentars'); }
+    } catch { showNotification('error', t('errors.sendComment')); }
   };
 
   const showNotification = (type: NotificationState['type'], message: string) => setNotification({ show: true, type, message });
@@ -103,7 +106,7 @@ const CommentsManagement = () => {
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      <p className="text-sm">Kommentare werden geladen…</p>
+      <p className="text-sm">{t('loading')}</p>
     </div>
   );
 
@@ -113,16 +116,16 @@ const CommentsManagement = () => {
         <div>
           <div className="flex items-center gap-2.5 mb-1">
             <MessageSquare className="w-5 h-5 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">Kommentar-Verwaltung</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('title')}</h1>
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-md">{allComments.length} gesamt</span>
-            <span className="text-xs font-medium bg-info-bg text-[#2557B0] px-2 py-0.5 rounded-md">{customerComments} von Kunden</span>
+            <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-md">{t('stats.total', { count: allComments.length })}</span>
+            <span className="text-xs font-medium bg-info-bg text-[#2557B0] px-2 py-0.5 rounded-md">{t('stats.fromCustomers', { count: customerComments })}</span>
           </div>
         </div>
         <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-          <Input placeholder="Projekt, Autor oder Nachricht…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8 h-8 text-sm w-full sm:w-64" />
+          <Input placeholder={t('search.placeholder')} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-8 h-8 text-sm w-full sm:w-64" />
         </div>
       </div>
 
@@ -130,7 +133,7 @@ const CommentsManagement = () => {
         <Card className="border border-border">
           <CardContent className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
             <MessageSquare className="w-10 h-10 opacity-30" />
-            <p className="text-sm font-medium">{searchTerm ? 'Keine Kommentare gefunden' : 'Noch keine Kommentare vorhanden'}</p>
+            <p className="text-sm font-medium">{searchTerm ? t('emptyState.noResults') : t('emptyState.noComments')}</p>
           </CardContent>
         </Card>
       ) : (
@@ -152,7 +155,7 @@ const CommentsManagement = () => {
                     <div className="min-w-0">
                       <h3 className="font-semibold text-foreground truncate">{data.project.projectName}</h3>
                       <p className="text-xs text-muted-foreground">
-                        {data.project.trackingNumber} · {data.comments.length} Kommentar{data.comments.length !== 1 ? 'e' : ''}
+                        {data.project.trackingNumber} · {t('project.commentCount', { count: data.comments.length })}
                       </p>
                     </div>
                   </div>
@@ -164,11 +167,11 @@ const CommentsManagement = () => {
                       onClick={() => handleToggleNotification(projectIdNum)}
                     >
                       {isSubscribed ? <Bell className="w-3 h-3" /> : <BellOff className="w-3 h-3" />}
-                      E-Mail
+                      {t('actions.email')}
                     </Button>
                     {!isCollapsed && (
                       <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setReplyingToProject(isReplying ? null : projectIdNum)}>
-                        <Plus className="w-3 h-3 mr-1" />Kommentar
+                        <Plus className="w-3 h-3 mr-1" />{t('actions.addComment')}
                       </Button>
                     )}
                   </div>
@@ -179,11 +182,11 @@ const CommentsManagement = () => {
                 <CardContent className="p-4 space-y-3">
                   {isReplying && (
                     <div className="border border-primary/20 bg-primary/5 rounded-xl p-4 space-y-3">
-                      <h4 className="text-sm font-semibold text-foreground">Kommentar als Admin hinzufügen</h4>
+                      <h4 className="text-sm font-semibold text-foreground">{t('replyForm.title')}</h4>
                       <div className="space-y-1.5">
-                        <Label className="text-xs">Nachricht *</Label>
+                        <Label className="text-xs">{t('replyForm.messageLabel')}</Label>
                         <Textarea
-                          placeholder="Kommentar eingeben…"
+                          placeholder={t('replyForm.messagePlaceholder')}
                           value={commentMessages[projectIdNum] || ''}
                           onChange={e => setCommentMessages(prev => ({ ...prev, [projectIdNum]: e.target.value }))}
                           rows={4}
@@ -191,10 +194,10 @@ const CommentsManagement = () => {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Button size="sm" onClick={() => handleSendComment(projectIdNum)}>
-                          <Send className="w-3.5 h-3.5 mr-1.5" />Senden
+                          <Send className="w-3.5 h-3.5 mr-1.5" />{tc('actions.send')}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => { setReplyingToProject(null); setCommentMessages(prev => ({ ...prev, [projectIdNum]: '' })); }}>
-                          <X className="w-3.5 h-3.5 mr-1.5" />Abbrechen
+                          <X className="w-3.5 h-3.5 mr-1.5" />{tc('actions.cancel')}
                         </Button>
                       </div>
                     </div>
@@ -216,7 +219,7 @@ const CommentsManagement = () => {
                         </div>
                         <span className="text-sm font-semibold text-foreground">{comment.authorName}</span>
                         <span className={cn('text-xs px-2 py-0.5 rounded-full', comment.authorType === 'Admin' ? 'bg-primary/10 text-primary' : 'bg-info-bg text-[#2557B0]')}>
-                          {comment.authorType === 'Admin' ? 'Admin' : 'Kunde'}
+                          {comment.authorType === 'Admin' ? t('author.admin') : t('author.customer')}
                         </span>
                         <span className="text-xs text-muted-foreground ml-auto">{formatDate(comment.createdAt)}</span>
                       </div>

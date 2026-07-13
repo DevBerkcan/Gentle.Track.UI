@@ -1,5 +1,6 @@
 // src/components/admin/PhaseManagement.tsx
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { projectService } from '../../api/services/projectService';
 import { phaseService } from '../../api/services/phaseService';
 import Notification from '../common/Notification';
@@ -34,6 +35,8 @@ const dotColors: Record<string, string> = {
 };
 
 const PhaseManagement = () => {
+  const { t } = useTranslation('phases');
+  const { t: tc } = useTranslation('common');
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [phases, setPhases] = useState<ProjectPhase[]>([]);
@@ -55,7 +58,7 @@ const PhaseManagement = () => {
       const data = await projectService.getAll();
       setProjects(data.filter(p => !p.isArchived));
     } catch {
-      showNotification('error', 'Fehler beim Laden der Projekte');
+      showNotification('error', t('errors.loadProjectsFailed'));
     }
   };
 
@@ -66,48 +69,48 @@ const PhaseManagement = () => {
       const data = await phaseService.getByProjectId(parseInt(selectedProjectId));
       setPhases(data);
     } catch {
-      showNotification('error', 'Fehler beim Laden der Phasen');
+      showNotification('error', t('errors.loadPhasesFailed'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleSavePhase = async () => {
-    if (!newPhaseName.trim()) { showNotification('warning', 'Bitte geben Sie einen Namen für die Phase ein'); return; }
+    if (!newPhaseName.trim()) { showNotification('warning', t('validation.nameRequired')); return; }
     try {
       await phaseService.create({ projectID: parseInt(selectedProjectId), phaseName: newPhaseName, description: newPhaseDescription, status: 'Noch nicht gestartet', phaseOrder: 0 });
-      showNotification('success', 'Phase erfolgreich hinzugefügt!');
+      showNotification('success', t('notifications.added'));
       setNewPhaseName(''); setNewPhaseDescription(''); setShowPhaseInput(false);
       loadPhases();
-    } catch { showNotification('error', 'Fehler beim Hinzufügen der Phase'); }
+    } catch { showNotification('error', t('errors.addFailed')); }
   };
 
   const updateStatus = async (phaseId: number, status: string) => {
-    try { await phaseService.updateStatus(phaseId, status); showNotification('success', 'Status aktualisiert!'); loadPhases(); }
-    catch { showNotification('error', 'Fehler beim Aktualisieren des Status'); }
+    try { await phaseService.updateStatus(phaseId, status); showNotification('success', t('notifications.statusUpdated')); loadPhases(); }
+    catch { showNotification('error', t('errors.statusUpdateFailed')); }
   };
 
   const deletePhase = (phaseId: number, phaseName: string) => {
-    showConfirm('Phase löschen', `Möchten Sie die Phase "${phaseName}" wirklich löschen?`, async () => {
-      try { await phaseService.delete(phaseId); showNotification('success', 'Phase gelöscht!'); loadPhases(); }
-      catch { showNotification('error', 'Fehler beim Löschen der Phase'); }
+    showConfirm(t('confirm.deleteTitle'), t('confirm.deleteMessage', { name: phaseName }), async () => {
+      try { await phaseService.delete(phaseId); showNotification('success', t('notifications.deleted')); loadPhases(); }
+      catch { showNotification('error', t('errors.deleteFailed')); }
       setConfirm(c => ({ ...c, show: false }));
     }, 'danger');
   };
 
   const movePhaseUp = async (id: number) => {
-    try { await phaseService.moveUp(id); loadPhases(); } catch { showNotification('error', 'Verschieben nicht möglich'); }
+    try { await phaseService.moveUp(id); loadPhases(); } catch { showNotification('error', t('errors.moveFailed')); }
   };
   const movePhaseDown = async (id: number) => {
-    try { await phaseService.moveDown(id); loadPhases(); } catch { showNotification('error', 'Verschieben nicht möglich'); }
+    try { await phaseService.moveDown(id); loadPhases(); } catch { showNotification('error', t('errors.moveFailed')); }
   };
 
   const projectOptions = projects.map(p => ({ id: p.projectID.toString(), label: p.projectName, sublabel: p.trackingNumber }));
   const statusOptions = [
-    { value: 'Noch nicht gestartet', label: 'Noch nicht gestartet' },
-    { value: 'In Bearbeitung', label: 'In Bearbeitung' },
-    { value: 'Warten auf Feedback', label: 'Warten auf Feedback' },
-    { value: 'Abgeschlossen', label: 'Abgeschlossen' },
+    { value: 'Noch nicht gestartet', label: tc('statusValues.Noch nicht gestartet') },
+    { value: 'In Bearbeitung', label: tc('statusValues.In Bearbeitung') },
+    { value: 'Warten auf Feedback', label: tc('statusValues.Warten auf Feedback') },
+    { value: 'Abgeschlossen', label: tc('statusValues.Abgeschlossen') },
   ];
 
   return (
@@ -115,46 +118,46 @@ const PhaseManagement = () => {
       <div>
         <div className="flex items-center gap-2.5 mb-1">
           <Settings className="w-5 h-5 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">Projekt-Phasen verwalten</h1>
+          <h1 className="text-xl font-bold text-foreground">{t('title')}</h1>
         </div>
-        <p className="text-sm text-muted-foreground">Phasen für Projekte anlegen, sortieren und verwalten</p>
+        <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <Card className="border border-border shadow-sm">
         <CardContent className="p-5">
           <div className="mb-5">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Projekt auswählen</Label>
-            <SearchableDropdown options={projectOptions} value={selectedProjectId} onChange={setSelectedProjectId} placeholder="Projekt auswählen…" searchPlaceholder="Projekt suchen…" noResultsText="Kein Projekt gefunden" />
+            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">{t('fields.selectProject')}</Label>
+            <SearchableDropdown options={projectOptions} value={selectedProjectId} onChange={setSelectedProjectId} placeholder={t('dropdown.placeholder')} searchPlaceholder={t('dropdown.searchPlaceholder')} noResultsText={t('dropdown.noResults')} />
           </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-12 gap-2 text-muted-foreground">
               <Loader2 className="w-5 h-5 animate-spin text-primary" />
-              <span className="text-sm">Phasen werden geladen…</span>
+              <span className="text-sm">{t('loading')}</span>
             </div>
           ) : selectedProjectId ? (
             <div className="space-y-4">
               {!showPhaseInput && (
                 <Button onClick={() => setShowPhaseInput(true)}>
-                  <Plus className="w-4 h-4 mr-1.5" />Neue Phase hinzufügen
+                  <Plus className="w-4 h-4 mr-1.5" />{t('actions.addPhase')}
                 </Button>
               )}
 
               {showPhaseInput && (
                 <Card className="border border-primary/20 bg-primary/5">
                   <CardContent className="p-5 space-y-4">
-                    <h4 className="font-semibold text-foreground">Neue Phase hinzufügen</h4>
+                    <h4 className="font-semibold text-foreground">{t('actions.addPhase')}</h4>
                     <div className="space-y-1.5">
-                      <Label>Phasenname *</Label>
-                      <Input value={newPhaseName} onChange={e => setNewPhaseName(e.target.value)} placeholder="z.B. Design, Entwicklung, Testing" />
+                      <Label>{t('fields.phaseName')}</Label>
+                      <Input value={newPhaseName} onChange={e => setNewPhaseName(e.target.value)} placeholder={t('fields.phaseNamePlaceholder')} />
                     </div>
                     <div className="space-y-1.5">
-                      <Label>Beschreibung</Label>
-                      <Textarea value={newPhaseDescription} onChange={e => setNewPhaseDescription(e.target.value)} placeholder="Optionale Beschreibung…" rows={3} />
+                      <Label>{t('fields.description')}</Label>
+                      <Textarea value={newPhaseDescription} onChange={e => setNewPhaseDescription(e.target.value)} placeholder={t('fields.descriptionPlaceholder')} rows={3} />
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <Button onClick={handleSavePhase}><Save className="w-4 h-4 mr-1.5" />Speichern</Button>
-                      <Button variant="secondary" onClick={() => { setNewPhaseName(''); setNewPhaseDescription(''); setShowPhaseInput(false); }}><X className="w-4 h-4 mr-1.5" />Abbrechen</Button>
+                      <Button onClick={handleSavePhase}><Save className="w-4 h-4 mr-1.5" />{tc('actions.save')}</Button>
+                      <Button variant="secondary" onClick={() => { setNewPhaseName(''); setNewPhaseDescription(''); setShowPhaseInput(false); }}><X className="w-4 h-4 mr-1.5" />{tc('actions.cancel')}</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -163,8 +166,8 @@ const PhaseManagement = () => {
               {phases.length === 0 && !showPhaseInput ? (
                 <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
                   <Layers className="w-10 h-10 opacity-30" />
-                  <p className="text-sm font-medium">Noch keine Phasen vorhanden</p>
-                  <p className="text-xs">Erstellen Sie die erste Phase für dieses Projekt</p>
+                  <p className="text-sm font-medium">{t('empty.title')}</p>
+                  <p className="text-xs">{t('empty.hint')}</p>
                 </div>
               ) : (
                 <div className="relative space-y-3">
@@ -186,14 +189,14 @@ const PhaseManagement = () => {
                                 <span className="text-xs text-muted-foreground font-normal">#{phase.phaseOrder}</span>
                               </h4>
                               {phase.description && <p className="text-sm text-muted-foreground mt-1">{phase.description}</p>}
-                              {phase.completedAt && <p className="text-xs text-muted-foreground mt-1">Abgeschlossen am {formatDate(phase.completedAt)}</p>}
-                              {phase.startedAt && !phase.completedAt && <p className="text-xs text-muted-foreground mt-1">Gestartet am {formatDate(phase.startedAt)}</p>}
+                              {phase.completedAt && <p className="text-xs text-muted-foreground mt-1">{t('phase.completedAt', { date: formatDate(phase.completedAt) })}</p>}
+                              {phase.startedAt && !phase.completedAt && <p className="text-xs text-muted-foreground mt-1">{t('phase.startedAt', { date: formatDate(phase.startedAt) })}</p>}
                             </div>
                             <div className="flex gap-1 shrink-0">
-                              <Button size="sm" variant="ghost" className="px-2 h-7" onClick={() => movePhaseUp(phase.phaseID)} disabled={index === 0} title="Nach oben">
+                              <Button size="sm" variant="ghost" className="px-2 h-7" onClick={() => movePhaseUp(phase.phaseID)} disabled={index === 0} title={t('actions.moveUp')}>
                                 <ArrowUp className="w-3.5 h-3.5" />
                               </Button>
-                              <Button size="sm" variant="ghost" className="px-2 h-7" onClick={() => movePhaseDown(phase.phaseID)} disabled={index === phases.length - 1} title="Nach unten">
+                              <Button size="sm" variant="ghost" className="px-2 h-7" onClick={() => movePhaseDown(phase.phaseID)} disabled={index === phases.length - 1} title={t('actions.moveDown')}>
                                 <ArrowDown className="w-3.5 h-3.5" />
                               </Button>
                             </div>
@@ -201,7 +204,7 @@ const PhaseManagement = () => {
                           <div className="flex items-center gap-2 mt-3 flex-wrap">
                             <CustomSelect value={phase.status} onChange={status => updateStatus(phase.phaseID, status)} options={statusOptions} className="min-w-[200px]" />
                             <Button size="sm" variant="destructive" onClick={() => deletePhase(phase.phaseID, phase.phaseName)}>
-                              <Trash2 className="w-3.5 h-3.5 mr-1" />Löschen
+                              <Trash2 className="w-3.5 h-3.5 mr-1" />{tc('actions.delete')}
                             </Button>
                           </div>
                         </CardContent>
@@ -214,14 +217,14 @@ const PhaseManagement = () => {
           ) : (
             <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
               <Settings className="w-10 h-10 opacity-30" />
-              <p className="text-sm font-medium">Bitte wählen Sie ein Projekt aus</p>
+              <p className="text-sm font-medium">{t('selectProjectPrompt')}</p>
             </div>
           )}
         </CardContent>
       </Card>
 
       {notification.show && <Notification type={notification.type} message={notification.message} onClose={() => setNotification(n => ({ ...n, show: false }))} />}
-      <ConfirmDialog isOpen={confirm.show} title={confirm.title} message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(c => ({ ...c, show: false }))} type={confirm.type} confirmText={confirm.type === 'danger' ? 'Löschen' : 'Bestätigen'} />
+      <ConfirmDialog isOpen={confirm.show} title={confirm.title} message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() => setConfirm(c => ({ ...c, show: false }))} type={confirm.type} confirmText={confirm.type === 'danger' ? tc('actions.delete') : tc('actions.confirm')} />
     </div>
   );
 };

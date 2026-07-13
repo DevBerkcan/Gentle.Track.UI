@@ -1,18 +1,19 @@
 // src/components/layout/Sidebar.tsx
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LayoutDashboard, Users, FolderOpen, Settings, MessageSquare, Shield, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 const menuItems = [
-  { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { id: 'customers', icon: Users, label: 'Kunden' },
-  { id: 'projects', icon: FolderOpen, label: 'Projekte' },
-  { id: 'phases', icon: Settings, label: 'Projekt-Phasen' },
-  { id: 'comments', icon: MessageSquare, label: 'Kommentare' },
-  { id: 'admins', icon: Shield, label: 'Admin-Verwaltung' },
-];
+  { id: 'dashboard', icon: LayoutDashboard, labelKey: 'sidebar.dashboard' },
+  { id: 'customers', icon: Users, labelKey: 'sidebar.customers' },
+  { id: 'projects', icon: FolderOpen, labelKey: 'sidebar.projects' },
+  { id: 'phases', icon: Settings, labelKey: 'sidebar.phases' },
+  { id: 'comments', icon: MessageSquare, labelKey: 'sidebar.comments' },
+  { id: 'admins', icon: Shield, labelKey: 'sidebar.admins' },
+] as const;
 
 function useCurrentSection() {
   const location = useLocation();
@@ -26,12 +27,13 @@ function useCurrentSection() {
 }
 
 interface NavItemProps {
-  item: typeof menuItems[0];
+  item: typeof menuItems[number];
   isActive: boolean;
   onClick: () => void;
 }
 
 const NavItem: React.FC<NavItemProps> = ({ item, isActive, onClick }) => {
+  const { t } = useTranslation('layout');
   const Icon = item.icon;
   return (
     <button
@@ -44,12 +46,13 @@ const NavItem: React.FC<NavItemProps> = ({ item, isActive, onClick }) => {
       )}
     >
       <Icon className="w-4 h-4 shrink-0" />
-      <span>{item.label}</span>
+      <span>{t(item.labelKey)}</span>
     </button>
   );
 };
 
 const Sidebar: React.FC = () => {
+  const { t } = useTranslation('layout');
   const navigate = useNavigate();
   const currentSection = useCurrentSection();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -65,7 +68,7 @@ const Sidebar: React.FC = () => {
       <aside className="hidden md:flex flex-col w-60 bg-sidebar shrink-0 border-r border-sidebar-border">
         <div className="p-4 pt-5 flex-1">
           <div className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-widest px-3 mb-2 mt-1">
-            Navigation
+            {t('sidebar.navigation')}
           </div>
           <nav className="space-y-0.5">
             {menuItems.map((item) => (
@@ -85,23 +88,23 @@ const Sidebar: React.FC = () => {
         <button
           onClick={() => setMobileOpen(true)}
           className="p-2 rounded-lg hover:bg-accent transition-colors"
-          aria-label="Menü öffnen"
+          aria-label={t('sidebar.openMenu')}
         >
           <Menu className="w-5 h-5 text-muted-foreground" />
         </button>
-        <span className="ml-2 text-sm font-semibold text-foreground">Navigation</span>
+        <span className="ml-2 text-sm font-semibold text-foreground">{t('sidebar.navigation')}</span>
       </div>
 
       {/* Mobile: Sheet Drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-64 p-0 bg-sidebar border-r border-sidebar-border">
           <SheetHeader className="sr-only">
-            <SheetTitle>Navigation</SheetTitle>
+            <SheetTitle>{t('sidebar.navigation')}</SheetTitle>
           </SheetHeader>
           <div className="p-4 pt-5">
             <div className="flex items-center justify-between mb-6">
               <span className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-widest px-3">
-                Navigation
+                {t('sidebar.navigation')}
               </span>
               <button
                 onClick={() => setMobileOpen(false)}
