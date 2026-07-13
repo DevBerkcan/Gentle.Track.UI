@@ -187,8 +187,9 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
     }
   };
 
-  const canEdit = isOwner && (!offer || offer.status === 'Entwurf' || offer.status === 'Abgelehnt');
+  const canEdit = isOwner && (!offer || offer.status === 'Entwurf' || offer.status === 'Abgelehnt' || offer.status === 'Freigegeben');
   const canRespond = offer?.status === 'Freigegeben';
+  const isReEdit = offer?.status === 'Freigegeben';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('title', { projectName: projectName ?? '' })} size="lg">
@@ -203,6 +204,12 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
 
           {canEdit ? (
             <>
+              {isReEdit && (
+                <div className="flex items-center gap-2 text-xs bg-warning-bg border border-warning/25 text-[#9A6510] rounded-lg px-3 py-2">
+                  {t('reEditNotice')}
+                </div>
+              )}
+
               <p className="text-xs text-muted-foreground">
                 {t('editIntro')}
               </p>
@@ -356,7 +363,7 @@ export const PriceOfferModal: React.FC<PriceOfferModalProps> = ({ isOpen, onClos
       <ConfirmDialog
         isOpen={confirmRelease}
         title={t('releaseConfirmTitle')}
-        message={t('releaseConfirmMessage')}
+        message={isReEdit ? t('reReleaseConfirmMessage') : t('releaseConfirmMessage')}
         confirmText={t('releaseConfirmButton')}
         type="info"
         onConfirm={handleRelease}
